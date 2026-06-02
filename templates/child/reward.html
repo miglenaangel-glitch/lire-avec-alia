@@ -24,6 +24,6 @@
 {% block js %}
 <script src="{{ url_for('static', filename='js/reward.js') }}"></script>
 <script>
-  startReward("{{ phrase | escapejs if phrase else '' }}");
+  startReward({{ phrase | tojson if phrase else '""' }});
 </script>
 {% endblock %}
