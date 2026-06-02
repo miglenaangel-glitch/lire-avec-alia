@@ -91,7 +91,20 @@ body {
 
 .hero-text {
   flex: 1;
-  text-align: center;
+  text-align: left;
+}
+
+.mama-card {
+  border-style: dashed;
+  opacity: 0.75;
+}
+
+.mama-card .level-name {
+  color: #b07a9e;
+}
+
+.mama-card .level-desc {
+  font-style: italic;
 }
 
 .home-character {

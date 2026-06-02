@@ -6,15 +6,14 @@
 <div class="home">
   <header class="home-header">
     <button class="stars-btn" onclick="showStars()">⭐ <span id="star-count">0</span></button>
-    <a href="{{ url_for('parent.dashboard') }}" class="mama-btn">MAMAN 🌸</a>
   </header>
 
   <div class="home-hero">
+    <img src="/static/characters/karumi.png" class="home-character" alt="Karumi">
     <div class="hero-text">
       <h1 class="home-title">Lire avec Alia ✨</h1>
       <p class="home-subtitle">Choisis ton exercice du jour !</p>
     </div>
-    <img src="/static/characters/karumi.png" class="home-character" alt="Karumi">
   </div>
 
   <div class="levels-grid">
@@ -57,6 +56,14 @@
         <div class="level-desc">Rémi et Éva ont des aventures…</div>
       </div>
     </a>
+
+    <a href="#" class="level-card mama-card" onclick="openMama(event)">
+      <div class="level-icon">🌸</div>
+      <div>
+        <div class="level-name">Maman</div>
+        <div class="level-desc">Espace réservé à maman</div>
+      </div>
+    </a>
   </div>
 </div>
 
@@ -77,12 +84,12 @@
 <script>
 const MAMA_PASSWORD = 'maman';
 
-document.querySelector('.mama-btn').addEventListener('click', function(e) {
+function openMama(e) {
   e.preventDefault();
   const modal = document.getElementById('mama-modal');
   modal.style.display = 'flex';
   setTimeout(() => document.getElementById('mama-pass').focus(), 100);
-});
+}
 
 function checkMama() {
   const pass = document.getElementById('mama-pass').value;
