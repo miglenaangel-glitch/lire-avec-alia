@@ -69,10 +69,18 @@ function updateProgress(pct) {
 }
 
 function speak(text) {
+  speechSynthesis.cancel();
   const utt = new SpeechSynthesisUtterance(text);
   utt.lang = 'fr-FR';
-  utt.rate = 0.85;
-  speechSynthesis.cancel();
+  utt.rate = 0.75;
+  utt.pitch = 1.1;
+
+  // Pick best French voice if available
+  const voices = speechSynthesis.getVoices();
+  const frVoice = voices.find(v => v.lang.startsWith('fr') && v.localService) ||
+                  voices.find(v => v.lang.startsWith('fr'));
+  if (frVoice) utt.voice = frVoice;
+
   speechSynthesis.speak(utt);
 }
 
