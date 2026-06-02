@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+{% block title %}{{ level.name }}{% endblock %}
+{% block css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/child.css') }}">{% endblock %}
+
+{% block content %}
+<div class="exercise">
+  <header class="exercise-header">
+    <button class="back-btn" onclick="history.back()">←</button>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+    </div>
+  </header>
+
+  {# ── TAP TO HEAR (voyelles) ── #}
+  {% if level.exercise_type == 'tap_to_hear' %}
+  <div class="tap-grid">
+    {% for el in level.elements %}
+    <div class="tap-card" onclick="tapHear('{{ el.letter }}', this)">
+      <span class="tap-letter {{ el.color }}">{{ el.letter }}</span>
+      <span class="tap-gesture">{{ el.gesture }}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  {# ── SLIDE TO MERGE (consonnes) ── #}
+  {% elif level.exercise_type == 'slide_to_merge' %}
+  <div class="slide-exercise" id="slide-exercise">
+    <div class="slide-display">
+      <span class="slide-consonant" id="s-cons">f</span>
+      <div class="slide-line" id="slide-line">
+        <div class="slide-cursor" id="slide-cursor"></div>
+      </div>
+      <span class="slide-vowel" id="s-vowel">a</span>
+    </div>
+    <div class="slide-result" id="slide-result"></div>
+    <div class="syllable-nav" id="syl-nav"></div>
+  </div>
+
+  {# ── RAPID READ ── #}
+  {% elif level.exercise_type == 'rapid_read' %}
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;font-size:1rem;">Appuie sur chaque syllabe — sans t'arrêter !</p>
+  <div class="rapid-grid" id="rapid-grid"></div>
+  <p id="rapid-score" style="color:var(--text-muted);margin-top:1.5rem;font-size:0.95rem;"></p>
+
+  {# ── WORD TAP ── #}
+  {% elif level.exercise_type == 'word_tap' %}
+  <p style="color:var(--text-muted);margin-bottom:1rem;font-size:1rem;">Appuie sur le mot pour l'entendre !</p>
+  <div class="word-display" id="word-display" onclick="tapWord()"></div>
+  <button class="next-btn" id="next-word-btn" onclick="nextWord()" disabled>Suivant →</button>
+
+  {# ── SENTENCE READ ── #}
+  {% elif level.exercise_type == 'sentence_read' %}
+  <p style="color:var(--text-muted);margin-bottom:1rem;font-size:1rem;">Lis la phrase à voix haute !</p>
+  <div class="sentence-display" id="sentence-display"></div>
+  <button class="ilu-btn" id="ilu-btn" onclick="nextSentence()">J'ai lu ! 🎉</button>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+const SESSION_ID = {{ session_id }};
+const LEVEL_KEY = "{{ level_key }}";
+let totalAnswered = 0;
+let totalCorrect = 0;
+
+function updateProgress(pct) {
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function speak(text) {
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'fr-FR';
+  utt.rate = 0.85;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utt);
+}
+
+async function recordAnswer(elementType, elementValue, correct) {
+  totalAnswered++;
+  if (correct) totalCorrect++;
+  updateProgress(Math.min(100, (totalAnswered / 10) * 100));
+
+  const res = await fetch('/api/record', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      element_type: elementType,
+      element_value: elementValue,
+      correct: correct,
+      session_id: SESSION_ID
+    })
+  });
+  const data = await res.json();
+  if (data.show_reward) {
+    window.location.href = `/child/reward/${SESSION_ID}`;
+  }
+}
+
+/* ── TAP TO HEAR ── */
+function tapHear(letter, card) {
+  speak(letter);
+  card.classList.add('playing');
+  setTimeout(() => card.classList.remove('playing'), 600);
+  recordAnswer('voyelle', letter, true);
+}
+
+/* ── SLIDE TO MERGE ── */
+{% if level.exercise_type == 'slide_to_merge' %}
+const CONSONANTS = {{ level.consonants | tojson }};
+const VOWELS = {{ level.vowels | tojson }};
+let allSyllables = [];
+CONSONANTS.forEach(c => VOWELS.forEach(v => allSyllables.push({c, v, syl: c+v})));
+let current = 0;
+
+function buildNav() {
+  const nav = document.getElementById('syl-nav');
+  nav.innerHTML = '';
+  allSyllables.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'syl-btn' + (i === current ? ' current' : i < current ? ' done' : '');
+    btn.textContent = s.syl;
+    btn.onclick = () => { current = i; showSyllable(); };
+    nav.appendChild(btn);
+  });
+}
+
+function showSyllable() {
+  const s = allSyllables[current];
+  document.getElementById('s-cons').textContent = s.c;
+  document.getElementById('s-vowel').textContent = s.v;
+  document.getElementById('slide-result').textContent = '';
+  document.getElementById('slide-result').classList.remove('visible');
+  document.getElementById('slide-cursor').style.left = '0';
+  buildNav();
+  animateSlide(s);
+}
+
+function animateSlide(s) {
+  const line = document.getElementById('slide-line');
+  const cursor = document.getElementById('slide-cursor');
+  const result = document.getElementById('slide-result');
+  const lineWidth = line.offsetWidth - 20;
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += 2;
+    cursor.style.left = Math.min(progress / 100 * lineWidth, lineWidth) + 'px';
+    if (progress >= 100) {
+      clearInterval(interval);
+      result.textContent = s.syl;
+      result.classList.add('visible');
+      speak(s.syl);
+      recordAnswer('syllabe', s.syl, true);
+      setTimeout(() => {
+        current++;
+        if (current < allSyllables.length) showSyllable();
+      }, 1800);
+    }
+  }, 18);
+}
+
+document.addEventListener('DOMContentLoaded', () => showSyllable());
+{% endif %}
+
+/* ── RAPID READ ── */
+{% if level.exercise_type == 'rapid_read' %}
+const CONSONANTS_R = ['l','m','r','s','f'];
+const VOWELS_R = ['a','é','i','o','u'];
+let rapidSyls = [];
+CONSONANTS_R.forEach(c => VOWELS_R.forEach(v => rapidSyls.push(c+v)));
+rapidSyls.sort(() => Math.random() - 0.5);
+let rapidDone = 0;
+
+function buildRapidGrid() {
+  const grid = document.getElementById('rapid-grid');
+  rapidSyls.forEach((syl, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'rapid-cell';
+    cell.id = 'rc-' + i;
+    const c = syl[0], v = syl.slice(1);
+    cell.innerHTML = `<span class="consonant">${c}</span><span class="vowel">${v}</span>`;
+    cell.onclick = () => rapidTap(syl, i);
+    grid.appendChild(cell);
+  });
+}
+
+function rapidTap(syl, i) {
+  speak(syl);
+  const cell = document.getElementById('rc-' + i);
+  cell.classList.add('done');
+  rapidDone++;
+  recordAnswer('syllabe', syl, true);
+  if (rapidDone === rapidSyls.length) {
+    document.getElementById('rapid-score').textContent = '🎉 Toutes les syllabes lues !';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', buildRapidGrid);
+{% endif %}
+
+/* ── WORD TAP ── */
+{% if level.exercise_type == 'word_tap' %}
+const WORDS = {{ level.words | tojson }};
+let wordIdx = 0;
+
+const VOWEL_LETTERS = ['a','â','à','e','é','è','ê','ë','i','î','ï','o','ô','u','û','ù','y'];
+
+function renderWord(wordObj) {
+  const display = document.getElementById('word-display');
+  const silent = wordObj.silent || [];
+  let html = '';
+  for (const ch of wordObj.word) {
+    const lc = ch.toLowerCase();
+    let cls = '';
+    if (silent.includes(lc)) cls = 'silent';
+    else if (VOWEL_LETTERS.includes(lc)) cls = 'vowel';
+    else cls = 'consonant';
+    html += `<span class="${cls}">${ch}</span>`;
+  }
+  display.innerHTML = html;
+  document.getElementById('next-word-btn').disabled = false;
+}
+
+function tapWord() {
+  const w = WORDS[wordIdx];
+  speak(w.word);
+  recordAnswer('mot', w.word, true);
+}
+
+function nextWord() {
+  wordIdx++;
+  if (wordIdx >= WORDS.length) wordIdx = 0;
+  renderWord(WORDS[wordIdx]);
+}
+
+document.addEventListener('DOMContentLoaded', () => renderWord(WORDS[0]));
+{% endif %}
+
+/* ── SENTENCE READ ── */
+{% if level.exercise_type == 'sentence_read' %}
+const SENTENCES = {{ level.sentences | tojson }};
+let sentIdx = 0;
+
+function showSentence() {
+  document.getElementById('sentence-display').textContent = SENTENCES[sentIdx];
+}
+
+function nextSentence() {
+  recordAnswer('phrase', SENTENCES[sentIdx].slice(0, 30), true);
+  sentIdx++;
+  if (sentIdx >= SENTENCES.length) sentIdx = 0;
+  showSentence();
+}
+
+document.addEventListener('DOMContentLoaded', showSentence);
+{% endif %}
+</script>
+{% endblock %}

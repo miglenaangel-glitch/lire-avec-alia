@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Lire avec Alia{% endblock %}
+{% block css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/child.css') }}">{% endblock %}
+
+{% block content %}
+<div class="home">
+  <header class="home-header">
+    <button class="stars-btn" onclick="showStars()">⭐ <span id="star-count">0</span></button>
+  </header>
+
+  <h1 class="home-title">Lire avec Alia ✨</h1>
+  <p class="home-subtitle">Choisis ton exercice du jour !</p>
+
+  <div class="levels-grid">
+    <a href="{{ url_for('child.exercise', level_key='voyelles') }}" class="level-card">
+      <div class="level-icon">🔤</div>
+      <div>
+        <div class="level-name">Les voyelles</div>
+        <div class="level-desc">a · é · i · o · u · e</div>
+      </div>
+    </a>
+
+    <a href="{{ url_for('child.exercise', level_key='consonnes_1') }}" class="level-card">
+      <div class="level-icon">🔗</div>
+      <div>
+        <div class="level-name">Les consonnes</div>
+        <div class="level-desc">Glisse et fusionne les syllabes</div>
+      </div>
+    </a>
+
+    <a href="{{ url_for('child.exercise', level_key='lecture_rapide') }}" class="level-card">
+      <div class="level-icon">⚡</div>
+      <div>
+        <div class="level-name">Lecture rapide</div>
+        <div class="level-desc">Lis les syllabes sans t'arrêter</div>
+      </div>
+    </a>
+
+    <a href="{{ url_for('child.exercise', level_key='mots_simples') }}" class="level-card">
+      <div class="level-icon">📖</div>
+      <div>
+        <div class="level-name">Les mots</div>
+        <div class="level-desc">chat · vélo · mamie…</div>
+      </div>
+    </a>
+
+    <a href="{{ url_for('child.exercise', level_key='phrases') }}" class="level-card">
+      <div class="level-icon">💬</div>
+      <div>
+        <div class="level-name">Les phrases</div>
+        <div class="level-desc">Rémi et Éva ont des aventures…</div>
+      </div>
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+function showStars() {
+  // TODO: show progress modal
+}
+// Load mastered count for display
+fetch('/api/record', { method: 'GET' }).catch(() => {});
+</script>
+{% endblock %}

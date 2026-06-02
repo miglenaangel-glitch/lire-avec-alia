@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord — Parent{% endblock %}
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/parent.css') }}">
+{% endblock %}
+
+{% block content %}
+<nav>
+  <a href="{{ url_for('parent.dashboard') }}" class="brand">Lire avec Alia</a>
+  <a href="{{ url_for('parent.dashboard') }}" class="active">Tableau de bord</a>
+  <a href="{{ url_for('parent.progress') }}">Progression</a>
+  <a href="{{ url_for('parent.settings') }}">Réglages</a>
+</nav>
+
+<div class="page">
+  <h1>Tableau de bord</h1>
+
+  <div class="stat-row">
+    <div class="stat-box">
+      <div class="stat-num">{{ weekly | length }}</div>
+      <div class="stat-label">Jours actifs (7j)</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">
+        {% set total = namespace(n=0) %}
+        {% for d in weekly %}{% set total.n = total.n + d.total %}{% endfor %}
+        {{ total.n }}
+      </div>
+      <div class="stat-label">Exercices total</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">
+        {% set correct = namespace(n=0) %}
+        {% for d in weekly %}{% set correct.n = correct.n + d.correct %}{% endfor %}
+        {% if total.n > 0 %}{{ ((correct.n / total.n) * 100) | int }}%{% else %}—{% endif %}
+      </div>
+      <div class="stat-label">Précision</div>
+    </div>
+  </div>
+
+  <!-- AI summary -->
+  <div class="card">
+    <h2>Résumé IA</h2>
+    <div class="summary-box" id="ai-summary">Chargement…</div>
+    <button class="gen-btn" onclick="loadSummary()">↺ Actualiser</button>
+  </div>
+
+  <!-- Cette semaine -->
+  {% if weekly %}
+  <div class="card">
+    <h2>Cette semaine</h2>
+    <table>
+      <tr><th>Date</th><th>Séances</th><th>Exercices</th><th>Précision</th></tr>
+      {% for d in weekly %}
+      <tr>
+        <td>{{ d.day }}</td>
+        <td>{{ d.sessions }}</td>
+        <td>{{ d.total }}</td>
+        <td>{% if d.total > 0 %}{{ ((d.correct / d.total) * 100) | int }}%{% else %}—{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% endif %}
+
+  <!-- Difficult elements -->
+  {% if difficult %}
+  <div class="card">
+    <h2>Difficultés</h2>
+    <table>
+      <tr><th>Élément</th><th>Type</th><th>Essais</th><th>Réussite</th></tr>
+      {% for p in difficult %}
+      <tr>
+        <td><strong>{{ p.element_value }}</strong></td>
+        <td>{{ p.element_type }}</td>
+        <td>{{ p.attempts }}</td>
+        <td>{{ p.correct }}/{{ p.attempts }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+async function loadSummary() {
+  document.getElementById('ai-summary').textContent = 'Génération en cours…';
+  try {
+    const res = await fetch('/api/progress-summary');
+    const data = await res.json();
+    document.getElementById('ai-summary').textContent = data.summary;
+  } catch(e) {
+    document.getElementById('ai-summary').textContent = 'Erreur de connexion.';
+  }
+}
+loadSummary();
+</script>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Progression — Parent{% endblock %}
+{% block css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/parent.css') }}">{% endblock %}
+
+{% block content %}
+<nav>
+  <a href="{{ url_for('parent.dashboard') }}" class="brand">Lire avec Alia</a>
+  <a href="{{ url_for('parent.dashboard') }}">Tableau de bord</a>
+  <a href="{{ url_for('parent.progress') }}" class="active">Progression</a>
+  <a href="{{ url_for('parent.settings') }}">Réglages</a>
+</nav>
+
+<div class="page">
+  <h1>Progression détaillée</h1>
+
+  {% set types = ['voyelle', 'consonne', 'syllabe', 'mot', 'phrase'] %}
+  {% for t in types %}
+    {% set items = progress | selectattr('element_type', 'equalto', t) | list %}
+    {% if items %}
+    <div class="card">
+      <h2>{{ t | capitalize }}s</h2>
+      <table>
+        <tr><th>Élément</th><th>Essais</th><th>Réussi</th><th>Statut</th></tr>
+        {% for p in items %}
+        <tr>
+          <td><strong>{{ p.element_value }}</strong></td>
+          <td>{{ p.attempts }}</td>
+          <td>{{ p.correct }}</td>
+          <td><span class="badge badge-{{ p.status }}">{{ p.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endif %}
+  {% endfor %}
+
+  {% if not progress %}
+  <div class="card" style="text-align:center;color:var(--text-muted);padding:3rem;">
+    Alia n'a pas encore fait d'exercices. 🌱
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

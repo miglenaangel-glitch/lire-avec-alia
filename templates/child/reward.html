@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Bravo Alia !{% endblock %}
+{% block css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/child.css') }}">{% endblock %}
+
+{% block content %}
+<div class="reward" id="reward-screen">
+  {% if character %}
+  <img
+    class="reward-character"
+    id="reward-char"
+    src="{{ url_for('static', filename=character.image_path) }}"
+    alt="{{ character.name }}"
+  >
+  {% else %}
+  <div style="font-size:8rem;margin-bottom:2rem;">🌟</div>
+  {% endif %}
+
+  <p class="reward-phrase" id="reward-phrase">{{ phrase }}</p>
+
+  <a href="{{ url_for('child.home') }}" class="reward-continue">Continuer →</a>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/reward.js') }}"></script>
+<script>
+  startReward("{{ phrase | escapejs if phrase else '' }}");
+</script>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Réglages — Parent{% endblock %}
+{% block css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/parent.css') }}">{% endblock %}
+
+{% block content %}
+<nav>
+  <a href="{{ url_for('parent.dashboard') }}" class="brand">Lire avec Alia</a>
+  <a href="{{ url_for('parent.dashboard') }}">Tableau de bord</a>
+  <a href="{{ url_for('parent.progress') }}">Progression</a>
+  <a href="{{ url_for('parent.settings') }}" class="active">Réglages</a>
+</nav>
+
+<div class="page">
+  <h1>Réglages</h1>
+
+  <!-- Characters -->
+  <div class="card">
+    <h2>Personnage actif</h2>
+    <div class="char-grid">
+      {% for char in characters %}
+      <div class="char-card {% if char.is_active %}active{% endif %}" id="char-{{ char.id }}" onclick="activateChar({{ char.id }})">
+        <img src="{{ url_for('static', filename=char.image_path) }}" alt="{{ char.name }}">
+        <div class="char-name">{{ char.name }}</div>
+        {% if char.is_active %}<div style="font-size:0.8rem;color:var(--accent);margin-top:0.3rem;">✓ Actif</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Reward phrases -->
+  <div class="card">
+    <h2>Phrases de récompense</h2>
+    <ul class="phrase-list" id="phrase-list">
+      {% for p in phrases %}
+      {% if p.is_active %}
+      <li class="phrase-item" id="phrase-{{ p.id }}">
+        <span class="phrase-text">{{ p.phrase }}</span>
+        <button class="del-btn" onclick="deletePhrase({{ p.id }})" title="Supprimer">✕</button>
+      </li>
+      {% endif %}
+      {% endfor %}
+    </ul>
+
+    <div class="add-phrase-row">
+      <input type="text" id="new-phrase" placeholder="Alia, tu es géniale !" maxlength="200">
+      <button class="btn-primary" onclick="addPhrase()">Ajouter</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+async function activateChar(id) {
+  await fetch(`/parent/settings/character/activate/${id}`, { method: 'POST' });
+  // Update UI
+  document.querySelectorAll('.char-card').forEach(c => {
+    c.classList.remove('active');
+    c.querySelector('div:last-child')?.remove();
+  });
+  const card = document.getElementById('char-' + id);
+  card.classList.add('active');
+  const note = document.createElement('div');
+  note.style.cssText = 'font-size:0.8rem;color:var(--accent);margin-top:0.3rem;';
+  note.textContent = '✓ Actif';
+  card.appendChild(note);
+}
+
+async function addPhrase() {
+  const input = document.getElementById('new-phrase');
+  const phrase = input.value.trim();
+  if (!phrase) return;
+  const res = await fetch('/parent/settings/phrase/add', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ phrase })
+  });
+  const data = await res.json();
+  if (data.success) {
+    input.value = '';
+    const li = document.createElement('li');
+    li.className = 'phrase-item';
+    li.id = 'phrase-' + data.id;
+    li.innerHTML = `<span class="phrase-text">${phrase}</span><button class="del-btn" onclick="deletePhrase(${data.id})">✕</button>`;
+    document.getElementById('phrase-list').appendChild(li);
+  }
+}
+
+async function deletePhrase(id) {
+  await fetch(`/parent/settings/phrase/delete/${id}`, { method: 'POST' });
+  document.getElementById('phrase-' + id)?.remove();
+}
+</script>
+{% endblock %}
