@@ -64,6 +64,20 @@ body {
   box-shadow: 0 2px 8px rgba(194,98,42,0.1);
 }
 
+.home-character {
+  width: min(200px, 50vw);
+  height: min(200px, 50vw);
+  object-fit: contain;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 6px 20px rgba(194,98,42,0.2));
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
 .home-title {
   font-size: clamp(2rem, 8vw, 3.2rem);
   font-weight: 900;
