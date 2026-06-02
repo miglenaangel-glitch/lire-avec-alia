@@ -44,8 +44,23 @@ body {
 .home-header {
   width: 100%;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 2rem;
+}
+
+.mama-btn {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  color: var(--accent);
+  font-size: 0.95rem;
+  font-weight: 800;
+  padding: 0.5rem 1.1rem;
+  border-radius: 50px;
+  cursor: pointer;
+  font-family: var(--font);
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(194,98,42,0.1);
 }
 
 .stars-btn {
@@ -64,18 +79,33 @@ body {
   box-shadow: 0 2px 8px rgba(194,98,42,0.1);
 }
 
+.home-hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 2.5rem;
+}
+
+.hero-text {
+  flex: 1;
+  text-align: center;
+}
+
 .home-character {
-  width: min(280px, 70vw);
-  height: min(280px, 70vw);
+  width: min(300px, 45vw);
+  height: min(300px, 45vw);
   object-fit: contain;
-  margin-bottom: 0.5rem;
+  flex-shrink: 0;
   filter: drop-shadow(0 6px 20px rgba(194,98,42,0.2));
   animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-12px); }
 }
 
 .home-title {
@@ -97,10 +127,24 @@ body {
 
 .levels-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   width: 100%;
-  max-width: 480px;
+  max-width: 700px;
+}
+
+@media (max-width: 480px) {
+  .home-hero {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .home-character {
+    width: min(220px, 60vw);
+    height: min(220px, 60vw);
+  }
+  .levels-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .level-card {
