@@ -33,6 +33,10 @@
       <span class="slide-vowel" id="s-vowel">a</span>
     </div>
     <div class="slide-result" id="slide-result"></div>
+    <div style="display:flex;gap:1rem;justify-content:center;margin-bottom:1.5rem;">
+      <button class="next-btn" id="repeat-btn" onclick="repeatSyllable()" style="display:none;background:var(--surface);color:var(--accent);border:2px solid var(--accent);">↺ Répéter</button>
+      <button class="next-btn" id="next-btn" onclick="nextSyllable()" style="display:none;">Suivant →</button>
+    </div>
     <div class="syllable-nav" id="syl-nav"></div>
   </div>
 
@@ -87,7 +91,7 @@ function speak(text) {
 async function recordAnswer(elementType, elementValue, correct) {
   totalAnswered++;
   if (correct) totalCorrect++;
-  updateProgress(Math.min(100, (totalAnswered / 10) * 100));
+  updateProgress(Math.min(100, (totalAnswered / 20) * 100));
 
   const res = await fetch('/api/record', {
     method: 'POST',
@@ -145,6 +149,8 @@ function showSyllable() {
 }
 
 function animateSlide(s) {
+  document.getElementById('repeat-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'none';
   const line = document.getElementById('slide-line');
   const cursor = document.getElementById('slide-cursor');
   const result = document.getElementById('slide-result');
@@ -159,12 +165,24 @@ function animateSlide(s) {
       result.classList.add('visible');
       speak(s.syl);
       recordAnswer('syllabe', s.syl, true);
-      setTimeout(() => {
-        current++;
-        if (current < allSyllables.length) showSyllable();
-      }, 1800);
+      document.getElementById('repeat-btn').style.display = 'inline-block';
+      document.getElementById('next-btn').style.display = 'inline-block';
     }
   }, 18);
+}
+
+function repeatSyllable() {
+  speak(allSyllables[current].syl);
+}
+
+function nextSyllable() {
+  current++;
+  if (current < allSyllables.length) {
+    showSyllable();
+  } else {
+    current = 0;
+    showSyllable();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => showSyllable());
