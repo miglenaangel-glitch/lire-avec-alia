@@ -1,8 +1,29 @@
 from flask import Blueprint, request, jsonify, current_app
-import anthropic
+import requests as http
 from config import Config
 
 api_bp = Blueprint('api', __name__)
+
+ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
+
+
+def claude(prompt):
+    resp = http.post(
+        ANTHROPIC_URL,
+        headers={
+            'x-api-key': Config.ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+        },
+        json={
+            'model': Config.CLAUDE_MODEL,
+            'max_tokens': Config.CLAUDE_MAX_TOKENS,
+            'messages': [{'role': 'user', 'content': prompt}],
+        },
+        timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.json()['content'][0]['text'].strip()
 
 
 def get_mysql():
@@ -11,7 +32,6 @@ def get_mysql():
 
 @api_bp.route('/record', methods=['POST'])
 def record_answer():
-    """Record an exercise answer and update progress."""
     data = request.get_json()
     element_type = data.get('element_type')
     element_value = data.get('element_value')
@@ -21,7 +41,6 @@ def record_answer():
     mysql = get_mysql()
     cur = mysql.connection.cursor()
 
-    # Upsert progress
     cur.execute("""
         INSERT INTO progress (element_type, element_value, attempts, correct, last_seen)
         VALUES (%s, %s, 1, %s, NOW())
@@ -31,7 +50,6 @@ def record_answer():
           last_seen = NOW()
     """, (element_type, element_value, 1 if correct else 0, 1 if correct else 0))
 
-    # Update status based on thresholds
     cur.execute("""
         UPDATE progress SET status = CASE
           WHEN correct >= 5 AND (correct / attempts) >= 0.8 THEN 'maitrise'
@@ -42,7 +60,6 @@ def record_answer():
         WHERE element_type = %s AND element_value = %s
     """, (element_type, element_value))
 
-    # Update session counters
     if session_id:
         cur.execute("""
             UPDATE sessions
@@ -53,12 +70,10 @@ def record_answer():
 
     mysql.connection.commit()
 
-    # Fetch updated session stats
+    session = None
     if session_id:
         cur.execute("SELECT total_exercises, correct_answers FROM sessions WHERE id = %s", (session_id,))
         session = cur.fetchone()
-    else:
-        session = None
 
     cur.close()
 
@@ -72,13 +87,11 @@ def record_answer():
 
 @api_bp.route('/generate-sentences', methods=['POST'])
 def generate_sentences():
-    """Generate new Apili-style sentences via Claude."""
     mysql = get_mysql()
     cur = mysql.connection.cursor()
     cur.execute("""
         SELECT element_value FROM progress
-        WHERE element_type IN ('syllabe', 'voyelle')
-        AND status = 'maitrise'
+        WHERE element_type IN ('syllabe', 'voyelle') AND status = 'maitrise'
     """)
     mastered = [r['element_value'] for r in cur.fetchall()]
     cur.close()
@@ -86,34 +99,24 @@ def generate_sentences():
     if not mastered:
         mastered = ['a', 'é', 'i', 'o', 'u', 'ma', 'la', 'ra', 'sa']
 
-    client = anthropic.Anthropic(api_key=Config.ANTHROPIC_API_KEY)
-    prompt = f"""Tu es un assistant pédagogique qui aide une enfant de 13 ans avec un implant cochléaire à apprendre à lire en français.
+    prompt = """Tu es un assistant pédagogique qui aide une enfant de 13 ans avec un implant cochléaire à apprendre à lire en français.
 Tu suis la méthode Apili (syllabique et gestuelle).
 
 Génère 5 phrases courtes et AMUSANTES dans le style d'Apili, avec les personnages Rémi et Éva.
-Les phrases doivent utiliser UNIQUEMENT les syllabes déjà maîtrisées: {', '.join(mastered)}
+Les phrases doivent utiliser UNIQUEMENT les syllabes déjà maîtrisées: {syls}
 Format: une phrase par ligne, sans numérotation.
-Les phrases doivent être drôles — c'est le principe central de la méthode Apili."""
+Les phrases doivent être drôles — c'est le principe central de la méthode Apili.""".format(syls=', '.join(mastered))
 
-    message = client.messages.create(
-        model=Config.CLAUDE_MODEL,
-        max_tokens=Config.CLAUDE_MAX_TOKENS,
-        messages=[{'role': 'user', 'content': prompt}]
-    )
-    sentences = [s.strip() for s in message.content[0].text.strip().split('\n') if s.strip()]
+    text = claude(prompt)
+    sentences = [s.strip() for s in text.split('\n') if s.strip()]
     return jsonify({'sentences': sentences})
 
 
 @api_bp.route('/progress-summary', methods=['GET'])
 def progress_summary():
-    """Generate a weekly progress summary for the parent dashboard."""
     mysql = get_mysql()
     cur = mysql.connection.cursor()
-
-    cur.execute("""
-        SELECT element_type, element_value, attempts, correct, status
-        FROM progress ORDER BY element_type, status
-    """)
+    cur.execute("SELECT element_type, element_value, attempts, correct, status FROM progress ORDER BY element_type, status")
     rows = cur.fetchall()
     cur.close()
 
@@ -121,23 +124,20 @@ def progress_summary():
         return jsonify({'summary': 'Pas encore de données de progression.'})
 
     progress_text = '\n'.join(
-        f"{r['element_value']} ({r['element_type']}): {r['correct']}/{r['attempts']} — {r['status']}"
+        "{val} ({typ}): {c}/{a} — {s}".format(
+            val=r['element_value'], typ=r['element_type'],
+            c=r['correct'], a=r['attempts'], s=r['status']
+        )
         for r in rows
     )
 
-    client = anthropic.Anthropic(api_key=Config.ANTHROPIC_API_KEY)
-    prompt = f"""Voici les données de progression d'Alia pour cette semaine:
-{progress_text}
+    prompt = """Voici les données de progression d'Alia pour cette semaine:
+{data}
 
 Écris un bref résumé (3-4 phrases) pour sa maman, en français, expliquant:
 - Ce qu'Alia maîtrise bien
 - Ce qui lui pose encore des difficultés
 - Un conseil concret pour la prochaine séance
-Sois encourageant et précis."""
+Sois encourageant et précis.""".format(data=progress_text)
 
-    message = client.messages.create(
-        model=Config.CLAUDE_MODEL,
-        max_tokens=Config.CLAUDE_MAX_TOKENS,
-        messages=[{'role': 'user', 'content': prompt}]
-    )
-    return jsonify({'summary': message.content[0].text.strip()})
+    return jsonify({'summary': claude(prompt)})
