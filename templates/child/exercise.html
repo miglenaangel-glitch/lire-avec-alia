@@ -86,7 +86,7 @@ function speak(text) {
   speechSynthesis.cancel();
   const utt = new SpeechSynthesisUtterance(text);
   utt.lang = 'fr-FR';
-  utt.rate = 0.75;
+  utt.rate = 0.6;
   utt.pitch = 1.1;
 
   // Pick best French voice if available
@@ -213,8 +213,10 @@ function buildRapidGrid() {
     const cell = document.createElement('div');
     cell.className = 'rapid-cell';
     cell.id = 'rc-' + i;
-    const c = syl[0], v = syl.slice(1);
-    cell.innerHTML = `<span class="consonant">${c}</span><span class="vowel">${v}</span>`;
+    const parts = syl === 'ch' ? [['ch','consonant']] : syl.length === 2
+      ? [[syl[0],'consonant'],[syl[1],'vowel']]
+      : [[syl[0],'consonant'],[syl[1],'consonant'],[syl[2],'vowel']];
+    cell.innerHTML = parts.map(([ch,cls]) => `<span class="${cls}">${ch}</span>`).join('');
     cell.onclick = () => rapidTap(syl, i);
     grid.appendChild(cell);
   });
@@ -281,9 +283,10 @@ let micActive = false;
 
 function showSentence() {
   document.getElementById('sentence-display').textContent = SENTENCES[sentIdx];
-  document.getElementById('sentence-feedback').textContent = '';
+  document.getElementById('sentence-feedback').textContent = '👆 Lis la phrase, puis appuie sur le micro !';
+  document.getElementById('sentence-feedback').style.color = 'var(--text-muted)';
   document.getElementById('next-sent-btn').style.display = 'none';
-  document.getElementById('mic-btn').disabled = true;
+  document.getElementById('mic-btn').disabled = false;
   document.getElementById('mic-btn').classList.remove('mic-on');
   document.getElementById('mic-btn').textContent = '🎤 À toi !';
   document.getElementById('listen-btn').disabled = false;
@@ -292,9 +295,9 @@ function showSentence() {
 function listenSentence() {
   speak(SENTENCES[sentIdx]);
   document.getElementById('listen-btn').disabled = true;
-  // Enable mic after speech ends (estimate duration)
-  const dur = SENTENCES[sentIdx].length * 60 + 800;
+  const dur = SENTENCES[sentIdx].length * 70 + 1000;
   setTimeout(() => {
+    document.getElementById('listen-btn').disabled = false;
     document.getElementById('mic-btn').disabled = false;
   }, dur);
 }
@@ -373,10 +376,7 @@ function nextSentence() {
   listenSentence();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  showSentence();
-  listenSentence();
-});
+document.addEventListener('DOMContentLoaded', () => showSentence());
 {% endif %}
 </script>
 {% endblock %}
