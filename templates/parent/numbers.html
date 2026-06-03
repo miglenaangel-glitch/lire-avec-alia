@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Les Nombres — Parent{% endblock %}
+{% block css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/parent.css') }}">{% endblock %}
+
+{% block content %}
+<nav>
+  <a href="{{ url_for('parent.dashboard') }}" class="brand">Lire avec Alia</a>
+  <a href="{{ url_for('parent.dashboard') }}">Табло</a>
+  <a href="{{ url_for('parent.mailbox') }}">💌 Поща</a>
+  <a href="{{ url_for('parent.levels') }}">Нива</a>
+  <a href="{{ url_for('parent.numbers_dashboard') }}" class="active">🔢 Числа</a>
+  <a href="{{ url_for('parent.reports') }}">Напредък</a>
+  <a href="{{ url_for('parent.settings') }}">Настройки</a>
+  <a href="{{ url_for('parent.logout') }}" style="margin-left:auto;color:#dc2626;">Изход</a>
+</nav>
+
+<div class="page">
+  <h1>🔢 Les Nombres — прогрес</h1>
+
+  <!-- Progress by level -->
+  <div class="card">
+    <h2>Прогрес по нива</h2>
+    {% for lvl in levels_info %}
+    {% set s = stats.get(lvl.level) %}
+    <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem 0;border-bottom:1px solid var(--border);">
+      <div style="width:60px;font-weight:800;font-size:0.95rem;">{{ lvl.name }}</div>
+      <div style="flex:1;">
+        <div style="height:8px;background:var(--border);border-radius:99px;overflow:hidden;">
+          {% if s %}
+          <div style="height:100%;background:#e67e22;border-radius:99px;width:{{ ((s.mastered_count / [s.seen_count, 1] | max) * 100) | int }}%;"></div>
+          {% else %}
+          <div style="height:100%;width:0%;"></div>
+          {% endif %}
+        </div>
+      </div>
+      <div style="font-size:0.85rem;color:var(--text-muted);width:80px;text-align:right;">
+        {% if s %}{{ s.mastered_count }}/{{ s.seen_count }} усвоени{% else %}—{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Difficulties -->
+  {% if difficulties %}
+  <div class="card">
+    <h2>Трудности ⚠️</h2>
+    <table>
+      <tr><th>Ниво</th><th>Число</th><th>Грешки</th><th>Съвет</th></tr>
+      {% for d in difficulties %}
+      <tr>
+        <td>{{ d.level | upper }}</td>
+        <td><strong>{{ d.word_form }}</strong></td>
+        <td>{{ d.attempts - d.correct }}/{{ d.attempts }}</td>
+        <td style="font-size:0.85rem;color:var(--text-muted);">
+          {% if d.last_error_type == 'liaison' %}Упражнявайте liaison на глас
+          {% elif d.last_error_type == 's_rule' %}Повторете правилото за s
+          {% else %}Слушайте заедно TTS{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    {% for d in difficulties %}
+    {% if d.word_form in ['quatre-vingts', 'quatre-vingt-un'] %}
+    <div style="background:#fef3e2;border-radius:10px;padding:1rem;margin-top:1rem;font-size:0.9rem;border-left:4px solid #e67e22;">
+      ⚠️ <strong>Правилото за quatre-vingts:</strong>
+      „quatre-vingts" (80) — <strong>с S</strong> когато е само.
+      „quatre-vingt-un" (81) — <strong>без S</strong> когато следва цифра.
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if not stats %}
+  <div class="card" style="text-align:center;padding:3rem;color:var(--text-muted);">
+    <div style="font-size:3rem;margin-bottom:1rem;">🔢</div>
+    Alia все още не е работила с числата.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

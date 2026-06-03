@@ -1,0 +1,205 @@
+{% extends "numbers/base.html" %}
+{% block title %}Match — Les Nombres{% endblock %}
+
+{% block content %}
+<div class="num-header">
+  <a href="{{ url_for('numbers.home') }}" class="num-back">←</a>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog" style="width:0%"></div></div>
+  <a href="/" class="num-back">🏠</a>
+</div>
+
+<div class="num-page" style="text-align:center;">
+  <!-- Mode toggle -->
+  <div style="display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.5rem;">
+    <button id="mode-digit" onclick="setMode('digit')"
+      style="padding:0.4rem 1rem;border-radius:50px;border:2px solid var(--accent);background:var(--accent);color:white;font-family:var(--font);font-weight:700;cursor:pointer;font-size:0.85rem;">
+      🔢 Chiffre → Mot
+    </button>
+    <button id="mode-word" onclick="setMode('word')"
+      style="padding:0.4rem 1rem;border-radius:50px;border:2px solid var(--border);background:var(--surface);color:var(--muted);font-family:var(--font);font-weight:700;cursor:pointer;font-size:0.85rem;">
+      📝 Mot → Chiffre
+    </button>
+  </div>
+
+  <!-- Main display -->
+  <div id="main-display" style="font-size:5rem;font-weight:900;color:var(--consonant);font-family:var(--font-letters);margin-bottom:2rem;min-height:6rem;line-height:1;"></div>
+
+  <p id="feedback" style="font-size:1.2rem;font-weight:700;min-height:2rem;margin-bottom:1rem;"></p>
+
+  <!-- Choices grid -->
+  <div id="choices" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:440px;margin:0 auto;"></div>
+
+  <button id="next-btn" onclick="nextItem()" class="btn-primary" style="display:none;margin-top:1.5rem;">Suivant →</button>
+
+  <!-- Humor -->
+  <p id="humor-text" style="font-size:0.88rem;color:var(--muted);font-style:italic;margin-top:2rem;max-width:400px;margin-left:auto;margin-right:auto;"></p>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+const NUMBERS = {{ numbers | tojson }};
+const HUMOR = {{ humor | tojson }};
+const LEVEL = "{{ level }}";
+let mode = 'digit'; // 'digit' or 'word'
+let shuffled = [...NUMBERS].sort(() => Math.random() - 0.5);
+let idx = 0;
+let locked = false;
+let answered = 0;
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('mode-digit').style.background = m === 'digit' ? 'var(--accent)' : 'var(--surface)';
+  document.getElementById('mode-digit').style.color = m === 'digit' ? 'white' : 'var(--muted)';
+  document.getElementById('mode-digit').style.borderColor = m === 'digit' ? 'var(--accent)' : 'var(--border)';
+  document.getElementById('mode-word').style.background = m === 'word' ? 'var(--accent)' : 'var(--surface)';
+  document.getElementById('mode-word').style.color = m === 'word' ? 'white' : 'var(--muted)';
+  document.getElementById('mode-word').style.borderColor = m === 'word' ? 'var(--accent)' : 'var(--border)';
+  shuffled = [...NUMBERS].sort(() => Math.random() - 0.5);
+  idx = 0;
+  showItem();
+}
+
+function speak(text) {
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(String(text));
+  u.lang = 'fr-FR'; u.rate = 0.6; u.pitch = 1.1;
+  const voices = speechSynthesis.getVoices();
+  const fr = voices.find(v => v.lang.startsWith('fr') && v.localService) || voices.find(v => v.lang.startsWith('fr'));
+  if (fr) u.voice = fr;
+  speechSynthesis.speak(u);
+}
+
+function colorizeWord(word) {
+  const vowels = 'aeéèêëiîïoôuûùy';
+  let html = '';
+  for (const ch of word) {
+    const lc = ch.toLowerCase();
+    if (lc === '-') { html += `<span style="color:var(--silent);">-</span>`; continue; }
+    if (lc === ' ') { html += ' '; continue; }
+    if (!/[a-zàâäéèêëîïôùûüœç]/.test(lc)) { html += ch; continue; }
+    const cls = vowels.includes(lc) ? 'v' : 'c';
+    html += `<span class="${cls}">${ch}</span>`;
+  }
+  return html;
+}
+
+function showItem() {
+  if (idx >= shuffled.length) { showComplete(); return; }
+  locked = false;
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('humor-text').textContent = '';
+
+  const current = shuffled[idx];
+  const display = document.getElementById('main-display');
+
+  if (mode === 'digit') {
+    display.textContent = current.digit;
+    speak(String(current.digit));
+  } else {
+    display.innerHTML = colorizeWord(current.word);
+    speak(current.word);
+  }
+
+  // Build 4 choices
+  const others = NUMBERS.filter(n => n.digit !== current.digit)
+                         .sort(() => Math.random() - 0.5).slice(0, 3);
+  const choices = [...others, current].sort(() => Math.random() - 0.5);
+  const grid = document.getElementById('choices');
+  grid.innerHTML = '';
+
+  choices.forEach(n => {
+    const btn = document.createElement('button');
+    if (mode === 'digit') {
+      btn.innerHTML = colorizeWord(n.word);
+      btn.style.cssText = 'background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:1rem 0.5rem;font-size:1.2rem;font-weight:700;font-family:var(--font-letters);cursor:pointer;transition:all 0.15s;min-height:64px;';
+    } else {
+      btn.textContent = n.digit;
+      btn.style.cssText = 'background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:1rem;font-size:2.5rem;font-weight:900;color:var(--consonant);font-family:var(--font-letters);cursor:pointer;transition:all 0.15s;';
+    }
+    btn.onclick = () => pick(n.digit === current.digit, btn, current);
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('prog').style.width = (idx / shuffled.length * 100) + '%';
+}
+
+function pick(correct, btn, current) {
+  if (locked) return;
+  locked = true;
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    btn.style.borderColor = 'var(--success)';
+    btn.style.background = '#f0faf2';
+    fb.textContent = 'Bravo ! 🎉';
+    fb.style.color = 'var(--success)';
+    speak('Bravo !');
+    setTimeout(() => speak(current.word), 1000);
+    recordAnswer(current.digit, current.word, true);
+    answered++;
+    // Show humor occasionally
+    if (answered % 3 === 0 && HUMOR.length) {
+      document.getElementById('humor-text').textContent = HUMOR[Math.floor(Math.random() * HUMOR.length)];
+    }
+    setTimeout(() => { document.getElementById('next-btn').style.display = 'inline-block'; }, 1800);
+  } else {
+    btn.style.borderColor = 'var(--error)';
+    btn.style.background = '#fff0f0';
+    fb.textContent = 'Réessaie ! 💪';
+    fb.style.color = 'var(--error)';
+    speak(current.word);
+    recordAnswer(current.digit, current.word, false);
+    setTimeout(() => { locked = false; }, 1200);
+  }
+}
+
+function nextItem() { idx++; showItem(); }
+
+function showComplete() {
+  document.getElementById('main-display').textContent = '🌟';
+  document.getElementById('main-display').style.fontSize = '5rem';
+  document.getElementById('feedback').textContent = 'Bravo ! Tu as tout fait !';
+  document.getElementById('feedback').style.color = 'var(--success)';
+  document.getElementById('choices').innerHTML = '';
+  document.getElementById('next-btn').style.display = 'none';
+  speak('Bravo ! Tu as tout fait !');
+  launchConfetti();
+  setTimeout(() => {
+    const a = document.createElement('a');
+    a.href = "{{ url_for('numbers.home') }}";
+    a.className = 'btn-primary';
+    a.textContent = 'Retour →';
+    a.style.display = 'inline-block'; a.style.marginTop = '1.5rem'; a.style.textDecoration = 'none';
+    document.querySelector('.num-page').appendChild(a);
+  }, 2000);
+}
+
+function launchConfetti() {
+  const colors = ['#c2622a','#1a3a6b','#c0392b','#f59e0b','#10b981'];
+  for (let i = 0; i < 50; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.textContent = ['⭐','✦','●','★'][Math.floor(Math.random()*4)];
+      const x = Math.random() * 100, dur = 2 + Math.random() * 2;
+      el.style.cssText = `position:fixed;left:${x}%;top:-5%;font-size:1.2rem;color:${colors[Math.floor(Math.random()*colors.length)]};animation:confettiFall ${dur}s linear forwards;z-index:100;pointer-events:none;`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), dur * 1000 + 500);
+    }, i * 50);
+  }
+}
+
+async function recordAnswer(numberValue, wordForm, correct) {
+  await fetch('/numbers/api/record', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({level: LEVEL, number_value: numberValue, word_form: wordForm, correct})
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  speechSynthesis.getVoices(); // preload
+  showItem();
+});
+</script>
+{% endblock %}

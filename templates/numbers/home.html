@@ -1,0 +1,49 @@
+{% extends "numbers/base.html" %}
+{% block title %}Les Nombres{% endblock %}
+
+{% block content %}
+<div class="num-header">
+  <a href="/" class="num-back">🏠</a>
+  <div class="num-title">🔢 Les Nombres</div>
+</div>
+
+<div class="num-page">
+  <p style="color:var(--muted);margin-bottom:1.5rem;font-size:0.95rem;font-style:italic;">
+    Apprends à lire les nombres en français !
+  </p>
+
+  {% for lvl in levels %}
+  <div style="margin-bottom:1rem;">
+    {% if lvl.unlocked %}
+    <div class="card" style="border-left:4px solid var(--accent);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <div>
+          <div style="font-size:1.1rem;font-weight:800;">{{ lvl.name }}</div>
+          <div style="font-size:0.85rem;color:var(--muted);">{{ lvl.mastered }}/{{ lvl.count }} maîtrisés</div>
+        </div>
+        <div style="font-size:2rem;">🔢</div>
+      </div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <a href="{{ url_for('numbers.match', n=loop.index) }}" class="btn-primary" style="font-size:0.9rem;padding:0.6rem 1.4rem;text-decoration:none;">🎯 Match</a>
+        <a href="{{ url_for('numbers.spell', n=loop.index) }}" class="btn-secondary" style="font-size:0.9rem;padding:0.6rem 1.4rem;text-decoration:none;">✍️ Épeler</a>
+        {% if loop.index == 2 %}
+        <a href="{{ url_for('numbers.gallery') }}" class="btn-secondary" style="font-size:0.9rem;padding:0.6rem 1.4rem;text-decoration:none;">🖼️ Galerie</a>
+        <a href="{{ url_for('numbers.vingt') }}" class="btn-secondary" style="font-size:0.9rem;padding:0.6rem 1.4rem;text-decoration:none;">2️⃣0️⃣ Vingt</a>
+        {% endif %}
+      </div>
+    </div>
+    {% else %}
+    <div class="card" style="opacity:0.5;">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div style="font-size:1.8rem;">🔒</div>
+        <div>
+          <div style="font-size:1.1rem;font-weight:800;">{{ lvl.name }}</div>
+          <div style="font-size:0.85rem;color:var(--muted);">Bientôt disponible…</div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

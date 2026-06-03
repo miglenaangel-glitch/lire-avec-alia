@@ -1,0 +1,157 @@
+{% extends "numbers/base.html" %}
+{% block title %}Vingt — Liaison ou pas ?{% endblock %}
+
+{% block content %}
+<div class="num-header">
+  <a href="{{ url_for('numbers.home') }}" class="num-back">←</a>
+  <div class="num-title">2️⃣0️⃣ Le piège de vingt</div>
+  <a href="/" class="num-back">🏠</a>
+</div>
+
+<div class="num-page" style="text-align:center;">
+  <p style="color:var(--muted);margin-bottom:1.5rem;font-size:0.9rem;">
+    Le <strong style="color:var(--consonant);">t</strong> de <em>vingt</em> — quand se prononce-t-il ?
+  </p>
+
+  <!-- Visual explanation -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem;">
+    <div class="card" style="border-top:4px solid var(--silent);">
+      <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;font-weight:700;text-transform:uppercase;">Isolé</div>
+      <div style="font-size:2rem;font-weight:900;font-family:var(--font-letters);">
+        <span class="c">v</span><span class="v">i</span><span class="c">n</span><span class="c">g</span><span class="s">t</span>
+      </div>
+      <div style="font-size:0.85rem;color:var(--silent);margin-top:0.5rem;">t = muet</div>
+    </div>
+    <div class="card" style="border-top:4px solid var(--liaison);">
+      <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;font-weight:700;text-transform:uppercase;">Liaison</div>
+      <div style="font-size:1.6rem;font-weight:900;font-family:var(--font-letters);">
+        <span class="c">v</span><span class="v">i</span><span class="c">n</span><span class="c">g</span><span style="color:var(--liaison);font-weight:900;">t</span>
+        <span style="font-size:1rem;"> et </span>
+        <span class="v">u</span><span class="s">n</span>
+      </div>
+      <div style="font-size:0.85rem;color:var(--liaison);margin-top:0.5rem;">t = prononcé !</div>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div id="quiz-area">
+    <div id="quiz-word" style="font-size:2.5rem;font-weight:900;font-family:var(--font-letters);margin-bottom:0.5rem;color:var(--text);"></div>
+    <p style="color:var(--muted);margin-bottom:1.5rem;font-size:0.9rem;">Le <strong>t</strong> se prononce-t-il ?</p>
+
+    <div style="display:flex;gap:1rem;justify-content:center;">
+      <button onclick="answer(true)" id="btn-oui"
+        style="background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:1rem 2rem;font-size:1.1rem;font-weight:800;cursor:pointer;font-family:var(--font);color:var(--text);">
+        ✅ Oui, je prononce
+      </button>
+      <button onclick="answer(false)" id="btn-non"
+        style="background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:1rem 2rem;font-size:1.1rem;font-weight:800;cursor:pointer;font-family:var(--font);color:var(--text);">
+        🔇 Non, c'est muet
+      </button>
+    </div>
+
+    <p id="vingt-feedback" style="font-size:1.2rem;font-weight:700;min-height:2.5rem;margin-top:1.5rem;"></p>
+    <p id="score-display" style="color:var(--muted);font-size:0.9rem;margin-top:0.5rem;"></p>
+  </div>
+
+  <div id="complete-area" style="display:none;">
+    <div style="font-size:4rem;margin-bottom:1rem;">🎉</div>
+    <p style="font-size:1.3rem;font-weight:800;color:var(--success);margin-bottom:1.5rem;">
+      Tu maîtrises le piège de vingt !
+    </p>
+    <a href="{{ url_for('numbers.home') }}" class="btn-primary" style="text-decoration:none;display:inline-block;">
+      Retour au menu →
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+// Cases: word, should_pronounce_t
+const CASES = [
+  {word: "vingt",           pronounce: false, display: '<span class="c">v</span><span class="v">i</span><span class="c">n</span><span class="c">g</span><span class="s">t</span>'},
+  {word: "vingt et un",     pronounce: true,  display: '<span class="c">v</span><span class="v">i</span><span class="c">n</span><span class="c">g</span><span style="color:var(--liaison);font-weight:900;">t</span> <span style="font-size:0.8em;">et</span> <span class="v">u</span><span class="s">n</span>'},
+  {word: "vingt-deux",      pronounce: false, display: '<span class="c">v</span><span class="v">i</span><span class="c">n</span><span class="c">g</span><span class="s">t</span><span class="s">-</span><span class="c">d</span><span class="v">eu</span><span class="s">x</span>'},
+  {word: "vingt et un",     pronounce: true,  display: '<span class="c">v</span><span class="v">i</span><span class="c">n</span><span class="c">g</span><span style="color:var(--liaison);font-weight:900;">t</span> <span style="font-size:0.8em;">et</span> <span class="v">u</span><span class="s">n</span>'},
+  {word: "vingt",           pronounce: false, display: '<span class="c">v</span><span class="v">i</span><span class="c">n</span><span class="c">g</span><span class="s">t</span>'},
+  {word: "vingt-cinq",      pronounce: false, display: '<span class="c">v</span><span class="v">i</span><span class="c">n</span><span class="c">g</span><span class="s">t</span><span class="s">-</span><span class="c">c</span><span class="v">i</span><span class="c">nq</span>'},
+  {word: "vingt et un",     pronounce: true,  display: '<span class="c">v</span><span class="v">i</span><span class="c">n</span><span class="c">g</span><span style="color:var(--liaison);font-weight:900;">t</span> <span style="font-size:0.8em;">et</span> <span class="v">u</span><span class="s">n</span>'},
+  {word: "vingt",           pronounce: false, display: '<span class="c">v</span><span class="v">i</span><span class="c">n</span><span class="c">g</span><span class="s">t</span>'},
+  {word: "vingt-huit",      pronounce: false, display: '<span class="c">v</span><span class="v">i</span><span class="c">n</span><span class="c">g</span><span class="s">t</span><span class="s">-</span><span class="s">h</span><span class="v">u</span><span class="v">i</span><span class="c">t</span>'},
+  {word: "vingt et un",     pronounce: true,  display: '<span class="c">v</span><span class="v">i</span><span class="c">n</span><span class="c">g</span><span style="color:var(--liaison);font-weight:900;">t</span> <span style="font-size:0.8em;">et</span> <span class="v">u</span><span class="s">n</span>'},
+];
+
+let idx = 0;
+let consecutive = 0;
+let locked = false;
+const TARGET = 5;
+
+function speak(text) {
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'fr-FR'; u.rate = 0.6;
+  const voices = speechSynthesis.getVoices();
+  const fr = voices.find(v => v.lang.startsWith('fr') && v.localService) || voices.find(v => v.lang.startsWith('fr'));
+  if (fr) u.voice = fr;
+  speechSynthesis.speak(u);
+}
+
+function showCase() {
+  if (consecutive >= TARGET) { showComplete(); return; }
+  locked = false;
+  const c = CASES[idx % CASES.length];
+  document.getElementById('quiz-word').innerHTML = c.display;
+  document.getElementById('vingt-feedback').textContent = '';
+  document.getElementById('score-display').textContent = `${consecutive}/${TARGET} consécutifs`;
+  document.getElementById('btn-oui').style.borderColor = 'var(--border)';
+  document.getElementById('btn-oui').style.background = 'var(--surface)';
+  document.getElementById('btn-non').style.borderColor = 'var(--border)';
+  document.getElementById('btn-non').style.background = 'var(--surface)';
+  setTimeout(() => speak(c.word), 300);
+}
+
+function answer(pronounce) {
+  if (locked) return;
+  locked = true;
+  const c = CASES[idx % CASES.length];
+  const correct = pronounce === c.pronounce;
+  const fb = document.getElementById('vingt-feedback');
+  if (correct) {
+    fb.textContent = 'Bravo ! 🎉';
+    fb.style.color = 'var(--success)';
+    speak('Bravo !');
+    consecutive++;
+    const btn = pronounce ? document.getElementById('btn-oui') : document.getElementById('btn-non');
+    btn.style.borderColor = 'var(--success)';
+    btn.style.background = '#f0faf2';
+  } else {
+    fb.textContent = pronounce ? 'Non — le t est muet ici !' : 'Non — liaison ! Le t se prononce !';
+    fb.style.color = 'var(--error)';
+    speak(c.word);
+    consecutive = 0;
+    const btn = pronounce ? document.getElementById('btn-oui') : document.getElementById('btn-non');
+    btn.style.borderColor = 'var(--error)';
+    btn.style.background = '#fff0f0';
+  }
+  idx++;
+  setTimeout(showCase, 1800);
+  recordAnswer(correct);
+}
+
+function showComplete() {
+  document.getElementById('quiz-area').style.display = 'none';
+  document.getElementById('complete-area').style.display = 'block';
+  speak('Bravo ! Tu maîtrises le piège de vingt !');
+}
+
+async function recordAnswer(correct) {
+  await fetch('/numbers/api/record', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({level: 'n2', number_value: 20, word_form: 'vingt', correct})
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => { speechSynthesis.getVoices(); showCase(); });
+</script>
+{% endblock %}

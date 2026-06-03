@@ -220,6 +220,38 @@ def reports():
     return render_template('parent/reports.html', reports=all_reports)
 
 
+@parent_bp.route('/numbers')
+@parent_required
+def numbers_dashboard():
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT level, SUM(attempts) as total_attempts,
+               SUM(correct) as total_correct,
+               SUM(mastered) as mastered_count,
+               COUNT(*) as seen_count
+        FROM numbers_progress GROUP BY level ORDER BY level
+    """)
+    stats = {r['level']: r for r in cur.fetchall()}
+    cur.execute("""
+        SELECT level, word_form, last_error_type, attempts, correct
+        FROM numbers_progress
+        WHERE mastered = FALSE AND attempts >= 3 AND correct/attempts < 0.5
+        ORDER BY level, attempts DESC LIMIT 10
+    """)
+    difficulties = cur.fetchall()
+    cur.close()
+    levels_info = [
+        {'level': 'n1', 'name': '0–10',   'key': 'nombres_n1'},
+        {'level': 'n2', 'name': '11–20',  'key': 'nombres_n2'},
+        {'level': 'n3', 'name': '21–69',  'key': 'nombres_n3'},
+        {'level': 'n4', 'name': '70–99',  'key': 'nombres_n4'},
+        {'level': 'n5', 'name': '100+',   'key': 'nombres_n5'},
+    ]
+    return render_template('parent/numbers.html',
+        stats=stats, difficulties=difficulties, levels_info=levels_info)
+
+
 @parent_bp.route('/levels/content/<level_key>')
 @parent_required
 def level_content(level_key):

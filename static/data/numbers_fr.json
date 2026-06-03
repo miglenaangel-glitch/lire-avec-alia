@@ -1,0 +1,91 @@
+{
+  "n1": [
+    {"digit": 0, "word": "zéro",   "silent": [],         "liaison": [], "notes": ""},
+    {"digit": 1, "word": "un",     "silent": ["n"],       "liaison": [], "notes": "nazal"},
+    {"digit": 2, "word": "deux",   "silent": ["x"],       "liaison": ["x"], "notes": "x=[z] liaison"},
+    {"digit": 3, "word": "trois",  "silent": ["i","s"],   "liaison": ["s"], "notes": ""},
+    {"digit": 4, "word": "quatre", "silent": ["e"],        "liaison": [], "notes": ""},
+    {"digit": 5, "word": "cinq",   "silent": [],           "liaison": ["q"], "notes": "q=[k] prononcé!"},
+    {"digit": 6, "word": "six",    "silent": [],           "liaison": ["x"], "notes": "x=[s] isolé, [z] liaison"},
+    {"digit": 7, "word": "sept",   "silent": ["p"],        "liaison": ["t"], "notes": "t prononcé en isolation!"},
+    {"digit": 8, "word": "huit",   "silent": ["h"],        "liaison": ["t"], "notes": "t prononcé"},
+    {"digit": 9, "word": "neuf",   "silent": [],           "liaison": ["f"], "notes": "f=[v] liaison"},
+    {"digit": 10,"word": "dix",    "silent": [],           "liaison": ["x"], "notes": "x=[s] isolé"}
+  ],
+  "n2": [
+    {"digit": 11,"word": "onze",        "silent": ["e"],       "liaison": [], "irregular": true},
+    {"digit": 12,"word": "douze",       "silent": ["e"],       "liaison": [], "irregular": true},
+    {"digit": 13,"word": "treize",      "silent": ["e"],       "liaison": [], "irregular": true},
+    {"digit": 14,"word": "quatorze",    "silent": ["e"],       "liaison": [], "irregular": true},
+    {"digit": 15,"word": "quinze",      "silent": ["e"],       "liaison": [], "irregular": true},
+    {"digit": 16,"word": "seize",       "silent": ["e"],       "liaison": [], "irregular": true},
+    {"digit": 17,"word": "dix-sept",    "silent": ["s"],       "liaison": ["t"], "irregular": false},
+    {"digit": 18,"word": "dix-huit",    "silent": ["x","h"],   "liaison": ["x"], "irregular": false, "notes": "x=[z] liaison"},
+    {"digit": 19,"word": "dix-neuf",    "silent": ["x"],       "liaison": ["x"], "irregular": false},
+    {"digit": 20,"word": "vingt",       "silent": ["t"],       "liaison": ["t"], "irregular": false, "notes": "t nul isolé, prononcé liaison"}
+  ],
+  "n3": [
+    {"digit": 20, "word": "vingt",           "dizaine": true},
+    {"digit": 21, "word": "vingt et un",     "et": true},
+    {"digit": 22, "word": "vingt-deux",      "et": false},
+    {"digit": 30, "word": "trente",          "dizaine": true},
+    {"digit": 31, "word": "trente et un",    "et": true},
+    {"digit": 32, "word": "trente-deux",     "et": false},
+    {"digit": 40, "word": "quarante",        "dizaine": true},
+    {"digit": 41, "word": "quarante et un",  "et": true},
+    {"digit": 50, "word": "cinquante",       "dizaine": true},
+    {"digit": 51, "word": "cinquante et un", "et": true},
+    {"digit": 60, "word": "soixante",        "dizaine": true},
+    {"digit": 61, "word": "soixante et un",  "et": true},
+    {"digit": 65, "word": "soixante-cinq",   "et": false}
+  ],
+  "n4": [
+    {"digit": 70, "word": "soixante-dix",          "notes": "60+10"},
+    {"digit": 71, "word": "soixante et onze",       "notes": "60+11, et sans tiret"},
+    {"digit": 72, "word": "soixante-douze",         "notes": "60+12"},
+    {"digit": 75, "word": "soixante-quinze",        "notes": "60+15"},
+    {"digit": 79, "word": "soixante-dix-neuf",      "notes": "60+19"},
+    {"digit": 80, "word": "quatre-vingts",          "notes": "4×20, avec s!", "trap": true, "trap_s": true},
+    {"digit": 81, "word": "quatre-vingt-un",        "notes": "sans s!", "trap": true, "trap_s": false},
+    {"digit": 82, "word": "quatre-vingt-deux",      "notes": "sans s!", "trap": true, "trap_s": false},
+    {"digit": 90, "word": "quatre-vingt-dix",       "notes": "4×20+10"},
+    {"digit": 91, "word": "quatre-vingt-onze",      "notes": "4×20+11"},
+    {"digit": 99, "word": "quatre-vingt-dix-neuf",  "notes": "6 syllabes!"}
+  ],
+  "n5": [
+    {"digit": 100,  "word": "cent",              "cent_s": false},
+    {"digit": 200,  "word": "deux cents",        "cent_s": true,  "notes": "s en isolation"},
+    {"digit": 201,  "word": "deux cent un",      "cent_s": false, "notes": "sans s suivi"},
+    {"digit": 300,  "word": "trois cents",       "cent_s": true},
+    {"digit": 301,  "word": "trois cent un",     "cent_s": false},
+    {"digit": 500,  "word": "cinq cents",        "cent_s": true},
+    {"digit": 1000, "word": "mille",             "notes": "jamais de s"},
+    {"digit": 2000, "word": "deux mille",        "notes": "sans s"},
+    {"digit": 2026, "word": "deux mille vingt-six", "notes": "l'année actuelle"},
+    {"digit": 1995, "word": "mil neuf cent quatre-vingt-quinze", "notes": "année de naissance?"}
+  ],
+  "humor": {
+    "n1": [
+      "Rémi a mangé 9 chats. C'est «neuf chats», Éva, pas «deux poulets».",
+      "Éva a commandé 5 pizzas. Le livreur a dit: cinq pizzas? Et il a pleuré.",
+      "Il y a 8 araignées dans le lit de Rémi. Huit. Il les a comptées."
+    ],
+    "n2": [
+      "Rémi a 11 chaussettes mais 2 pieds. C'est onze chaussettes de trop, Rémi.",
+      "Éva a attendu Rémi pendant 15 minutes. Quinze. Il était dans le frigo.",
+      "Rémi a invité 20 girafes. Vingt girafes dans l'appartement. Maman était furieuse."
+    ],
+    "n3": [
+      "Il y a 42 biscuits sur la table. Rémi en a mangé 41. Il a laissé un pour Éva.",
+      "Éva a compté 67 moutons pour s'endormir. Le 67ème avait une écharpe."
+    ],
+    "n4": [
+      "Rémi a 80 problèmes. Quatre-vingts. Mais ce soir il en a 81.",
+      "L'école de Rémi a 99 règles. La règle 99: ne pas mettre le chat dans le cartable."
+    ],
+    "n5": [
+      "Le téléphone de Rémi a 1000 photos du chat. Éva en a supprimé 999.",
+      "Maman a demandé combien coûtait son jeu: deux cent cinquante euros. Elle a failli s'évanouir."
+    ]
+  }
+}

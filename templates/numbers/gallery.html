@@ -1,0 +1,97 @@
+{% extends "numbers/base.html" %}
+{% block title %}Galerie des irréguliers{% endblock %}
+
+{% block content %}
+<div class="num-header">
+  <a href="{{ url_for('numbers.home') }}" class="num-back">←</a>
+  <div class="num-title">🖼️ Galerie des irréguliers</div>
+  <a href="/" class="num-back">🏠</a>
+</div>
+
+<div class="num-page">
+  <p style="color:var(--muted);margin-bottom:1.5rem;font-size:0.9rem;font-style:italic;">
+    Les nombres 11–16 sont complètement irréguliers — pas de logique, juste de la mémoire !
+    Tape une carte pour la retourner et entendre le son.
+  </p>
+
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:2rem;">
+    {% for n in numbers %}
+    <div id="card-{{ n.digit }}" onclick="flipCard({{ n.digit }}, '{{ n.word }}')"
+         style="background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center;cursor:pointer;box-shadow:0 2px 10px rgba(44,24,16,0.07);transition:all 0.3s;-webkit-tap-highlight-color:transparent;">
+      <div style="font-size:2.5rem;font-weight:900;color:var(--consonant);font-family:var(--font-letters);margin-bottom:0.5rem;">{{ n.digit }}</div>
+      <div id="word-{{ n.digit }}" style="font-size:1.5rem;font-weight:800;font-family:var(--font-letters);opacity:0;transition:opacity 0.3s;">
+        {{ n.word }}
+      </div>
+      <div id="check-{{ n.digit }}" style="font-size:1.2rem;margin-top:0.5rem;opacity:0;">✅</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if humor %}
+  <div style="background:var(--accent-bg);border-radius:var(--radius);padding:1.2rem;font-style:italic;color:var(--muted);font-size:0.9rem;margin-bottom:1.5rem;" id="humor-box">
+    {{ humor[0] }}
+  </div>
+  {% endif %}
+
+  <a href="{{ url_for('numbers.home') }}" class="btn-primary" style="text-decoration:none;display:inline-block;">
+    Retour au menu →
+  </a>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+const NUMBERS = {{ numbers | tojson }};
+const HUMOR = {{ humor | tojson }};
+let flipped = new Set();
+let humorIdx = 0;
+
+function speak(text) {
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(String(text));
+  u.lang = 'fr-FR'; u.rate = 0.6;
+  const voices = speechSynthesis.getVoices();
+  const fr = voices.find(v => v.lang.startsWith('fr') && v.localService) || voices.find(v => v.lang.startsWith('fr'));
+  if (fr) u.voice = fr;
+  speechSynthesis.speak(u);
+}
+
+function flipCard(digit, word) {
+  const card = document.getElementById('card-' + digit);
+  const wordEl = document.getElementById('word-' + digit);
+  const check = document.getElementById('check-' + digit);
+
+  if (!flipped.has(digit)) {
+    // Flip — reveal
+    wordEl.style.opacity = '1';
+    card.style.borderColor = 'var(--accent)';
+    card.style.background = 'var(--accent-bg)';
+    speak(word);
+    flipped.add(digit);
+    setTimeout(() => {
+      check.style.opacity = '1';
+      recordAnswer(digit, word, true);
+    }, 800);
+    // Rotate humor
+    if (flipped.size % 2 === 0 && HUMOR.length) {
+      humorIdx = (humorIdx + 1) % HUMOR.length;
+      const hb = document.getElementById('humor-box');
+      if (hb) hb.textContent = HUMOR[humorIdx];
+    }
+  } else {
+    // Replay
+    speak(word);
+  }
+}
+
+async function recordAnswer(numberValue, wordForm, correct) {
+  await fetch('/numbers/api/record', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({level: 'n2', number_value: numberValue, word_form: wordForm, correct})
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => speechSynthesis.getVoices());
+</script>
+{% endblock %}

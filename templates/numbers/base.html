@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Les Nombres{% endblock %} — Lire avec Alia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #fdf8f0; --surface: #ffffff; --border: #e8d5b7;
+      --accent: #c2622a; --accent-light: #e8956d; --accent-bg: #fdf0e8;
+      --consonant: #1a3a6b; --vowel: #c0392b; --silent: #b0a090;
+      --liaison: #e67e22;
+      --success: #2d7a3a; --error: #c0392b;
+      --text: #2c1810; --muted: #8b6f5e;
+      --radius: 16px; --font: 'Nunito', sans-serif;
+      --font-letters: 'Georgia', serif;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+    .num-header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.5rem; max-width: 600px; margin: 0 auto;
+    }
+    .num-back {
+      background: var(--surface); border: 1.5px solid var(--border);
+      color: var(--muted); font-size: 1.2rem; width: 44px; height: 44px;
+      border-radius: 12px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; text-decoration: none; flex-shrink: 0;
+    }
+    .num-title { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
+    .num-page { max-width: 600px; margin: 0 auto; padding: 0 1.5rem 3rem; }
+    .progress-bar-wrap { flex:1; height:8px; background:var(--border); border-radius:99px; overflow:hidden; }
+    .progress-bar-fill { height:100%; background:var(--accent); border-radius:99px; transition:width 0.3s; }
+    /* Apili colors */
+    .c { color: var(--consonant); font-weight: 900; }
+    .v { color: var(--vowel); font-weight: 900; }
+    .s { color: var(--silent); font-weight: 700; }
+    .l { color: var(--liaison); font-weight: 900; }
+    /* Buttons */
+    .btn-primary { background:var(--accent); color:white; border:none; padding:0.9rem 2.5rem; border-radius:50px; font-size:1.1rem; font-weight:800; font-family:var(--font); cursor:pointer; box-shadow:0 3px 12px rgba(194,98,42,0.3); transition:transform 0.15s; }
+    .btn-primary:active { transform:scale(0.96); }
+    .btn-secondary { background:var(--surface); border:2px solid var(--accent); color:var(--accent); padding:0.8rem 2rem; border-radius:50px; font-size:1rem; font-weight:700; font-family:var(--font); cursor:pointer; }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; box-shadow:0 2px 12px rgba(44,24,16,0.07); }
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg); opacity:1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity:0; }
+    }
+  </style>
+  {% block css %}{% endblock %}
+</head>
+<body>
+  {% block content %}{% endblock %}
+  {% block js %}{% endblock %}
+</body>
+</html>
