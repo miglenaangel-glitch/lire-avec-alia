@@ -20,10 +20,12 @@ app.extensions['mysql'] = mysql
 from routes.child import child_bp
 from routes.parent import parent_bp
 from routes.api import api_bp
+from routes.admin import admin_bp
 
 app.register_blueprint(child_bp, url_prefix='/child')
 app.register_blueprint(parent_bp, url_prefix='/parent')
 app.register_blueprint(api_bp, url_prefix='/api')
+app.register_blueprint(admin_bp, url_prefix='/admin')
 
 @app.route('/')
 def index():

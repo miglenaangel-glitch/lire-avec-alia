@@ -1,0 +1,27 @@
+{% extends "admin/base.html" %}
+{% block title %}Rapports{% endblock %}
+
+{% block content %}
+<h1>📊 Rapports quotidiens</h1>
+<p style="color:var(--muted);margin-bottom:2rem;">Générés à 21h00 chaque jour. Conservés 30 jours.</p>
+
+{% if not reports %}
+<div class="card" style="text-align:center;padding:3rem;color:var(--muted);">
+  Pas encore de rapport.
+</div>
+{% endif %}
+
+{% for r in reports %}
+<div class="card">
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+    <strong>{{ r.report_date }}</strong>
+    {% if r.worked %}
+    <span class="badge-ok">✓ A travaillé</span>
+    {% else %}
+    <span class="badge-no">✗ Pas de séance</span>
+    {% endif %}
+  </div>
+  <div class="summary-box">{{ r.summary }}</div>
+</div>
+{% endfor %}
+{% endblock %}

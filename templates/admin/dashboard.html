@@ -1,0 +1,50 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1>⚙️ Dashboard Admin</h1>
+
+<div class="stat-row">
+  <div class="stat-box">
+    <div class="stat-num">{{ pc_count }}</div>
+    <div class="stat-label">Cartes actives</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">{{ mb_count }}</div>
+    <div class="stat-label">Cartes envoyées à Alia</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">{{ videos | length }}</div>
+    <div class="stat-label">Vidéos</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">{{ rp_count }}</div>
+    <div class="stat-label">Rapports générés</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Accès rapide</h2>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+    <a href="{{ url_for('admin.postcards') }}" class="btn btn-primary">💌 Gérer les cartes</a>
+    <a href="{{ url_for('admin.videos') }}" class="btn btn-primary">🎬 Gérer les vidéos</a>
+    <a href="{{ url_for('admin.reports') }}" class="btn btn-ghost">📊 Voir les rapports</a>
+    <a href="{{ url_for('parent.dashboard') }}" class="btn btn-ghost" target="_blank">👩‍👧 Kабинет maman</a>
+  </div>
+</div>
+
+{% if videos %}
+<div class="card">
+  <h2>Vidéos sur le serveur</h2>
+  <table>
+    <tr><th>Fichier</th><th>Aperçu</th></tr>
+    {% for v in videos %}
+    <tr>
+      <td>{{ v }}</td>
+      <td><a href="/static/videos/{{ v }}" target="_blank" class="btn btn-ghost" style="font-size:0.8rem;padding:0.3rem 0.8rem;">▶ Voir</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+{% endblock %}
