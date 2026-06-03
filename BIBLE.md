@@ -1,5 +1,5 @@
 # БИБЛИЯ НА ПРОЕКТА — Lire avec Alia
-**Версия:** 1.0
+**Версия:** 1.1
 **Дата:** 2026-06-03
 **Owner:** Miglena Angelova
 **Статус:** Production — MVP
@@ -708,6 +708,136 @@ mysqldump -u alia -p'Alia2026!xK9m' lire_avec_alia > backup_$(date +%Y%m%d).sql
 - [ ] .env файлът (не е в git — трябва ръчно)
 - [ ] Прочитане на CLAUDE.md и BIBLE.md
 - [ ] Тестване на deploy процедурата
+
+---
+
+---
+
+## РАЗДЕЛ 20. CHANGE LOG v1.1 — 2026-06-03 (продължение)
+
+### Нови функции след v1.0
+
+#### Видео система
+- ✅ **15-минутни видеа** — `I-love-you.mp4` и `love-learning-with-you.mp4` се редуват на всеки 15 мин работа
+- ✅ **24-часово видео** — `so-long.mp4` се показва при отсъствие > 24 часа (проверка при зареждане на home)
+- ✅ Видеата се съхраняват в `/static/videos/`
+- ✅ Overlay с бутон "▶ Regarder" (tap-to-play) → fullscreen при натискане
+- ✅ При грешка с chmod 644 — оправено с `chmod 755/644`
+
+#### Родителски кабинет — нови секции
+- ✅ **💌 Пощенска кутия** (`/parent/mailbox`) — картичка след всеки 3 успешни сесии (≥70%)
+- ✅ **Нива** (`/parent/levels`) — заключване/отключване на нива с toggle бутон
+- ✅ **Напредък** (`/parent/reports`) — ежедневни AI отчети, пазят се 30 дни
+- ✅ **Смяна на парола** в Настройки — мама може да смени паролата си
+- ✅ Бутон **Изход** навсякъде в родителския кабинет
+- ✅ Целият родителски кабинет е на **български**
+
+#### Автентикация на мама
+- ✅ Паролата е преместена от JS код → сървър (MySQL таблица `parent_settings`)
+- ✅ Начална парола: `maman`
+- ✅ Мама може да я смени от Настройки
+- ✅ Flask session за вход/изход
+- ✅ Всички `/parent/*` маршрути изискват вход
+
+#### Административен панел
+- ✅ URL: `https://admin.alia-adri.com/admin/laykuchka/`
+- ✅ Парола: `laykuchka2026` (в `.env` като `ADMIN_PASSWORD`)
+- ✅ Отделен SSL сертификат (Let's Encrypt)
+- ✅ Отделен Nginx конфиг (`/etc/nginx/sites-available/alia-admin`)
+- ✅ **Картички** — качване, преглед, изтриване
+- ✅ **Видеа** — качване, преглед, изтриване
+- ✅ **Отчети** — преглед на всички daily reports
+- ✅ На **български**, бял фон
+
+#### Упражнения — подобрения
+- ✅ **Протокол "Alia е ПЪРВА"** — навсякъде: срички, думи, фрази
+- ✅ **Микрофон с continuous listening** — не спира при пауза
+- ✅ **✓ J'ai dit ! / J'ai lu !** бутон — Алия сама решава кога е готова
+- ✅ **1 секунда пауза** преди оценка (беше 3 сек)
+- ✅ **Оцветяване на фразите** — съгласни=синьо, гласни=червено, неми=сиво
+- ✅ **Digraph корекция** — ch, ph, gn = и двете букви сини; qu = q синьо, u сиво
+- ✅ **Финално 'e'** — сиво само ако думата има друга гласна (le/de = червено)
+- ✅ **Гласни без подсказка** — само звук, без буква на екрана
+- ✅ **Гласни: 3 пъти всяка** преди край на ниво
+- ✅ **Разбъркване** — думи, срички, фрази се разбъркват при всяко зареждане
+- ✅ **40 изречения** (беше 7) + **48 думи** (беше 24)
+- ✅ **Финален екран** с конфети при край на ниво + глас "Bravo Alia !"
+- ✅ Бутон 🏠 за меню на всяко упражнение
+- ✅ `levelDone` флаг — наградата не прекъсва упражнението
+
+#### Визуален дизайн
+- ✅ Светла тема "книга" (кремав фон #fdf8f0)
+- ✅ Karumi плава (float анимация)
+- ✅ Снимката вляво, заглавието вдясно (hero layout)
+- ✅ Двуколонно меню
+- ✅ 💝 вместо 🌸 за бутона Maman
+
+### Нови таблици в MySQL
+
+```sql
+level_locks        -- заключване на нива (parent)
+postcards          -- картички за пощенска кутия
+mailbox            -- изпратени картички на Алия
+daily_reports      -- ежедневни AI отчети (30 дни)
+parent_settings    -- парола на мама + настройки
+```
+
+### Нови файлове
+
+```
+routes/admin.py                    # Административен панел
+scripts/daily_report.py            # Cron скрипт за 21:00
+templates/admin/                   # 7 шаблона за admin панел
+templates/parent/login.html        # Вход за мама
+templates/parent/mailbox.html      # Пощенска кутия
+templates/parent/levels.html       # Управление на нива
+templates/parent/reports.html      # Ежедневни отчети
+static/videos/                     # I-love-you.mp4, love-learning-with-you.mp4, so-long.mp4
+static/postcards/                  # Картички за Алия
+static/characters/karumi.png       # Персонажът
+```
+
+### Нови маршрути
+
+| Маршрут | Описание |
+|---------|----------|
+| `GET /parent/login` | Вход за мама |
+| `GET /parent/logout` | Изход |
+| `GET /parent/mailbox` | Пощенска кутия |
+| `POST /parent/mailbox/download/<id>` | Маркира картичка като свалена |
+| `GET /parent/levels` | Управление на нива |
+| `POST /parent/levels/toggle/<key>` | Превключване на ниво |
+| `GET /parent/reports` | Ежедневни отчети |
+| `POST /parent/settings/password` | Смяна на парола |
+| `GET /api/last-visit` | Часове от последна сесия |
+| `GET /admin/laykuchka/` | Admin dashboard |
+| `GET /admin/laykuchka/postcards` | Управление на картички |
+| `POST /admin/laykuchka/postcards/upload` | Качване на картичка |
+| `GET /admin/laykuchka/videos` | Управление на видеа |
+| `POST /admin/laykuchka/videos/upload` | Качване на видео |
+
+### Cron job
+
+```bash
+# Ежедневен отчет в 21:00
+0 21 * * * /var/www/lire-avec-alia/venv/bin/python3 /var/www/lire-avec-alia/scripts/daily_report.py
+```
+
+### Nginx конфигурации
+
+```
+/etc/nginx/sites-available/alia       # alia-adri.com
+/etc/nginx/sites-available/alia-admin # admin.alia-adri.com
+```
+
+### Известни проблеми
+
+| Проблем | Статус |
+|---------|--------|
+| Claude API — "credit balance too low" | ✅ Решено (нов ключ/баланс) |
+| Видео не се зарежда (403) | ✅ Решено (chmod 755/644) |
+| Gunicorn кешира шаблони | ✅ Решено (pkill + restart) |
+| Parent парола в JS | ✅ Решено (сървър-сайд) |
 
 ---
 
