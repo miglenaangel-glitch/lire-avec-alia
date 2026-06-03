@@ -57,10 +57,15 @@
 </div>
 
 <!-- Video overlay -->
-<div id="video-overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:9999;align-items:center;justify-content:center;">
-  <video id="overlay-video" playsinline style="width:100%;height:100%;object-fit:cover;"
+<div id="video-overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:9999;flex-direction:column;align-items:center;justify-content:center;" onclick="startVideoPlayback()">
+  <video id="overlay-video" playsinline style="width:100%;height:100%;object-fit:cover;display:none;"
     onended="closeVideo()">
   </video>
+  <div id="video-play-prompt" style="text-align:center;color:white;">
+    <div style="font-size:5rem;margin-bottom:1rem;">💝</div>
+    <div style="font-size:1.4rem;font-weight:700;font-family:'Nunito',sans-serif;margin-bottom:2rem;">Un message pour toi !</div>
+    <div style="background:white;color:#c2622a;border:none;padding:1rem 3rem;border-radius:50px;font-size:1.2rem;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;">▶ Regarder</div>
+  </div>
 </div>
 
 <!-- Mama password modal -->
@@ -110,25 +115,39 @@ document.getElementById('mama-pass').addEventListener('keydown', function(e) {
 function showStars() {}
 
 // ── VIDEO SYSTEM ──
-const VIDEOS = [
-  '/static/videos/I-love-you.mp4',
-  '/static/videos/love-learning-with-you.mp4'
-];
 const SO_LONG_VIDEO = '/static/videos/so-long.mp4';
+let pendingVideoSrc = null;
 
 function playVideo(src) {
+  pendingVideoSrc = src;
   const overlay = document.getElementById('video-overlay');
   const video = document.getElementById('overlay-video');
   video.src = src;
+  document.getElementById('video-play-prompt').style.display = 'block';
+  video.style.display = 'none';
   overlay.style.display = 'flex';
+}
+
+function startVideoPlayback() {
+  const video = document.getElementById('overlay-video');
+  const prompt = document.getElementById('video-play-prompt');
+  prompt.style.display = 'none';
+  video.style.display = 'block';
   video.play();
+  // Request fullscreen
+  const el = document.getElementById('video-overlay');
+  if (el.requestFullscreen) el.requestFullscreen();
+  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 }
 
 function closeVideo() {
   const overlay = document.getElementById('video-overlay');
   const video = document.getElementById('overlay-video');
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
   overlay.style.display = 'none';
   video.src = '';
+  video.style.display = 'none';
+  document.getElementById('video-play-prompt').style.display = 'block';
 }
 
 // Check 24-hour absence
