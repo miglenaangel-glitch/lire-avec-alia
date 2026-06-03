@@ -34,8 +34,10 @@ def index():
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM characters WHERE is_active = TRUE LIMIT 1")
     character = cur.fetchone()
+    cur.execute("SELECT level_key, is_locked FROM level_locks")
+    locks = {r['level_key']: r['is_locked'] for r in cur.fetchall()}
     cur.close()
-    return render_template('child/home.html', character=character, levels=LEVELS)
+    return render_template('child/home.html', character=character, levels=LEVELS, locks=locks)
 
 if __name__ == '__main__':
     app.run(debug=True)
