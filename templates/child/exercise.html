@@ -242,20 +242,17 @@ function animateSlide(s) {
       // Colored syllable: consonant=blue, vowel=red
       result.innerHTML = `<span class="consonant">${s.c}</span><span class="vowel">${s.v}</span>`;
       result.classList.add('visible');
-      speak(s.syl);
-      // After system reads: prompt Alia
-      setTimeout(() => {
-        const prompt = document.getElementById('syl-prompt');
-        prompt.textContent = '🎤 Appuie sur le micro et lis la syllabe !';
-        speak('Appuie sur le micro et lis la syllabe !');
-        document.getElementById('syl-mic-btn').style.display = 'inline-block';
-        document.getElementById('syl-mic-btn').disabled = false;
-        document.getElementById('syl-mic-btn').classList.remove('mic-on');
-        document.getElementById('syl-mic-btn').textContent = '🎤 À toi !';
-        document.getElementById('syl-feedback').textContent = '';
-        document.getElementById('repeat-btn').style.display = 'inline-block';
-        document.getElementById('next-btn').style.display = 'none';
-      }, 1200);
+      // Alia is first — mic active immediately, no system reading yet
+      const prompt = document.getElementById('syl-prompt');
+      prompt.textContent = '🎤 Appuie sur le micro et lis la syllabe !';
+      speak('Appuie sur le micro et lis la syllabe !');
+      document.getElementById('syl-mic-btn').style.display = 'inline-block';
+      document.getElementById('syl-mic-btn').disabled = false;
+      document.getElementById('syl-mic-btn').classList.remove('mic-on');
+      document.getElementById('syl-mic-btn').textContent = '🎤 À toi !';
+      document.getElementById('syl-feedback').textContent = '';
+      document.getElementById('repeat-btn').style.display = 'none';
+      document.getElementById('next-btn').style.display = 'none';
     }
   }, 18);
 }
@@ -290,20 +287,33 @@ function toggleSylMic() {
       btn.textContent = '🎤 À toi !';
       const alts = Array.from(event.results[0]).map(a => normalize(a.transcript));
       const target = normalize(allSyllables[current].syl);
-      const match = alts.some(a => a.includes(target) || target.includes(a) || a === target);
+      let bestScore = 0;
+      alts.forEach(a => {
+        if (a === target || a.includes(target) || target.includes(a)) bestScore = 1;
+        else if (a.length > 0 && target.length > 0) {
+          const common = [...target].filter(c => a.includes(c)).length;
+          bestScore = Math.max(bestScore, common / target.length);
+        }
+      });
+
       const feedback = document.getElementById('syl-feedback');
-      if (match) {
-        feedback.textContent = 'Bravo ! 🎉'; feedback.style.color = 'var(--success)';
-        speak('Bravo !');
+      let feedbackMsg, feedbackColor;
+      if (bestScore >= 0.8) {
+        feedbackMsg = 'Bravo ! 🎉'; feedbackColor = 'var(--success)';
+        recordAnswer('syllabe', allSyllables[current].syl, true);
+        setTimeout(() => { document.getElementById('next-btn').style.display = 'inline-block'; }, 2400);
+      } else if (bestScore >= 0.4) {
+        feedbackMsg = 'Bien essayé ! 👏 Réessaie !'; feedbackColor = 'var(--accent)';
+        setTimeout(() => { btn.disabled = false; document.getElementById('repeat-btn').style.display = 'inline-block'; }, 2400);
       } else {
-        feedback.textContent = 'Réessaie ! 💪'; feedback.style.color = 'var(--error)';
-        speak('Réessaie !');
+        feedbackMsg = 'Réessaie ! 💪'; feedbackColor = 'var(--error)';
+        setTimeout(() => { btn.disabled = false; document.getElementById('repeat-btn').style.display = 'inline-block'; }, 2400);
       }
-      setTimeout(() => speak(allSyllables[current].syl), 1500);
-      setTimeout(() => {
-        document.getElementById('next-btn').style.display = 'inline-block';
-        btn.disabled = false;
-      }, 1500 + 800);
+      feedback.textContent = feedbackMsg;
+      feedback.style.color = feedbackColor;
+      speak(feedbackMsg.replace(/[🎉👏💪]/g, ''));
+      // System always reads the syllable slowly after feedback
+      setTimeout(() => speak(allSyllables[current].syl), 1800);
     }, 3000);
   };
 
