@@ -196,4 +196,4 @@ Sois encourageant et précis.""".format(data=progress_text)
         summary = claude(prompt)
         return jsonify({'summary': summary})
     except Exception as e:
-        return jsonify({'summary': 'Résumé temporairement indisponible. Les données de progression sont bien enregistrées.'})
+        return jsonify({'summary': 'ERROR: ' + str(e)})
