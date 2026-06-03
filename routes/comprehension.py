@@ -55,6 +55,31 @@ def text_unlocked(text_idx, playlist_key, progress):
     return (prev['correct_answers'] / prev['total_questions']) >= 0.60
 
 
+@comprehension_bp.route('/playlist/<playlist_key>')
+def playlist_view(playlist_key):
+    """Direct link to a specific playlist."""
+    if playlist_key not in PLAYLISTS:
+        return redirect(url_for('comprehension.home'))
+    texts = load_playlist(playlist_key)
+    progress = get_progress(playlist_key)
+    info = PLAYLISTS[playlist_key]
+    texts_data = [
+        {
+            'id': t['id'],
+            'titre': t['titre'],
+            'difficulte': t['difficulte'],
+            'unlocked': text_unlocked(i, playlist_key, progress),
+            'progress': progress.get(t['id']),
+        }
+        for i, t in enumerate(texts)
+    ]
+    return render_template('comprehension/playlist.html',
+        playlist_key=playlist_key,
+        playlist_name=info['name'],
+        playlist_emoji=info['emoji'],
+        texts=texts_data)
+
+
 @comprehension_bp.route('/')
 def home():
     playlists_data = []

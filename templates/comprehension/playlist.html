@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ playlist_name }} — Lire avec Alia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #fdf8f0; --surface: #fff; --border: #e8d5b7;
+      --accent: #c2622a; --text: #2c1810; --muted: #8b6f5e;
+      --font: 'Nunito', sans-serif; --radius: 16px;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+    .header { display:flex; align-items:center; gap:1rem; padding:1rem 1.5rem; max-width:600px; margin:0 auto; }
+    .back { background:var(--surface); border:1.5px solid var(--border); color:var(--muted); font-size:1.2rem; width:44px; height:44px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; text-decoration:none; }
+    .page { max-width:600px; margin:0 auto; padding:0 1.5rem 3rem; }
+    h1 { font-size:1.4rem; font-weight:900; color:var(--accent); margin-bottom:0.3rem; }
+    .subtitle { color:var(--muted); font-size:0.9rem; font-style:italic; margin-bottom:2rem; }
+    .text-card { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius); padding:1.2rem; margin-bottom:0.8rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; box-shadow:0 1px 6px rgba(44,24,16,0.06); text-decoration:none; color:inherit; }
+    .text-card.locked { opacity:0.5; pointer-events:none; }
+    .text-name { font-weight:700; font-size:1rem; }
+    .text-meta { font-size:0.82rem; color:var(--muted); margin-top:0.2rem; }
+    .stars { color:#f59e0b; }
+    .badge-done { background:#dcfce7; color:#16a34a; padding:0.2rem 0.7rem; border-radius:99px; font-size:0.78rem; font-weight:700; }
+  </style>
+</head>
+<body>
+<div class="header">
+  <a href="/" class="back">🏠</a>
+  <h1>{{ playlist_emoji }} {{ playlist_name }}</h1>
+</div>
+<div class="page">
+  <p class="subtitle">Lis le texte et réponds aux questions !</p>
+
+  {% for t in texts %}
+  <a href="{% if t.unlocked %}{{ url_for('comprehension.text_view', playlist_key=playlist_key, text_id=t.id) }}{% else %}#{% endif %}"
+     class="text-card {% if not t.unlocked %}locked{% endif %}">
+    <div>
+      <div class="text-name">
+        {% if not t.unlocked %}🔒 {% endif %}{{ t.titre }}
+      </div>
+      <div class="text-meta">
+        <span class="stars">{{ '⭐' * t.difficulte }}</span>
+        {% if t.progress and t.progress.completed %}
+        <span class="badge-done" style="margin-left:0.5rem;">✓ Lu</span>
+        {% elif t.progress and t.progress.total_questions > 0 %}
+        — {{ t.progress.correct_answers }}/{{ t.progress.total_questions }}
+        {% elif not t.unlocked %}
+        — Termine le texte précédent d'abord
+        {% endif %}
+      </div>
+    </div>
+    {% if t.unlocked %}<span style="color:var(--accent);font-size:1.2rem;">→</span>{% endif %}
+  </a>
+  {% endfor %}
+</div>
+</body>
+</html>
