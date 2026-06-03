@@ -369,6 +369,8 @@ body {
 }
 
 .slide-result.visible { opacity: 1; }
+.slide-result .consonant { color: var(--consonant); }
+.slide-result .vowel { color: var(--vowel); }
 
 .syllable-nav {
   display: flex;

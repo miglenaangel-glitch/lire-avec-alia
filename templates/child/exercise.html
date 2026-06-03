@@ -39,6 +39,7 @@
     </div>
     <div class="slide-result" id="slide-result"></div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:0.8rem;margin-bottom:1.5rem;">
+      <p id="syl-prompt" style="color:var(--accent);font-weight:700;font-size:1rem;min-height:1.4rem;text-align:center;"></p>
       <button class="mic-btn" id="syl-mic-btn" onclick="toggleSylMic()" style="display:none;">🎤 À toi !</button>
       <p id="syl-feedback" style="font-size:1.1rem;font-weight:700;min-height:1.5rem;text-align:center;"></p>
       <div style="display:flex;gap:1rem;">
@@ -238,12 +239,15 @@ function animateSlide(s) {
     cursor.style.left = Math.min(progress / 100 * lineWidth, lineWidth) + 'px';
     if (progress >= 100) {
       clearInterval(interval);
-      result.textContent = s.syl;
+      // Colored syllable: consonant=blue, vowel=red
+      result.innerHTML = `<span class="consonant">${s.c}</span><span class="vowel">${s.v}</span>`;
       result.classList.add('visible');
       speak(s.syl);
-      recordAnswer('syllabe', s.syl, true);
-      // After animation: show mic for Alia to repeat
+      // After system reads: prompt Alia
       setTimeout(() => {
+        const prompt = document.getElementById('syl-prompt');
+        prompt.textContent = '📖 Lis cette syllabe, puis appuie sur le micro !';
+        speak('Lis cette syllabe !');
         document.getElementById('syl-mic-btn').style.display = 'inline-block';
         document.getElementById('syl-mic-btn').disabled = false;
         document.getElementById('syl-mic-btn').classList.remove('mic-on');
@@ -251,7 +255,7 @@ function animateSlide(s) {
         document.getElementById('syl-feedback').textContent = '';
         document.getElementById('repeat-btn').style.display = 'inline-block';
         document.getElementById('next-btn').style.display = 'none';
-      }, 1000);
+      }, 1200);
     }
   }, 18);
 }
