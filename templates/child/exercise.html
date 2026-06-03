@@ -87,6 +87,15 @@
     <button class="next-btn" id="next-word-btn" onclick="nextWord()" style="display:none;">Suivant →</button>
   </div>
 
+  {# ── NUMBER MATCH ── #}
+  {% elif level.exercise_type == 'number_match' %}
+  <div style="text-align:center;margin-bottom:2rem;">
+    <div id="num-digit" style="font-size:6rem;font-weight:900;color:var(--consonant);font-family:var(--font-letters);line-height:1;margin-bottom:0.5rem;"></div>
+    <p id="num-feedback" style="font-size:1.2rem;font-weight:700;min-height:2rem;"></p>
+  </div>
+  <div id="num-choices" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;width:100%;max-width:480px;"></div>
+  <button class="next-btn" id="num-next-btn" onclick="nextNumber()" style="display:none;margin-top:1.5rem;">Suivant →</button>
+
   {# ── SENTENCE READ ── #}
   {% elif level.exercise_type == 'sentence_read' %}
   <p id="sentence-prompt" style="color:var(--accent);font-weight:700;font-size:1.1rem;margin-bottom:0.5rem;text-align:center;">
@@ -868,6 +877,74 @@ document.addEventListener('DOMContentLoaded', () => {
   showSentence();
   setTimeout(() => speak('Appuie sur le micro et lis la phrase !'), 600);
 });
+{% endif %}
+
+/* ── NUMBER MATCH ── */
+{% if level.exercise_type == 'number_match' %}
+const NUMBERS = {{ level.numbers | tojson }};
+const NUMBERS_SHUFFLED = NUMBERS.sort(() => Math.random() - 0.5);
+let numIdx = 0;
+let numLocked = false;
+
+function showNumber() {
+  numLocked = false;
+  const current = NUMBERS_SHUFFLED[numIdx];
+  document.getElementById('num-digit').textContent = current.digit;
+  document.getElementById('num-feedback').textContent = '';
+  document.getElementById('num-next-btn').style.display = 'none';
+  // Build choices: correct + 3 random wrong
+  const others = NUMBERS.filter(n => n.digit !== current.digit)
+                         .sort(() => Math.random() - 0.5)
+                         .slice(0, 3);
+  const choices = [...others, current].sort(() => Math.random() - 0.5);
+  const grid = document.getElementById('num-choices');
+  grid.innerHTML = '';
+  choices.forEach(n => {
+    const btn = document.createElement('button');
+    btn.style.cssText = 'background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:1rem;font-size:1.3rem;font-weight:700;font-family:var(--font-letters);cursor:pointer;color:var(--text);transition:all 0.15s;';
+    btn.textContent = n.word;
+    btn.onclick = () => pickNumber(n.digit === current.digit, btn, current);
+    grid.appendChild(btn);
+  });
+  // Speak prompt
+  setTimeout(() => speak(String(current.digit)), 400);
+}
+
+function pickNumber(correct, btn, current) {
+  if (numLocked) return;
+  numLocked = true;
+  const fb = document.getElementById('num-feedback');
+  if (correct) {
+    btn.style.borderColor = 'var(--success)';
+    btn.style.background = '#f0faf2';
+    fb.textContent = 'Bravo ! 🎉';
+    fb.style.color = 'var(--success)';
+    speak('Bravo !');
+    setTimeout(() => speak(current.word), 1000);
+    recordAnswer('mot', String(current.digit), true);
+    setTimeout(() => {
+      document.getElementById('num-next-btn').style.display = 'inline-block';
+    }, 1800);
+  } else {
+    btn.style.borderColor = 'var(--error)';
+    btn.style.background = '#fff0f0';
+    fb.textContent = 'Réessaie ! 💪';
+    fb.style.color = 'var(--error)';
+    speak(current.word);
+    setTimeout(() => { numLocked = false; }, 1200);
+  }
+}
+
+function nextNumber() {
+  numIdx++;
+  if (numIdx >= NUMBERS_SHUFFLED.length) {
+    levelComplete();
+  } else {
+    showNumber();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', showNumber);
 {% endif %}
 </script>
 {% endblock %}

@@ -58,6 +58,12 @@ def _build_level(row, content_rows):
                              key=lambda r: r['order_index'])]
         base['sentences'] = sentences
 
+    elif exercise_type == 'number_match':
+        numbers = [json.loads(c['value']) for c in
+                   sorted([c for c in content_rows if c['type'] == 'word'],
+                           key=lambda r: r['order_index'])]
+        base['numbers'] = numbers
+
     return base
 
 
