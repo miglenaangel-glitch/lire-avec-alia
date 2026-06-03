@@ -172,7 +172,16 @@ def download_postcard(mailbox_id):
 def levels():
     mysql = get_mysql()
     cur = mysql.connection.cursor()
-    cur.execute("SELECT level_key, is_locked FROM level_locks ORDER BY id")
+    # Read from new `levels` table — is_unlocked=FALSE means locked
+    # Also check level_locks for manual overrides
+    cur.execute("""
+        SELECT l.level_key, l.name_fr, l.block, l.order_index,
+               l.is_unlocked,
+               COALESCE(ll.is_locked, NOT l.is_unlocked) AS is_locked
+        FROM levels l
+        LEFT JOIN level_locks ll ON ll.level_key = l.level_key
+        ORDER BY l.block, l.order_index
+    """)
     locks = cur.fetchall()
     cur.close()
     return render_template('parent/levels.html', locks=locks)

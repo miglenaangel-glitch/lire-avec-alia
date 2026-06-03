@@ -20,23 +20,31 @@
     Активирай или заключи нивата, до които Алия има достъп. Заключено ниво показва 🔒 в менюто й.
   </p>
 
-  {% set level_info = {
-    'voyelles':       ('🔤', 'Гласните',         'a · é · i · o · u · e'),
-    'consonnes_1':    ('🔗', 'Съгласните',       'Плъзни и слей сричката'),
-    'lecture_rapide': ('⚡', 'Бързо четене',     'Сричка по сричка без спиране'),
-    'mots_simples':   ('📖', 'Думите',            'chat · vélo · mamie…'),
-    'phrases':        ('💬', 'Изреченията',       'Rémi и Éva имат приключения…'),
+  {% set level_icons = {
+    'voyelles':       '🔤',
+    'consonnes_1':    '🔗',
+    'consonnes_2':    '🔗',
+    'lecture_rapide': '⚡',
+    'mots_simples':   '📖',
+    'phrases':        '💬',
   } %}
+  {% set level_blocks = {1: 'Bloc 1 — Bases', 2: 'Bloc 2 — Extension', 3: 'Bloc 3', 4: 'Bloc 4', 5: 'Bloc 5', 6: 'Bloc 6'} %}
 
+  {% set current_block = namespace(val=0) %}
   <div class="card">
     {% for lock in locks %}
-    {% set info = level_info.get(lock.level_key, ('📚', lock.level_key, '')) %}
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 0;border-bottom:1px solid var(--border);">
+    {% if lock.block != current_block.val %}
+      {% set current_block.val = lock.block %}
+      <p style="font-size:0.75rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;padding:0.8rem 0 0.3rem;border-top:{% if not loop.first %}1px solid var(--border){% else %}none{% endif %};">
+        {{ level_blocks.get(lock.block, 'Bloc ' ~ lock.block) }}
+      </p>
+    {% endif %}
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0.8rem 0;border-bottom:1px solid var(--border);">
       <div style="display:flex;align-items:center;gap:1rem;">
-        <div style="font-size:1.8rem;width:44px;text-align:center;">{{ info[0] }}</div>
+        <div style="font-size:1.5rem;width:40px;text-align:center;">{{ level_icons.get(lock.level_key, '📚') }}</div>
         <div>
-          <div style="font-weight:700;font-size:1rem;">{{ info[1] }}</div>
-          <div style="font-size:0.85rem;color:var(--text-muted);">{{ info[2] }}</div>
+          <div style="font-weight:700;font-size:1rem;">{{ lock.name_fr }}</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);">{{ lock.level_key }}</div>
         </div>
       </div>
       <button
