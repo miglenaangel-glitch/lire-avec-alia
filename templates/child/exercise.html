@@ -384,27 +384,29 @@ function toggleMic() {
     });
 
     const feedback = document.getElementById('sentence-feedback');
-    if (bestScore >= 0.8) {
-      // Bravo — system reads after
-      feedback.textContent = 'Bravo ! 🎉';
-      feedback.style.color = 'var(--success)';
-      recordAnswer('phrase', SENTENCES[sentIdx].slice(0, 30), true);
-      setTimeout(() => speak(SENTENCES[sentIdx]), 600);
+    const sentDur = SENTENCES[sentIdx].length * 80 + 1200;
+
+    function afterFeedback(msg, color, isCorrect) {
+      feedback.textContent = msg;
+      feedback.style.color = color;
+      speak(msg.replace(/[🎉👏💪]/g, ''));
+      if (isCorrect) recordAnswer('phrase', SENTENCES[sentIdx].slice(0, 30), true);
+      // Always read the phrase after feedback
+      setTimeout(() => speak(SENTENCES[sentIdx]), 1800);
+      // Always show next button
       setTimeout(() => {
         document.getElementById('next-sent-btn').style.display = 'inline-block';
-      }, SENTENCES[sentIdx].length * 80 + 1800);
+        document.getElementById('listen-btn').style.display = 'inline-block';
+        btn.disabled = false;
+      }, 1800 + sentDur);
+    }
+
+    if (bestScore >= 0.8) {
+      afterFeedback('Bravo ! 🎉', 'var(--success)', true);
     } else if (bestScore >= 0.5) {
-      // Good attempt
-      feedback.textContent = 'Bon essai ! 👏 Réessaie !';
-      feedback.style.color = 'var(--accent)';
-      document.getElementById('listen-btn').style.display = 'inline-block';
-      btn.disabled = false;
+      afterFeedback('Bon essai ! 👏 Réessaie !', 'var(--accent)', false);
     } else {
-      // Try again — show listen button
-      feedback.textContent = 'On va le dire mieux… réessaie ! 💪';
-      feedback.style.color = 'var(--error)';
-      document.getElementById('listen-btn').style.display = 'inline-block';
-      btn.disabled = false;
+      afterFeedback('On va le dire mieux… réessaie ! 💪', 'var(--error)', false);
     }
   };
 
