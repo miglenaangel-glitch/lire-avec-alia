@@ -13,9 +13,14 @@
 
   {# ── TAP TO HEAR (voyelles) ── #}
   {% if level.exercise_type == 'tap_to_hear' %}
+  <div style="text-align:center;margin-bottom:1.5rem;">
+    <p style="color:var(--text-muted);font-size:1rem;margin-bottom:0.5rem;">Trouve la bonne lettre !</p>
+    <p id="tap-task" style="font-size:1.8rem;font-weight:900;color:var(--accent);min-height:2.5rem;"></p>
+    <p id="tap-feedback" style="font-size:1.2rem;font-weight:700;min-height:2rem;margin-top:0.3rem;"></p>
+  </div>
   <div class="tap-grid">
     {% for el in level.elements %}
-    <div class="tap-card" onclick="tapHear('{{ el.letter }}', this)">
+    <div class="tap-card" id="tap-{{ el.letter }}" onclick="tapAnswer('{{ el.letter }}', this)">
       <span class="tap-letter {{ el.color }}">{{ el.letter }}</span>
       <span class="tap-gesture">{{ el.gesture }}</span>
     </div>
@@ -143,12 +148,51 @@ async function recordAnswer(elementType, elementValue, correct) {
 }
 
 /* ── TAP TO HEAR ── */
-function tapHear(letter, card) {
-  speak(letter);
-  card.classList.add('playing');
-  setTimeout(() => card.classList.remove('playing'), 600);
-  recordAnswer('voyelle', letter, true);
+{% if level.exercise_type == 'tap_to_hear' %}
+const VOWELS_TASK = {{ level.elements | map(attribute='letter') | list | tojson }};
+let currentTarget = null;
+let tapLocked = false;
+
+function askNextVowel() {
+  tapLocked = false;
+  // Reset card styles
+  document.querySelectorAll('.tap-card').forEach(c => {
+    c.style.borderColor = '';
+    c.style.background = '';
+  });
+  document.getElementById('tap-feedback').textContent = '';
+  // Pick random vowel
+  currentTarget = VOWELS_TASK[Math.floor(Math.random() * VOWELS_TASK.length)];
+  const msg = 'Appuie sur le  ' + currentTarget + ' !';
+  document.getElementById('tap-task').textContent = '👆 ' + currentTarget.toUpperCase();
+  speak(msg);
 }
+
+function tapAnswer(letter, card) {
+  if (tapLocked) return;
+  tapLocked = true;
+  const feedback = document.getElementById('tap-feedback');
+  if (letter === currentTarget) {
+    card.style.borderColor = 'var(--success)';
+    card.style.background = '#f0faf2';
+    feedback.textContent = 'Bravo ! 🎉';
+    feedback.style.color = 'var(--success)';
+    speak('Bravo !');
+    recordAnswer('voyelle', letter, true);
+    setTimeout(askNextVowel, 1800);
+  } else {
+    card.style.borderColor = 'var(--error)';
+    card.style.background = '#fff0f0';
+    feedback.textContent = 'Non… cherche le ' + currentTarget.toUpperCase() + ' !';
+    feedback.style.color = 'var(--error)';
+    speak('Non, cherche le ' + currentTarget + ' !');
+    recordAnswer('voyelle', letter, false);
+    setTimeout(() => { card.style.borderColor = ''; card.style.background = ''; tapLocked = false; }, 1200);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', askNextVowel);
+{% endif %}
 
 /* ── SLIDE TO MERGE ── */
 {% if level.exercise_type == 'slide_to_merge' %}
