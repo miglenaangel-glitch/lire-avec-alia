@@ -281,8 +281,41 @@ let sentIdx = 0;
 let recognition = null;
 let micActive = false;
 
+const VOWELS_FR = 'aâàeéèêëiîïoôuûùy';
+const SILENT_FINALS = new Set(['s','t','d','x','z','p','e']);
+
+function colorize(text) {
+  // Split into words preserving spaces and punctuation
+  return text.replace(/[^\s]+/g, word => {
+    const lower = word.toLowerCase().replace(/[^a-zàâäéèêëîïôùûüœç]/g, '');
+    let html = '';
+    for (let i = 0; i < word.length; i++) {
+      const ch = word[i];
+      const lc = ch.toLowerCase();
+      // punctuation/spaces pass through
+      if (!/[a-zàâäéèêëîïôùûüœç]/i.test(ch)) { html += ch; continue; }
+      // determine class
+      let cls;
+      const isLast = (i === word.length - 1) || !/[a-z]/i.test(word.slice(i+1));
+      if (lc === 'h') {
+        cls = 'silent';
+      } else if (VOWELS_FR.includes(lc)) {
+        // final 'e' → silent (unless 1-letter word)
+        if (lc === 'e' && isLast && lower.length > 1) cls = 'silent';
+        else cls = 'vowel';
+      } else {
+        // consonant — silent if final and in set
+        if (isLast && SILENT_FINALS.has(lc)) cls = 'silent';
+        else cls = 'consonant';
+      }
+      html += `<span class="${cls}">${ch}</span>`;
+    }
+    return html;
+  });
+}
+
 function showSentence() {
-  document.getElementById('sentence-display').textContent = SENTENCES[sentIdx];
+  document.getElementById('sentence-display').innerHTML = colorize(SENTENCES[sentIdx]);
   document.getElementById('sentence-feedback').textContent = '👆 Lis la phrase, puis appuie sur le micro !';
   document.getElementById('sentence-feedback').style.color = 'var(--text-muted)';
   document.getElementById('next-sent-btn').style.display = 'none';
