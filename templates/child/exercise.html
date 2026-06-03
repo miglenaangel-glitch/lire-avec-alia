@@ -91,6 +91,11 @@
       🎤 À toi !
     </button>
 
+    <button class="ilu-btn" id="done-reading-btn" onclick="stopAndEvaluate()"
+            style="display:none;background:#2d7a3a;font-size:1.1rem;padding:0.9rem 2.5rem;">
+      ✓ J'ai lu !
+    </button>
+
     <p id="sentence-feedback" style="font-size:1.2rem;font-weight:700;min-height:2rem;text-align:center;"></p>
 
     <button class="ilu-btn" id="listen-btn" onclick="listenSentence()" style="display:none;font-size:1rem;padding:0.7rem 1.8rem;">
@@ -646,6 +651,7 @@ function showSentence() {
   document.getElementById('sentence-feedback').textContent = '';
   document.getElementById('next-sent-btn').style.display = 'none';
   document.getElementById('listen-btn').style.display = 'none';
+  document.getElementById('done-reading-btn').style.display = 'none';
   document.getElementById('mic-btn').disabled = false;
   document.getElementById('mic-btn').classList.remove('mic-on');
   document.getElementById('mic-btn').textContent = '🎤 À toi !';
@@ -661,6 +667,8 @@ function listenSentence() {
   }, dur);
 }
 
+let collectedTranscript = [];
+
 function toggleMic() {
   if (micActive) return;
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -669,37 +677,61 @@ function toggleMic() {
     return;
   }
 
+  collectedTranscript = [];
   recognition = new SpeechRecognition();
   recognition.lang = 'fr-FR';
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 3;
+  recognition.interimResults = true;  // collect as Alia reads
+  recognition.continuous = true;      // keep listening until she presses done
+  recognition.maxAlternatives = 1;
 
   micActive = true;
   const btn = document.getElementById('mic-btn');
+  const doneBtn = document.getElementById('done-reading-btn');
   btn.classList.add('mic-on');
-  btn.textContent = '🔴 Je t\'écoute…';
+  btn.textContent = '🔴 En écoute…';
+  btn.disabled = true;
+  doneBtn.style.display = 'inline-block';
+  document.getElementById('sentence-feedback').textContent = '';
 
   recognition.onresult = (event) => {
-    // Wait for speech to finish + 3 sec pause before evaluating
-    micActive = false;
-    btn.classList.remove('mic-on');
-    btn.textContent = '⏳';
-    btn.disabled = true;
-    document.getElementById('sentence-feedback').textContent = '…';
+    // Collect final results
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        collectedTranscript.push(event.results[i][0].transcript);
+      }
+    }
+  };
 
-    setTimeout(() => {
+  recognition.onerror = () => {
+    // Don't stop on error — keep listening
+  };
+
+  recognition.start();
+}
+
+function stopAndEvaluate() {
+  if (!micActive && collectedTranscript.length === 0) return;
+
+  // Stop recognition
+  if (recognition) { try { recognition.stop(); } catch(e){} }
+  micActive = false;
+
+  const btn = document.getElementById('mic-btn');
+  const doneBtn = document.getElementById('done-reading-btn');
+  btn.classList.remove('mic-on');
+  btn.textContent = '⏳';
+  btn.disabled = true;
+  doneBtn.style.display = 'none';
+
+  setTimeout(() => {
     btn.textContent = '🎤 À toi !';
 
-    const alternatives = Array.from(event.results[0]).map(a => normalize(a.transcript));
+    const spoken = normalize(collectedTranscript.join(' '));
     const target = normalize(SENTENCES[sentIdx]);
-    let bestScore = 0;
-    alternatives.forEach(a => {
-      const targetWords = target.split(' ');
-      const spokenWords = a.split(' ');
-      const common = targetWords.filter(w => spokenWords.includes(w));
-      const score = common.length / targetWords.length;
-      if (score > bestScore) bestScore = score;
-    });
+    const targetWords = target.split(' ');
+    const spokenWords = spoken.split(' ');
+    const common = targetWords.filter(w => spokenWords.includes(w));
+    const bestScore = spoken.length > 0 ? common.length / targetWords.length : 0;
 
     const feedback = document.getElementById('sentence-feedback');
     const sentDur = SENTENCES[sentIdx].length * 80 + 1200;
@@ -709,9 +741,7 @@ function toggleMic() {
       feedback.style.color = color;
       speak(msg.replace(/[🎉👏💪]/g, ''));
       if (isCorrect) recordAnswer('phrase', SENTENCES[sentIdx].slice(0, 30), true);
-      // Always read the phrase after feedback
       setTimeout(() => speak(SENTENCES[sentIdx]), 1800);
-      // Always show next button
       setTimeout(() => {
         document.getElementById('next-sent-btn').style.display = 'inline-block';
         document.getElementById('listen-btn').style.display = 'inline-block';
@@ -726,17 +756,7 @@ function toggleMic() {
     } else {
       afterFeedback('On va le dire mieux… réessaie ! 💪', 'var(--error)', false);
     }
-    }, 1000); // 1 sec pause before evaluation
-  };
-
-  recognition.onerror = () => {
-    micActive = false;
-    btn.classList.remove('mic-on');
-    btn.textContent = '🎤 À toi !';
-    document.getElementById('sentence-feedback').textContent = '⚠️ Essaie encore.';
-  };
-
-  recognition.start();
+  }, 1000);
 }
 
 function nextSentence() {
