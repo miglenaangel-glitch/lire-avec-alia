@@ -242,7 +242,14 @@ async function recordAnswer(elementType, elementValue, correct) {
 const VOWELS_TASK = {{ level.elements | map(attribute='letter') | list | tojson }};
 let currentTarget = null;
 let tapLocked = false;
-const vowelsMastered = new Set();
+// Track correct answers per vowel — need 3 each
+const vowelCorrect = {};
+VOWELS_TASK.forEach(v => vowelCorrect[v] = 0);
+const VOWEL_TARGET = 3;
+
+function allVowelsDone() {
+  return VOWELS_TASK.every(v => vowelCorrect[v] >= VOWEL_TARGET);
+}
 
 function askNextVowel() {
   tapLocked = false;
@@ -251,11 +258,12 @@ function askNextVowel() {
     c.style.background = '';
   });
   document.getElementById('tap-feedback').textContent = '';
-  // Prefer unmastered vowels
-  const remaining = VOWELS_TASK.filter(v => !vowelsMastered.has(v));
+  // Prefer vowels not yet at 3
+  const remaining = VOWELS_TASK.filter(v => vowelCorrect[v] < VOWEL_TARGET);
   const pool = remaining.length > 0 ? remaining : VOWELS_TASK;
   currentTarget = pool[Math.floor(Math.random() * pool.length)];
-  document.getElementById('tap-task').textContent = '👆 ' + currentTarget.toUpperCase();
+  // Show finger only, NO letter — Alia must connect sound to letter
+  document.getElementById('tap-task').textContent = '👆';
   speak('Appuie sur le ' + currentTarget + ' !');
 }
 
@@ -270,19 +278,18 @@ function tapAnswer(letter, card) {
     feedback.style.color = 'var(--success)';
     speak('Bravo !');
     recordAnswer('voyelle', letter, true);
-    vowelsMastered.add(letter);
-    // All vowels answered correctly at least once → level complete
-    if (vowelsMastered.size >= VOWELS_TASK.length) {
+    vowelCorrect[letter]++;
+    if (allVowelsDone()) {
       setTimeout(levelComplete, 1200);
     } else {
-      setTimeout(askNextVowel, 1800);
+      setTimeout(askNextVowel, 1500);
     }
   } else {
     card.style.borderColor = 'var(--error)';
     card.style.background = '#fff0f0';
-    feedback.textContent = 'Non… cherche le ' + currentTarget.toUpperCase() + ' !';
+    feedback.textContent = '…';
     feedback.style.color = 'var(--error)';
-    speak('Non, cherche le ' + currentTarget + ' !');
+    speak(currentTarget); // repeat the sound without giving the letter name
     recordAnswer('voyelle', letter, false);
     setTimeout(() => { card.style.borderColor = ''; card.style.background = ''; tapLocked = false; }, 1200);
   }
