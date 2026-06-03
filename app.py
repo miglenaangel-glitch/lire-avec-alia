@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, render_template
 from flask_mysqldb import MySQL
 from config import Config
 
@@ -27,7 +27,13 @@ app.register_blueprint(api_bp, url_prefix='/api')
 
 @app.route('/')
 def index():
-    return redirect(url_for('child.home'))
+    from routes.child import LEVELS
+    mysql = app.extensions['mysql']
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM characters WHERE is_active = TRUE LIMIT 1")
+    character = cur.fetchone()
+    cur.close()
+    return render_template('child/home.html', character=character, levels=LEVELS)
 
 if __name__ == '__main__':
     app.run(debug=True)
