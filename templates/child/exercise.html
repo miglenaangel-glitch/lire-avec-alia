@@ -319,6 +319,7 @@ const CONSONANTS = {{ level.consonants | tojson }};
 const VOWELS = {{ level.vowels | tojson }};
 let allSyllables = [];
 CONSONANTS.forEach(c => VOWELS.forEach(v => allSyllables.push({c, v, syl: c+v})));
+allSyllables.sort(() => Math.random() - 0.5); // shuffle every time
 let current = 0;
 
 function buildNav() {
@@ -497,7 +498,8 @@ document.addEventListener('DOMContentLoaded', buildRapidGrid);
 
 /* ── WORD TAP ── */
 {% if level.exercise_type == 'word_tap' %}
-const WORDS = {{ level.words | tojson }};
+// Shuffle words on every load
+const WORDS = {{ level.words | tojson }}.sort(() => Math.random() - 0.5);
 let wordIdx = 0;
 
 const VOWEL_LETTERS = ['a','â','à','e','é','è','ê','ë','i','î','ï','o','ô','u','û','ù','y'];
