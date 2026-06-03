@@ -285,30 +285,33 @@ const VOWELS_FR = 'aâàeéèêëiîïoôuûùy';
 const SILENT_FINALS = new Set(['s','t','d','x','z','p','e']);
 
 function colorize(text) {
-  // Split into words preserving spaces and punctuation
   return text.replace(/[^\s]+/g, word => {
     const lower = word.toLowerCase().replace(/[^a-zàâäéèêëîïôùûüœç]/g, '');
     let html = '';
-    for (let i = 0; i < word.length; i++) {
+    let i = 0;
+    while (i < word.length) {
       const ch = word[i];
       const lc = ch.toLowerCase();
-      // punctuation/spaces pass through
-      if (!/[a-zàâäéèêëîïôùûüœç]/i.test(ch)) { html += ch; continue; }
-      // determine class
+      // punctuation pass through
+      if (!/[a-zàâäéèêëîïôùûüœç]/i.test(ch)) { html += ch; i++; continue; }
+
+      // digraphs: ch, ph, gn, qu → both letters = consonant
+      const next = word[i+1] ? word[i+1].toLowerCase() : '';
+      const digraphs = {c:'h', p:'h', g:'n', q:'u'};
+      if (digraphs[lc] === next) {
+        html += `<span class="consonant">${ch}</span><span class="consonant">${word[i+1]}</span>`;
+        i += 2; continue;
+      }
+
+      const isLast = (i === word.length - 1) || !/[a-zàâäéèêëîïôùûüœç]/i.test(word.slice(i+1));
       let cls;
-      const isLast = (i === word.length - 1) || !/[a-z]/i.test(word.slice(i+1));
-      if (lc === 'h') {
-        cls = 'silent';
-      } else if (VOWELS_FR.includes(lc)) {
-        // final 'e' → silent (unless 1-letter word)
-        if (lc === 'e' && isLast && lower.length > 1) cls = 'silent';
-        else cls = 'vowel';
+      if (VOWELS_FR.includes(lc)) {
+        cls = (lc === 'e' && isLast && lower.length > 1) ? 'silent' : 'vowel';
       } else {
-        // consonant — silent if final and in set
-        if (isLast && SILENT_FINALS.has(lc)) cls = 'silent';
-        else cls = 'consonant';
+        cls = (isLast && SILENT_FINALS.has(lc)) ? 'silent' : 'consonant';
       }
       html += `<span class="${cls}">${ch}</span>`;
+      i++;
     }
     return html;
   });
