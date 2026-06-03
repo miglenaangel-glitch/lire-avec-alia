@@ -33,9 +33,13 @@
       <span class="slide-vowel" id="s-vowel">a</span>
     </div>
     <div class="slide-result" id="slide-result"></div>
-    <div style="display:flex;gap:1rem;justify-content:center;margin-bottom:1.5rem;">
-      <button class="next-btn" id="repeat-btn" onclick="repeatSyllable()" style="display:none;background:var(--surface);color:var(--accent);border:2px solid var(--accent);">↺ Répéter</button>
-      <button class="next-btn" id="next-btn" onclick="nextSyllable()" style="display:none;">Suivant →</button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:0.8rem;margin-bottom:1.5rem;">
+      <button class="mic-btn" id="syl-mic-btn" onclick="toggleSylMic()" style="display:none;">🎤 À toi !</button>
+      <p id="syl-feedback" style="font-size:1.1rem;font-weight:700;min-height:1.5rem;text-align:center;"></p>
+      <div style="display:flex;gap:1rem;">
+        <button class="next-btn" id="repeat-btn" onclick="repeatSyllable()" style="display:none;background:var(--surface);color:var(--accent);border:2px solid var(--accent);">↺ Répéter</button>
+        <button class="next-btn" id="next-btn" onclick="nextSyllable()" style="display:none;">Suivant →</button>
+      </div>
     </div>
     <div class="syllable-nav" id="syl-nav"></div>
   </div>
@@ -48,9 +52,16 @@
 
   {# ── WORD TAP ── #}
   {% elif level.exercise_type == 'word_tap' %}
-  <p style="color:var(--text-muted);margin-bottom:1rem;font-size:1rem;">Appuie sur le mot pour l'entendre !</p>
-  <div class="word-display" id="word-display" onclick="tapWord()"></div>
-  <button class="next-btn" id="next-word-btn" onclick="nextWord()" disabled>Suivant →</button>
+  <p style="color:var(--accent);font-weight:700;font-size:1.1rem;margin-bottom:0.5rem;text-align:center;">
+    📖 Lis le mot, puis appuie sur le micro !
+  </p>
+  <div class="word-display" id="word-display"></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;margin-top:1rem;">
+    <button class="mic-btn" id="word-mic-btn" onclick="toggleWordMic()">🎤 À toi !</button>
+    <p id="word-feedback" style="font-size:1.2rem;font-weight:700;min-height:2rem;text-align:center;"></p>
+    <button class="ilu-btn" id="word-listen-btn" onclick="tapWord()" style="display:none;font-size:1rem;padding:0.7rem 1.8rem;">👂 Écoute comment on le dit</button>
+    <button class="next-btn" id="next-word-btn" onclick="nextWord()" style="display:none;">Suivant →</button>
+  </div>
 
   {# ── SENTENCE READ ── #}
   {% elif level.exercise_type == 'sentence_read' %}
@@ -101,6 +112,13 @@ function speak(text) {
   if (frVoice) utt.voice = frVoice;
 
   speechSynthesis.speak(utt);
+}
+
+function normalize(str) {
+  return str.toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9 ]/g, '')
+    .replace(/\s+/g, ' ').trim();
 }
 
 async function recordAnswer(elementType, elementValue, correct) {
@@ -180,14 +198,74 @@ function animateSlide(s) {
       result.classList.add('visible');
       speak(s.syl);
       recordAnswer('syllabe', s.syl, true);
-      document.getElementById('repeat-btn').style.display = 'inline-block';
-      document.getElementById('next-btn').style.display = 'inline-block';
+      // After animation: show mic for Alia to repeat
+      setTimeout(() => {
+        document.getElementById('syl-mic-btn').style.display = 'inline-block';
+        document.getElementById('syl-mic-btn').disabled = false;
+        document.getElementById('syl-mic-btn').classList.remove('mic-on');
+        document.getElementById('syl-mic-btn').textContent = '🎤 À toi !';
+        document.getElementById('syl-feedback').textContent = '';
+        document.getElementById('repeat-btn').style.display = 'inline-block';
+        document.getElementById('next-btn').style.display = 'none';
+      }, 1000);
     }
   }, 18);
 }
 
 function repeatSyllable() {
   speak(allSyllables[current].syl);
+}
+
+let sylMicActive = false;
+
+function toggleSylMic() {
+  if (sylMicActive) return;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('syl-feedback').textContent = '⚠️ Micro non supporté.';
+    return;
+  }
+  const rec = new SpeechRecognition();
+  rec.lang = 'fr-FR';
+  rec.interimResults = false;
+  rec.maxAlternatives = 3;
+  sylMicActive = true;
+  const btn = document.getElementById('syl-mic-btn');
+  btn.classList.add('mic-on');
+  btn.textContent = '🔴 Je t\'écoute…';
+
+  rec.onresult = (event) => {
+    sylMicActive = false;
+    btn.textContent = '⏳'; btn.disabled = true;
+    document.getElementById('syl-feedback').textContent = '…';
+    setTimeout(() => {
+      btn.textContent = '🎤 À toi !';
+      const alts = Array.from(event.results[0]).map(a => normalize(a.transcript));
+      const target = normalize(allSyllables[current].syl);
+      const match = alts.some(a => a.includes(target) || target.includes(a) || a === target);
+      const feedback = document.getElementById('syl-feedback');
+      if (match) {
+        feedback.textContent = 'Bravo ! 🎉'; feedback.style.color = 'var(--success)';
+        speak('Bravo !');
+      } else {
+        feedback.textContent = 'Réessaie ! 💪'; feedback.style.color = 'var(--error)';
+        speak('Réessaie !');
+      }
+      setTimeout(() => speak(allSyllables[current].syl), 1500);
+      setTimeout(() => {
+        document.getElementById('next-btn').style.display = 'inline-block';
+        btn.disabled = false;
+      }, 1500 + 800);
+    }, 3000);
+  };
+
+  rec.onerror = () => {
+    sylMicActive = false;
+    btn.classList.remove('mic-on');
+    btn.textContent = '🎤 À toi !';
+    document.getElementById('syl-feedback').textContent = '⚠️ Essaie encore.';
+  };
+  rec.start();
 }
 
 function nextSyllable() {
@@ -248,6 +326,8 @@ let wordIdx = 0;
 
 const VOWEL_LETTERS = ['a','â','à','e','é','è','ê','ë','i','î','ï','o','ô','u','û','ù','y'];
 
+let wordMicActive = false;
+
 function renderWord(wordObj) {
   const display = document.getElementById('word-display');
   const silent = wordObj.silent || [];
@@ -261,13 +341,70 @@ function renderWord(wordObj) {
     html += `<span class="${cls}">${ch}</span>`;
   }
   display.innerHTML = html;
-  document.getElementById('next-word-btn').disabled = false;
+  document.getElementById('word-feedback').textContent = '';
+  document.getElementById('word-listen-btn').style.display = 'none';
+  document.getElementById('next-word-btn').style.display = 'none';
+  document.getElementById('word-mic-btn').disabled = false;
+  document.getElementById('word-mic-btn').classList.remove('mic-on');
+  document.getElementById('word-mic-btn').textContent = '🎤 À toi !';
 }
 
 function tapWord() {
-  const w = WORDS[wordIdx];
-  speak(w.word);
-  recordAnswer('mot', w.word, true);
+  speak(WORDS[wordIdx].word);
+  document.getElementById('word-listen-btn').style.display = 'none';
+}
+
+function toggleWordMic() {
+  if (wordMicActive) return;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('word-feedback').textContent = '⚠️ Micro non supporté.';
+    return;
+  }
+  const rec = new SpeechRecognition();
+  rec.lang = 'fr-FR';
+  rec.interimResults = false;
+  rec.maxAlternatives = 3;
+  wordMicActive = true;
+  const btn = document.getElementById('word-mic-btn');
+  btn.classList.add('mic-on');
+  btn.textContent = '🔴 Je t\'écoute…';
+
+  rec.onresult = (event) => {
+    wordMicActive = false;
+    btn.textContent = '⏳'; btn.disabled = true;
+    document.getElementById('word-feedback').textContent = '…';
+    setTimeout(() => {
+      btn.textContent = '🎤 À toi !';
+      const alts = Array.from(event.results[0]).map(a => normalize(a.transcript));
+      const target = normalize(WORDS[wordIdx].word);
+      const match = alts.some(a => a.includes(target) || target.includes(a));
+      const feedback = document.getElementById('word-feedback');
+      const wordDur = WORDS[wordIdx].word.length * 100 + 800;
+      if (match) {
+        feedback.textContent = 'Bravo ! 🎉'; feedback.style.color = 'var(--success)';
+        speak('Bravo !');
+        recordAnswer('mot', WORDS[wordIdx].word, true);
+      } else {
+        feedback.textContent = 'On va le dire mieux… réessaie ! 💪'; feedback.style.color = 'var(--error)';
+        speak('On va le dire mieux, réessaie !');
+      }
+      setTimeout(() => speak(WORDS[wordIdx].word), 1800);
+      setTimeout(() => {
+        document.getElementById('word-listen-btn').style.display = 'inline-block';
+        document.getElementById('next-word-btn').style.display = 'inline-block';
+        btn.disabled = false;
+      }, 1800 + wordDur);
+    }, 3000);
+  };
+
+  rec.onerror = () => {
+    wordMicActive = false;
+    btn.classList.remove('mic-on');
+    btn.textContent = '🎤 À toi !';
+    document.getElementById('word-feedback').textContent = '⚠️ Essaie encore.';
+  };
+  rec.start();
 }
 
 function nextWord() {
@@ -349,13 +486,6 @@ function listenSentence() {
   setTimeout(() => {
     document.getElementById('mic-btn').disabled = false;
   }, dur);
-}
-
-function normalize(str) {
-  return str.toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9 ]/g, '')
-    .replace(/\s+/g, ' ').trim();
 }
 
 function toggleMic() {
