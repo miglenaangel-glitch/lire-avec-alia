@@ -495,8 +495,9 @@ document.addEventListener('DOMContentLoaded', () => showSyllable());
 
 /* ── RAPID READ ── */
 {% if level.exercise_type == 'rapid_read' %}
-const CONSONANTS_R = ['l','m','r','s','f'];
-const VOWELS_R = ['a','é','i','o','u'];
+// Read consonants/vowels from DB via level data if available, else defaults
+const CONSONANTS_R = {{ (level.consonants if level.consonants is defined else ['l','m','r','s','f']) | tojson }};
+const VOWELS_R = {{ (level.vowels if level.vowels is defined else ['a','é','i','o','u']) | tojson }};
 let rapidSyls = [];
 CONSONANTS_R.forEach(c => VOWELS_R.forEach(v => rapidSyls.push(c+v)));
 rapidSyls.sort(() => Math.random() - 0.5);
