@@ -54,16 +54,21 @@
 
   {# ── SENTENCE READ ── #}
   {% elif level.exercise_type == 'sentence_read' %}
+  <p id="sentence-prompt" style="color:var(--accent);font-weight:700;font-size:1.1rem;margin-bottom:0.5rem;text-align:center;">
+    📖 Lis la phrase, puis appuie sur le micro !
+  </p>
   <div class="sentence-display" id="sentence-display"></div>
 
-  <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;margin-top:1rem;">
-    <button class="ilu-btn" id="listen-btn" onclick="listenSentence()">👂 Écoute !</button>
-
-    <button class="mic-btn" id="mic-btn" onclick="toggleMic()" disabled>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;margin-top:0.5rem;">
+    <button class="mic-btn" id="mic-btn" onclick="toggleMic()">
       🎤 À toi !
     </button>
 
     <p id="sentence-feedback" style="font-size:1.2rem;font-weight:700;min-height:2rem;text-align:center;"></p>
+
+    <button class="ilu-btn" id="listen-btn" onclick="listenSentence()" style="display:none;font-size:1rem;padding:0.7rem 1.8rem;">
+      👂 Écoute comment on le dit
+    </button>
 
     <button class="next-btn" id="next-sent-btn" onclick="nextSentence()" style="display:none;">Suivant →</button>
   </div>
@@ -319,21 +324,20 @@ function colorize(text) {
 
 function showSentence() {
   document.getElementById('sentence-display').innerHTML = colorize(SENTENCES[sentIdx]);
-  document.getElementById('sentence-feedback').textContent = '👆 Lis la phrase, puis appuie sur le micro !';
-  document.getElementById('sentence-feedback').style.color = 'var(--text-muted)';
+  document.getElementById('sentence-feedback').textContent = '';
   document.getElementById('next-sent-btn').style.display = 'none';
+  document.getElementById('listen-btn').style.display = 'none';
   document.getElementById('mic-btn').disabled = false;
   document.getElementById('mic-btn').classList.remove('mic-on');
   document.getElementById('mic-btn').textContent = '🎤 À toi !';
-  document.getElementById('listen-btn').disabled = false;
 }
 
 function listenSentence() {
+  document.getElementById('listen-btn').style.display = 'none';
   speak(SENTENCES[sentIdx]);
-  document.getElementById('listen-btn').disabled = true;
-  const dur = SENTENCES[sentIdx].length * 70 + 1000;
+  document.getElementById('mic-btn').disabled = true;
+  const dur = SENTENCES[sentIdx].length * 80 + 1200;
   setTimeout(() => {
-    document.getElementById('listen-btn').disabled = false;
     document.getElementById('mic-btn').disabled = false;
   }, dur);
 }
@@ -370,28 +374,37 @@ function toggleMic() {
 
     const alternatives = Array.from(event.results[0]).map(a => normalize(a.transcript));
     const target = normalize(SENTENCES[sentIdx]);
-    const match = alternatives.some(a => {
+    let bestScore = 0;
+    alternatives.forEach(a => {
       const targetWords = target.split(' ');
       const spokenWords = a.split(' ');
       const common = targetWords.filter(w => spokenWords.includes(w));
-      return common.length / targetWords.length >= 0.6;
+      const score = common.length / targetWords.length;
+      if (score > bestScore) bestScore = score;
     });
 
     const feedback = document.getElementById('sentence-feedback');
-    if (match) {
+    if (bestScore >= 0.8) {
+      // Bravo — system reads after
       feedback.textContent = 'Bravo ! 🎉';
       feedback.style.color = 'var(--success)';
       recordAnswer('phrase', SENTENCES[sentIdx].slice(0, 30), true);
-      document.getElementById('next-sent-btn').style.display = 'inline-block';
-    } else {
-      feedback.textContent = 'Écoute encore 👂';
-      feedback.style.color = 'var(--error)';
+      setTimeout(() => speak(SENTENCES[sentIdx]), 600);
       setTimeout(() => {
-        speak(SENTENCES[sentIdx]);
-        setTimeout(() => {
-          btn.disabled = false;
-        }, SENTENCES[sentIdx].length * 60 + 800);
-      }, 600);
+        document.getElementById('next-sent-btn').style.display = 'inline-block';
+      }, SENTENCES[sentIdx].length * 80 + 1800);
+    } else if (bestScore >= 0.5) {
+      // Good attempt
+      feedback.textContent = 'Bon essai ! 👏 Réessaie !';
+      feedback.style.color = 'var(--accent)';
+      document.getElementById('listen-btn').style.display = 'inline-block';
+      btn.disabled = false;
+    } else {
+      // Try again — show listen button
+      feedback.textContent = 'On va le dire mieux… réessaie ! 💪';
+      feedback.style.color = 'var(--error)';
+      document.getElementById('listen-btn').style.display = 'inline-block';
+      btn.disabled = false;
     }
   };
 
@@ -409,7 +422,6 @@ function nextSentence() {
   sentIdx++;
   if (sentIdx >= SENTENCES.length) sentIdx = 0;
   showSentence();
-  listenSentence();
 }
 
 document.addEventListener('DOMContentLoaded', () => showSentence());
