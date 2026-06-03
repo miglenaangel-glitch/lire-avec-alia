@@ -1,133 +1,91 @@
-from flask import Blueprint, render_template, request, jsonify, current_app
+import json
+from flask import Blueprint, render_template, redirect, url_for, current_app
 from datetime import datetime
 
 child_bp = Blueprint('child', __name__)
 
-# Apili progression data
-LEVELS = {
-    'voyelles': {
-        'name': 'Les voyelles',
-        'elements': [
-            {'letter': 'a', 'color': 'vowel', 'gesture': 'Tu écartes les mains'},
-            {'letter': 'é', 'color': 'vowel', 'gesture': 'Tu lèves le doigt'},
-            {'letter': 'i', 'color': 'vowel', 'gesture': 'Montre du doigt et ris'},
-            {'letter': 'o', 'color': 'vowel', 'gesture': 'Mets ta main devant ta bouche'},
-            {'letter': 'u', 'color': 'vowel', 'gesture': 'Mets tes mains comme un volant'},
-            {'letter': 'e', 'color': 'vowel', 'gesture': 'Mets ton index sous ta bouche'},
-        ],
-        'exercise_type': 'tap_to_hear',
-    },
-    'consonnes_1': {
-        'name': 'Les consonnes',
-        'consonants': ['f', 's', 'ch', 'l', 'm', 'r'],
-        'vowels': ['a', 'é', 'i', 'o', 'u'],
-        'exercise_type': 'slide_to_merge',
-    },
-    'lecture_rapide': {
-        'name': 'Lecture rapide',
-        'exercise_type': 'rapid_read',
-    },
-    'mots_simples': {
-        'name': 'Les mots',
-        'words': [
-            {'word': 'chat', 'silent': ['t']},
-            {'word': 'ami', 'silent': []},
-            {'word': 'lave', 'silent': ['e']},
-            {'word': 'rame', 'silent': ['e']},
-            {'word': 'joli', 'silent': []},
-            {'word': 'vache', 'silent': ['e']},
-            {'word': 'lama', 'silent': []},
-            {'word': 'vélo', 'silent': []},
-            {'word': 'mari', 'silent': []},
-            {'word': 'rémi', 'silent': []},
-            {'word': 'fume', 'silent': ['e']},
-            {'word': 'mamie', 'silent': ['e']},
-            {'word': 'mur', 'silent': []},
-            {'word': 'lire', 'silent': ['e']},
-            {'word': 'rue', 'silent': ['e']},
-            {'word': 'mare', 'silent': ['e']},
-            {'word': 'vis', 'silent': ['s']},
-            {'word': 'rire', 'silent': ['e']},
-            {'word': 'avalé', 'silent': []},
-            {'word': 'fil', 'silent': ['l']},
-            {'word': 'lime', 'silent': ['e']},
-            {'word': 'mal', 'silent': []},
-            {'word': 'surimi', 'silent': []},
-            {'word': 'folie', 'silent': ['e']},
-            {'word': 'sale', 'silent': ['e']},
-            {'word': 'sali', 'silent': []},
-            {'word': 'ri', 'silent': []},
-            {'word': 'salami', 'silent': []},
-            {'word': 'mafia', 'silent': []},
-            {'word': 'safari', 'silent': []},
-            {'word': 'villa', 'silent': []},
-            {'word': 'chéri', 'silent': []},
-            {'word': 'mimi', 'silent': []},
-            {'word': 'cheval', 'silent': ['l']},
-            {'word': 'fusil', 'silent': ['l']},
-            {'word': 'lilas', 'silent': ['s']},
-            {'word': 'rival', 'silent': []},
-            {'word': 'moral', 'silent': []},
-            {'word': 'solar', 'silent': []},
-            {'word': 'choral', 'silent': []},
-            {'word': 'radis', 'silent': ['s']},
-            {'word': 'mélasse', 'silent': ['e']},
-            {'word': 'rifle', 'silent': ['e']},
-            {'word': 'fumée', 'silent': []},
-            {'word': 'salive', 'silent': ['e']},
-            {'word': 'muscle', 'silent': ['e']},
-            {'word': 'facile', 'silent': ['e']},
-            {'word': 'utile', 'silent': ['e']},
-        ],
-        'exercise_type': 'word_tap',
-    },
-    'phrases': {
-        'name': 'Les phrases',
-        'sentences': [
-            'Rémi lave la vache.',
-            'Éva va lire.',
-            'Rémi a sali le lit.',
-            'Rémi a volé le rat.',
-            'Rémi a vomi par la fenêtre.',
-            'Éva dort sur un sac de patates.',
-            'Rémi a mordu la patte du chat.',
-            'Éva a mis le chat dans le lit.',
-            'Rémi a léché la lime.',
-            'Éva a volé le surimi de Rémi.',
-            'Rémi a sali la robe de mamie.',
-            'Éva a ri sur le mur.',
-            'Rémi a fumé la chaussure.',
-            'Éva a lavé le rat avec du savon.',
-            'Rémi a mis le chat sur la tête.',
-            'Éva a avalé la lime par erreur.',
-            'Rémi a sali le canapé avec du surimi.',
-            'Éva a mordu la vache.',
-            'Rémi a lire mal le mot.',
-            'Éva a ri si fort que Rémi a eu peur.',
-            'Rémi a mis le rat dans la salade.',
-            'Éva a lavé Rémi à la place du chat.',
-            'Rémi a vomi sur le vélo de mamie.',
-            'Éva a sali la mare avec de la folie.',
-            'Rémi a dormi sur la vache.',
-            'Éva a volé la chaussure du chat.',
-            'Rémi a mis du surimi sur la tête de mamie.',
-            'Éva a ri si fort que le chat a sali le lit.',
-            'Rémi a léché le mur.',
-            'Éva a lavé le rat à la place du lama.',
-            'Rémi a vomi sur la robe de mamie.',
-            'Éva a mis le lama sur le lit.',
-            'Rémi a sali le mur avec de la folie.',
-            'Éva a mordu le vélo de Rémi.',
-            'Rémi a mis le chat dans la mare.',
-            'Éva a avalé le rat par erreur.',
-            'Rémi a ri sur le dos du lama.',
-            'Éva a sali le surimi de mamie.',
-            'Rémi a volé le lit de la vache.',
-            'Éva a vomi sur le sac de Rémi.',
-        ],
-        'exercise_type': 'sentence_read',
-    },
-}
+
+def get_mysql():
+    return current_app.extensions['mysql']
+
+
+def _build_level(row, content_rows):
+    """Build a level dict from DB rows — same format as the old hardcoded LEVELS."""
+    level_key = row['level_key']
+    exercise_type = row['exercise_type']
+    name = row['name_fr']
+
+    base = {'name': name, 'exercise_type': exercise_type}
+
+    if exercise_type == 'tap_to_hear':
+        elements = []
+        for c in sorted(content_rows, key=lambda r: r['order_index']):
+            if c['type'] == 'letter':
+                elements.append(json.loads(c['value']))
+        base['elements'] = elements
+
+    elif exercise_type == 'slide_to_merge':
+        consonants = [c['value'] for c in content_rows
+                      if c['type'] == 'letter']
+        vowels = [c['value'] for c in content_rows
+                  if c['type'] == 'syllable' and c['order_index'] < 20]
+        base['consonants'] = consonants
+        base['vowels'] = vowels
+        # words and sentences for consonnes_2 and later levels
+        words = [json.loads(c['value']) for c in
+                 sorted([c for c in content_rows if c['type'] == 'word'],
+                        key=lambda r: r['order_index'])]
+        sentences = [c['value'] for c in
+                     sorted([c for c in content_rows if c['type'] == 'sentence'],
+                             key=lambda r: r['order_index'])]
+        if words:
+            base['words'] = words
+        if sentences:
+            base['sentences'] = sentences
+
+    elif exercise_type == 'rapid_read':
+        pass  # syllables generated in JS
+
+    elif exercise_type == 'word_tap':
+        words = [json.loads(c['value']) for c in
+                 sorted([c for c in content_rows if c['type'] == 'word'],
+                        key=lambda r: r['order_index'])]
+        base['words'] = words
+
+    elif exercise_type == 'sentence_read':
+        sentences = [c['value'] for c in
+                     sorted([c for c in content_rows if c['type'] == 'sentence'],
+                             key=lambda r: r['order_index'])]
+        base['sentences'] = sentences
+
+    return base
+
+
+def load_levels_from_db():
+    """Load all unlocked levels from DB and return dict keyed by level_key."""
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+
+    cur.execute("SELECT * FROM levels ORDER BY block, order_index")
+    level_rows = cur.fetchall()
+
+    # Load all content in one query
+    cur.execute("SELECT * FROM level_content ORDER BY level_key, order_index")
+    all_content = cur.fetchall()
+    cur.close()
+
+    # Group content by level_key
+    content_by_level = {}
+    for c in all_content:
+        content_by_level.setdefault(c['level_key'], []).append(c)
+
+    levels = {}
+    for row in level_rows:
+        key = row['level_key']
+        content = content_by_level.get(key, [])
+        levels[key] = _build_level(row, content)
+
+    return levels
 
 
 def get_db():
@@ -136,41 +94,49 @@ def get_db():
 
 @child_bp.route('/')
 def home():
-    mysql = current_app.extensions['mysql']
+    mysql = get_mysql()
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM characters WHERE is_active = TRUE LIMIT 1")
     character = cur.fetchone()
     cur.execute("SELECT level_key, is_locked FROM level_locks")
     locks = {r['level_key']: r['is_locked'] for r in cur.fetchall()}
     cur.close()
-    return render_template('child/home.html', character=character, levels=LEVELS, locks=locks)
+
+    levels = load_levels_from_db()
+    return render_template('child/home.html', character=character, levels=levels, locks=locks)
 
 
 @child_bp.route('/exercise/<level_key>')
 def exercise(level_key):
-    if level_key not in LEVELS:
-        return redirect(url_for('child.home'))
-
-    mysql = current_app.extensions['mysql']
+    mysql = get_mysql()
     cur = mysql.connection.cursor()
 
-    # Check if level is locked
+    # Verify level exists in DB
+    cur.execute("SELECT * FROM levels WHERE level_key = %s", (level_key,))
+    level_row = cur.fetchone()
+    if not level_row:
+        cur.close()
+        return redirect(url_for('child.home'))
+
+    # Check if level is locked (level_locks table)
     cur.execute("SELECT is_locked FROM level_locks WHERE level_key = %s", (level_key,))
     lock = cur.fetchone()
     if lock and lock['is_locked']:
         cur.close()
         return redirect(url_for('child.home'))
 
+    # Load content for this level only
+    cur.execute("SELECT * FROM level_content WHERE level_key = %s ORDER BY order_index",
+                (level_key,))
+    content_rows = cur.fetchall()
+
     # Start a new session
-    cur.execute(
-        "INSERT INTO sessions (level) VALUES (%s)",
-        (level_key,)
-    )
+    cur.execute("INSERT INTO sessions (level) VALUES (%s)", (level_key,))
     mysql.connection.commit()
     session_id = cur.lastrowid
     cur.close()
 
-    level = LEVELS[level_key]
+    level = _build_level(level_row, content_rows)
     return render_template(
         'child/exercise.html',
         level=level,
@@ -181,7 +147,7 @@ def exercise(level_key):
 
 @child_bp.route('/reward/<int:session_id>')
 def reward(session_id):
-    mysql = current_app.extensions['mysql']
+    mysql = get_mysql()
     cur = mysql.connection.cursor()
 
     cur.execute("SELECT * FROM characters WHERE is_active = TRUE LIMIT 1")
