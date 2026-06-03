@@ -67,6 +67,13 @@
   </div>
 </div>
 
+<!-- Video overlay -->
+<div id="video-overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:9999;align-items:center;justify-content:center;">
+  <video id="overlay-video" playsinline style="width:100%;height:100%;object-fit:cover;"
+    onended="closeVideo()">
+  </video>
+</div>
+
 <!-- Mama password modal -->
 <div id="mama-modal" style="display:none;position:fixed;inset:0;background:rgba(44,24,16,0.5);z-index:999;align-items:center;justify-content:center;">
   <div style="background:#fff;border-radius:20px;padding:2rem;width:min(340px,90vw);text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.2);">
@@ -112,5 +119,40 @@ document.getElementById('mama-pass').addEventListener('keydown', function(e) {
 });
 
 function showStars() {}
+
+// ── VIDEO SYSTEM ──
+const VIDEOS = [
+  '/static/videos/I-love-you.mp4',
+  '/static/videos/love-learning-with-you.mp4'
+];
+const SO_LONG_VIDEO = '/static/videos/so-long.mp4';
+
+function playVideo(src) {
+  const overlay = document.getElementById('video-overlay');
+  const video = document.getElementById('overlay-video');
+  video.src = src;
+  overlay.style.display = 'flex';
+  video.play();
+}
+
+function closeVideo() {
+  const overlay = document.getElementById('video-overlay');
+  const video = document.getElementById('overlay-video');
+  overlay.style.display = 'none';
+  video.src = '';
+}
+
+// Check 24-hour absence
+async function checkLastVisit() {
+  try {
+    const res = await fetch('/api/last-visit');
+    const data = await res.json();
+    if (data.hours_ago !== null && data.hours_ago >= 24) {
+      playVideo(SO_LONG_VIDEO);
+    }
+  } catch(e) {}
+}
+
+document.addEventListener('DOMContentLoaded', checkLastVisit);
 </script>
 {% endblock %}

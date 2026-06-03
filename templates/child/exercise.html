@@ -100,6 +100,41 @@ const LEVEL_KEY = "{{ level_key }}";
 let totalAnswered = 0;
 let totalCorrect = 0;
 
+// ── 15-MINUTE VIDEO SYSTEM ──
+const REWARD_VIDEOS = [
+  '/static/videos/I-love-you.mp4',
+  '/static/videos/love-learning-with-you.mp4'
+];
+const VIDEO_INTERVAL = 15 * 60 * 1000; // 15 minutes
+
+function getNextVideoIdx() {
+  const idx = parseInt(localStorage.getItem('alia_next_video') || '0');
+  return idx % 2;
+}
+
+function playRewardVideo() {
+  const idx = getNextVideoIdx();
+  localStorage.setItem('alia_next_video', (idx + 1) % 2);
+
+  // Create fullscreen overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;';
+  const video = document.createElement('video');
+  video.src = REWARD_VIDEOS[idx];
+  video.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+  video.playsinline = true;
+  video.autoplay = true;
+  video.onended = () => document.body.removeChild(overlay);
+  overlay.appendChild(video);
+  document.body.appendChild(overlay);
+  video.play();
+}
+
+// Start 15-min timer
+setTimeout(playRewardVideo, VIDEO_INTERVAL);
+// Schedule repeating
+setInterval(playRewardVideo, VIDEO_INTERVAL);
+
 function updateProgress(pct) {
   document.getElementById('progress-bar').style.width = pct + '%';
 }

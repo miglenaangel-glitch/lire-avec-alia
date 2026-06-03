@@ -30,6 +30,22 @@ def get_mysql():
     return current_app.extensions['mysql']
 
 
+@api_bp.route('/last-visit', methods=['GET'])
+def last_visit():
+    """Return hours since last session — for 24h absence video check."""
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT MAX(started_at) as last FROM sessions")
+    row = cur.fetchone()
+    cur.close()
+    if not row or not row['last']:
+        return jsonify({'hours_ago': None})
+    from datetime import datetime
+    diff = datetime.utcnow() - row['last']
+    hours = diff.total_seconds() / 3600
+    return jsonify({'hours_ago': round(hours, 1)})
+
+
 @api_bp.route('/record', methods=['POST'])
 def record_answer():
     data = request.get_json()
