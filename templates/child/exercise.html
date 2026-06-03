@@ -618,7 +618,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ── SENTENCE READ ── */
 {% if level.exercise_type == 'sentence_read' %}
-const SENTENCES = {{ level.sentences | tojson }};
+// Shuffle sentences so Alia sees different ones each time
+const SENTENCES_ALL = {{ level.sentences | tojson }};
+const SENTENCES = SENTENCES_ALL.sort(() => Math.random() - 0.5);
 let sentIdx = 0;
 let recognition = null;
 let micActive = false;
