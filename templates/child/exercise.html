@@ -292,6 +292,12 @@ const SILENT_FINALS = new Set(['s','t','d','x','z','p','e']);
 function colorize(text) {
   return text.replace(/[^\s]+/g, word => {
     const lower = word.toLowerCase().replace(/[^a-zàâäéèêëîïôùûüœç]/g, '');
+    // Count vowels other than final 'e' to decide if final e is silent
+    const vowelCount = lower.split('').filter((c, idx) =>
+      VOWELS_FR.includes(c) && !(c === 'e' && idx === lower.length - 1)
+    ).length;
+    const finalESilent = vowelCount > 0; // final e is silent only if there are other vowels
+
     let html = '';
     let i = 0;
     while (i < word.length) {
@@ -300,18 +306,21 @@ function colorize(text) {
       // punctuation pass through
       if (!/[a-zàâäéèêëîïôùûüœç]/i.test(ch)) { html += ch; i++; continue; }
 
-      // digraphs: ch, ph, gn, qu → both letters = consonant
+      // digraphs: ch, ph, gn → both letters = consonant (qu: q=blue, u=silent)
       const next = word[i+1] ? word[i+1].toLowerCase() : '';
-      const digraphs = {c:'h', p:'h', g:'n', q:'u'};
-      if (digraphs[lc] === next) {
+      if ((lc === 'c' && next === 'h') || (lc === 'p' && next === 'h') || (lc === 'g' && next === 'n')) {
         html += `<span class="consonant">${ch}</span><span class="consonant">${word[i+1]}</span>`;
+        i += 2; continue;
+      }
+      if (lc === 'q' && next === 'u') {
+        html += `<span class="consonant">${ch}</span><span class="silent">${word[i+1]}</span>`;
         i += 2; continue;
       }
 
       const isLast = (i === word.length - 1) || !/[a-zàâäéèêëîïôùûüœç]/i.test(word.slice(i+1));
       let cls;
       if (VOWELS_FR.includes(lc)) {
-        cls = (lc === 'e' && isLast && lower.length > 1) ? 'silent' : 'vowel';
+        cls = (lc === 'e' && isLast && finalESilent) ? 'silent' : 'vowel';
       } else {
         cls = (isLast && SILENT_FINALS.has(lc)) ? 'silent' : 'consonant';
       }
