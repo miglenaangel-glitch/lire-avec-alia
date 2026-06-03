@@ -1,29 +1,30 @@
 {% extends "base.html" %}
-{% block title %}Niveaux — Parent{% endblock %}
+{% block title %}Нива на обучение{% endblock %}
 {% block css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/parent.css') }}">{% endblock %}
 
 {% block content %}
 <nav>
   <a href="{{ url_for('parent.dashboard') }}" class="brand">Lire avec Alia</a>
-  <a href="{{ url_for('parent.dashboard') }}">Tableau de bord</a>
-  <a href="{{ url_for('parent.mailbox') }}">💌 Boîte aux lettres</a>
-  <a href="{{ url_for('parent.levels') }}" class="active">Niveaux</a>
-  <a href="{{ url_for('parent.reports') }}">Progrès</a>
-  <a href="{{ url_for('parent.settings') }}">Réglages</a>
+  <a href="{{ url_for('parent.dashboard') }}">Табло</a>
+  <a href="{{ url_for('parent.mailbox') }}">💌 Поща</a>
+  <a href="{{ url_for('parent.levels') }}" class="active">Нива</a>
+  <a href="{{ url_for('parent.reports') }}">Напредък</a>
+  <a href="{{ url_for('parent.progress') }}">Детайли</a>
+  <a href="{{ url_for('parent.settings') }}">Настройки</a>
 </nav>
 
 <div class="page">
-  <h1>Niveaux d'apprentissage</h1>
+  <h1>Нива на обучение</h1>
   <p style="color:var(--text-muted);margin-bottom:2rem;">
-    Activez ou bloquez les niveaux auxquels Alia a accès. Un niveau bloqué affiche 🔒 dans son menu.
+    Активирай или заключи нивата, до които Алия има достъп. Заключено ниво показва 🔒 в менюто й.
   </p>
 
   {% set level_info = {
-    'voyelles':       ('🔤', 'Les voyelles',     'a · é · i · o · u · e'),
-    'consonnes_1':    ('🔗', 'Les consonnes',    'Glisser et fusionner les syllabes'),
-    'lecture_rapide': ('⚡', 'Lecture rapide',   'Lire les syllabes sans s\'arrêter'),
-    'mots_simples':   ('📖', 'Les mots',         'chat · vélo · mamie…'),
-    'phrases':        ('💬', 'Les phrases',       'Rémi et Éva ont des aventures…'),
+    'voyelles':       ('🔤', 'Гласните',         'a · é · i · o · u · e'),
+    'consonnes_1':    ('🔗', 'Съгласните',       'Плъзни и слей сричката'),
+    'lecture_rapide': ('⚡', 'Бързо четене',     'Сричка по сричка без спиране'),
+    'mots_simples':   ('📖', 'Думите',            'chat · vélo · mamie…'),
+    'phrases':        ('💬', 'Изреченията',       'Rémi и Éva имат приключения…'),
   } %}
 
   <div class="card">
@@ -41,7 +42,7 @@
         class="toggle-btn {% if lock.is_locked %}locked{% else %}unlocked{% endif %}"
         id="btn-{{ lock.level_key }}"
         onclick="toggleLevel('{{ lock.level_key }}', this)">
-        {% if lock.is_locked %}🔒 Bloqué{% else %}✅ Actif{% endif %}
+        {% if lock.is_locked %}🔒 Заключено{% else %}✅ Активно{% endif %}
       </button>
     </div>
     {% endfor %}
@@ -56,11 +57,11 @@ async function toggleLevel(key, btn) {
   const data = await res.json();
   if (data.success) {
     if (data.is_locked) {
-      btn.textContent = '🔒 Bloqué';
+      btn.textContent = '🔒 Заключено';
       btn.classList.remove('unlocked');
       btn.classList.add('locked');
     } else {
-      btn.textContent = '✅ Actif';
+      btn.textContent = '✅ Активно';
       btn.classList.remove('locked');
       btn.classList.add('unlocked');
     }

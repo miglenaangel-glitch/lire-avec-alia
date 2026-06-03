@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Tableau de bord — Parent{% endblock %}
+{% block title %}Табло — Родителски кабинет{% endblock %}
 {% block css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/parent.css') }}">
 {% endblock %}
@@ -7,18 +7,21 @@
 {% block content %}
 <nav>
   <a href="{{ url_for('parent.dashboard') }}" class="brand">Lire avec Alia</a>
-  <a href="{{ url_for('parent.dashboard') }}" class="active">Tableau de bord</a>
-  <a href="{{ url_for('parent.progress') }}">Progression</a>
-  <a href="{{ url_for('parent.settings') }}">Réglages</a>
+  <a href="{{ url_for('parent.dashboard') }}" class="active">Табло</a>
+  <a href="{{ url_for('parent.mailbox') }}">💌 Поща</a>
+  <a href="{{ url_for('parent.levels') }}">Нива</a>
+  <a href="{{ url_for('parent.reports') }}">Напредък</a>
+  <a href="{{ url_for('parent.progress') }}">Детайли</a>
+  <a href="{{ url_for('parent.settings') }}">Настройки</a>
 </nav>
 
 <div class="page">
-  <h1>Tableau de bord</h1>
+  <h1>Табло</h1>
 
   <div class="stat-row">
     <div class="stat-box">
       <div class="stat-num">{{ weekly | length }}</div>
-      <div class="stat-label">Jours actifs (7j)</div>
+      <div class="stat-label">Активни дни (7д)</div>
     </div>
     <div class="stat-box">
       <div class="stat-num">
@@ -26,7 +29,7 @@
         {% for d in weekly %}{% set total.n = total.n + d.total %}{% endfor %}
         {{ total.n }}
       </div>
-      <div class="stat-label">Exercices total</div>
+      <div class="stat-label">Упражнения общо</div>
     </div>
     <div class="stat-box">
       <div class="stat-num">
@@ -34,23 +37,22 @@
         {% for d in weekly %}{% set correct.n = correct.n + d.correct %}{% endfor %}
         {% if total.n > 0 %}{{ ((correct.n / total.n) * 100) | int }}%{% else %}—{% endif %}
       </div>
-      <div class="stat-label">Précision</div>
+      <div class="stat-label">Точност</div>
     </div>
   </div>
 
-  <!-- AI summary -->
+  <!-- AI резюме -->
   <div class="card">
-    <h2>Résumé IA</h2>
-    <div class="summary-box" id="ai-summary">Chargement…</div>
-    <button class="gen-btn" onclick="loadSummary()">↺ Actualiser</button>
+    <h2>Резюме с изкуствен интелект</h2>
+    <div class="summary-box" id="ai-summary">Зареждане…</div>
+    <button class="gen-btn" onclick="loadSummary()">↺ Обнови</button>
   </div>
 
-  <!-- Cette semaine -->
   {% if weekly %}
   <div class="card">
-    <h2>Cette semaine</h2>
+    <h2>Тази седмица</h2>
     <table>
-      <tr><th>Date</th><th>Séances</th><th>Exercices</th><th>Précision</th></tr>
+      <tr><th>Дата</th><th>Сесии</th><th>Упражнения</th><th>Точност</th></tr>
       {% for d in weekly %}
       <tr>
         <td>{{ d.day }}</td>
@@ -63,12 +65,11 @@
   </div>
   {% endif %}
 
-  <!-- Difficult elements -->
   {% if difficult %}
   <div class="card">
-    <h2>Difficultés</h2>
+    <h2>Трудности</h2>
     <table>
-      <tr><th>Élément</th><th>Type</th><th>Essais</th><th>Réussite</th></tr>
+      <tr><th>Елемент</th><th>Тип</th><th>Опити</th><th>Успешни</th></tr>
       {% for p in difficult %}
       <tr>
         <td><strong>{{ p.element_value }}</strong></td>
@@ -86,13 +87,13 @@
 {% block js %}
 <script>
 async function loadSummary() {
-  document.getElementById('ai-summary').textContent = 'Génération en cours…';
+  document.getElementById('ai-summary').textContent = 'Генериране…';
   try {
     const res = await fetch('/api/progress-summary');
     const data = await res.json();
     document.getElementById('ai-summary').textContent = data.summary;
   } catch(e) {
-    document.getElementById('ai-summary').textContent = 'Erreur de connexion.';
+    document.getElementById('ai-summary').textContent = 'Грешка при свързване.';
   }
 }
 loadSummary();

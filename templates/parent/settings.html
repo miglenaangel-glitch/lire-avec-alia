@@ -1,49 +1,52 @@
 {% extends "base.html" %}
-{% block title %}Réglages — Parent{% endblock %}
+{% block title %}Настройки{% endblock %}
 {% block css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/parent.css') }}">{% endblock %}
 
 {% block content %}
 <nav>
   <a href="{{ url_for('parent.dashboard') }}" class="brand">Lire avec Alia</a>
-  <a href="{{ url_for('parent.dashboard') }}">Tableau de bord</a>
-  <a href="{{ url_for('parent.progress') }}">Progression</a>
-  <a href="{{ url_for('parent.settings') }}" class="active">Réglages</a>
+  <a href="{{ url_for('parent.dashboard') }}">Табло</a>
+  <a href="{{ url_for('parent.mailbox') }}">💌 Поща</a>
+  <a href="{{ url_for('parent.levels') }}">Нива</a>
+  <a href="{{ url_for('parent.reports') }}">Напредък</a>
+  <a href="{{ url_for('parent.progress') }}">Детайли</a>
+  <a href="{{ url_for('parent.settings') }}" class="active">Настройки</a>
 </nav>
 
 <div class="page">
-  <h1>Réglages</h1>
+  <h1>Настройки</h1>
 
-  <!-- Characters -->
+  <!-- Персонажи -->
   <div class="card">
-    <h2>Personnage actif</h2>
+    <h2>Активен персонаж</h2>
     <div class="char-grid">
       {% for char in characters %}
       <div class="char-card {% if char.is_active %}active{% endif %}" id="char-{{ char.id }}" onclick="activateChar({{ char.id }})">
         <img src="{{ url_for('static', filename=char.image_path) }}" alt="{{ char.name }}">
         <div class="char-name">{{ char.name }}</div>
-        {% if char.is_active %}<div style="font-size:0.8rem;color:var(--accent);margin-top:0.3rem;">✓ Actif</div>{% endif %}
+        {% if char.is_active %}<div style="font-size:0.8rem;color:var(--accent);margin-top:0.3rem;">✓ Активен</div>{% endif %}
       </div>
       {% endfor %}
     </div>
   </div>
 
-  <!-- Reward phrases -->
+  <!-- Фрази за наградата -->
   <div class="card">
-    <h2>Phrases de récompense</h2>
+    <h2>Фрази за наградата</h2>
     <ul class="phrase-list" id="phrase-list">
       {% for p in phrases %}
       {% if p.is_active %}
       <li class="phrase-item" id="phrase-{{ p.id }}">
         <span class="phrase-text">{{ p.phrase }}</span>
-        <button class="del-btn" onclick="deletePhrase({{ p.id }})" title="Supprimer">✕</button>
+        <button class="del-btn" onclick="deletePhrase({{ p.id }})" title="Изтрий">✕</button>
       </li>
       {% endif %}
       {% endfor %}
     </ul>
 
     <div class="add-phrase-row">
-      <input type="text" id="new-phrase" placeholder="Alia, tu es géniale !" maxlength="200">
-      <button class="btn-primary" onclick="addPhrase()">Ajouter</button>
+      <input type="text" id="new-phrase" placeholder="Алия, ти си невероятна!" maxlength="200">
+      <button class="btn-primary" onclick="addPhrase()">Добави</button>
     </div>
   </div>
 </div>
@@ -53,16 +56,17 @@
 <script>
 async function activateChar(id) {
   await fetch(`/parent/settings/character/activate/${id}`, { method: 'POST' });
-  // Update UI
   document.querySelectorAll('.char-card').forEach(c => {
     c.classList.remove('active');
-    c.querySelector('div:last-child')?.remove();
+    const note = c.querySelector('.active-note');
+    if (note) note.remove();
   });
   const card = document.getElementById('char-' + id);
   card.classList.add('active');
   const note = document.createElement('div');
+  note.className = 'active-note';
   note.style.cssText = 'font-size:0.8rem;color:var(--accent);margin-top:0.3rem;';
-  note.textContent = '✓ Actif';
+  note.textContent = '✓ Активен';
   card.appendChild(note);
 }
 
