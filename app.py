@@ -23,12 +23,14 @@ from routes.parent import parent_bp
 from routes.api import api_bp
 from routes.admin import admin_bp
 from routes.numbers import numbers_bp
+from routes.comprehension import comprehension_bp
 
 app.register_blueprint(child_bp, url_prefix='/child')
 app.register_blueprint(parent_bp, url_prefix='/parent')
 app.register_blueprint(api_bp, url_prefix='/api')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(numbers_bp, url_prefix='/numbers')
+app.register_blueprint(comprehension_bp, url_prefix='/comprehension')
 
 @app.route('/')
 def index():

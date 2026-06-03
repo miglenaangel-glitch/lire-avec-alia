@@ -111,6 +111,18 @@ INSERT IGNORE INTO reward_phrases (phrase) VALUES
   ('Alia, tu es la meilleure !'),
   ('Alia, continue comme ça, tu es fantastique !');
 
+-- Comprehension progress
+CREATE TABLE IF NOT EXISTS comprehension_progress (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  playlist VARCHAR(20) NOT NULL,
+  text_id VARCHAR(20) NOT NULL,
+  total_questions INT DEFAULT 0,
+  correct_answers INT DEFAULT 0,
+  completed BOOLEAN DEFAULT FALSE,
+  completed_at TIMESTAMP NULL,
+  UNIQUE KEY unique_text (playlist, text_id)
+);
+
 -- Parent password (hashed)
 CREATE TABLE IF NOT EXISTS parent_settings (
   id INT PRIMARY KEY AUTO_INCREMENT,

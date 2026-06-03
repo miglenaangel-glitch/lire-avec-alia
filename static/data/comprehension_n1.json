@@ -1,0 +1,81 @@
+[
+  {
+    "id": "n1_t1",
+    "titre": "Le Chat de Rémi",
+    "difficulte": 1,
+    "texte": ["Rémi lave la vache.", "Le chat rit."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"Qui lave la vache ?","choix":["Rémi","Éva","le chat"],"bonne_reponse":0},
+      {"id":"q2","type":"qcm","question":"Qu'est-ce que Rémi lave ?","choix":["le chat","la vache","le vélo"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"Qui rit ?","choix":["Rémi","la vache","le chat"],"bonne_reponse":2},
+      {"id":"q4","type":"micro","question":"Que fait Rémi ?","mots_cles_acceptes":["lave","vache","Rémi"],"reponse_modele":"Rémi lave la vache.","bonus":false},
+      {"id":"q5","type":"micro","question":"Le chat est triste ou content ?","mots_cles_acceptes":["content","rit","rigolo","drôle","heureux"],"reponse_modele":"Le chat est content. Il rit.","bonus":false}
+    ]
+  },
+  {
+    "id": "n1_t2",
+    "titre": "La Vache et le Vélo",
+    "difficulte": 2,
+    "texte": ["La vache a volé le vélo de Rémi.", "Rémi est furieux.", "Éva rit."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"Qui a volé le vélo ?","choix":["Rémi","Éva","la vache"],"bonne_reponse":2},
+      {"id":"q2","type":"qcm","question":"C'est le vélo de qui ?","choix":["Éva","Rémi","le chat"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"Comment est Rémi ?","choix":["furieux","content","fatigué"],"bonne_reponse":0},
+      {"id":"q4","type":"qcm","question":"Qu'est-ce qu'Éva fait ?","choix":["Elle court","Elle rit","Elle lave"],"bonne_reponse":1},
+      {"id":"q5","type":"micro","question":"Qu'est-ce que la vache a fait ?","mots_cles_acceptes":["volé","vélo","pris","vache"],"reponse_modele":"La vache a volé le vélo de Rémi.","bonus":false},
+      {"id":"q6","type":"micro","question":"Pourquoi Éva rit ?","mots_cles_acceptes":["vache","vélo","drôle","rigolo","marrant","Rémi"],"reponse_modele":"Parce que la vache a volé le vélo de Rémi.","bonus":false}
+    ]
+  },
+  {
+    "id": "n1_t3",
+    "titre": "Le Lama de Mamie",
+    "difficulte": 3,
+    "texte": ["Mamie a un lama.", "Le lama a avalé le sac de farine.", "Mamie est mal.", "Rémi rit. Éva rit. Le lama rit aussi."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"C'est le lama de qui ?","choix":["Rémi","Éva","mamie"],"bonne_reponse":2},
+      {"id":"q2","type":"qcm","question":"Qu'est-ce que le lama a avalé ?","choix":["le vélo","le sac de farine","le chat"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"Comment est mamie ?","choix":["contente","mal","furieuse"],"bonne_reponse":1},
+      {"id":"q4","type":"qcm","question":"Qui rit à la fin ?","choix":["Rémi seulement","Rémi et Éva","Rémi, Éva et le lama"],"bonne_reponse":2},
+      {"id":"q5","type":"qcm","question":"Est-ce que le lama est triste ?","choix":["Oui, il pleure","Non, il rit aussi","On ne sait pas"],"bonne_reponse":1},
+      {"id":"q6","type":"micro","question":"Qu'est-ce que le lama a mangé ?","mots_cles_acceptes":["farine","sac","avalé","mangé"],"reponse_modele":"Le lama a avalé le sac de farine.","bonus":false},
+      {"id":"q7","type":"micro","question":"Est-ce que mamie est contente ?","mots_cles_acceptes":["non","mal","pas contente","fâchée","triste"],"reponse_modele":"Non, mamie est mal.","bonus":false},
+      {"id":"q8","type":"micro","question":"Qui rit dans ce texte ?","mots_cles_acceptes":["Rémi","Éva","lama","tout le monde"],"reponse_modele":"Rémi rit, Éva rit et le lama rit aussi.","bonus":false}
+    ]
+  },
+  {
+    "id": "n1_t4",
+    "titre": "Safari Raté",
+    "difficulte": 4,
+    "texte": ["Rémi a lu un livre sur le safari.", "Il a mis le lama, la vache et le chat dans la voiture.", "La famille a ri.", "Le chat a sali le couloir.", "Rémi a dit : c'est le safari de la rue !"],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"Qu'est-ce que Rémi a lu ?","choix":["un livre sur le safari","un livre sur la vache","un livre sur la famille"],"bonne_reponse":0},
+      {"id":"q2","type":"qcm","question":"Qu'est-ce que Rémi a mis dans la voiture ?","choix":["le lama et la vache","le chat seulement","le lama, la vache et le chat"],"bonne_reponse":2},
+      {"id":"q3","type":"qcm","question":"Qui a ri ?","choix":["Rémi","le lama","la famille"],"bonne_reponse":2},
+      {"id":"q4","type":"qcm","question":"Qu'est-ce que le chat a fait ?","choix":["il a ri","il a sali le couloir","il a lu le livre"],"bonne_reponse":1},
+      {"id":"q5","type":"qcm","question":"Où est le safari de Rémi ?","choix":["en Afrique","au marché","dans la rue"],"bonne_reponse":2},
+      {"id":"q6","type":"micro","question":"Qu'est-ce que Rémi a lu ?","mots_cles_acceptes":["livre","safari","lu"],"reponse_modele":"Rémi a lu un livre sur le safari.","bonus":false},
+      {"id":"q7","type":"micro","question":"Qu'est-ce que Rémi a mis dans la voiture ?","mots_cles_acceptes":["lama","vache","chat","animaux"],"reponse_modele":"Il a mis le lama, la vache et le chat dans la voiture.","bonus":false},
+      {"id":"q8","type":"micro","question":"Pourquoi c'est drôle ?","mots_cles_acceptes":["rue","voiture","animaux","safari","drôle"],"reponse_modele":"Parce que le safari est dans la rue avec des animaux dans la voiture !","bonus":false},
+      {"id":"q9","type":"micro","question":"Est-ce que le safari de Rémi est en Afrique ?","mots_cles_acceptes":["non","rue","pas en Afrique","chez lui"],"reponse_modele":"Non, c'est le safari de la rue.","bonus":false}
+    ]
+  },
+  {
+    "id": "n1_t5",
+    "titre": "Le Musée du Lama",
+    "difficulte": 5,
+    "texte": ["Rémi a amené le lama au musée.", "Le lama a vu une vache sur un tableau.", "Il a ri. Il a sali le mur.", "La maîtresse a vu le mur sale.", "Elle a dit : Rémi, le musée n'est pas un safari !", "Rémi a souri. Le lama aussi."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"Où est-ce que Rémi a amené le lama ?","choix":["au marché","au musée","au château"],"bonne_reponse":1},
+      {"id":"q2","type":"qcm","question":"Qu'est-ce que le lama a vu sur le tableau ?","choix":["un chat","Rémi","une vache"],"bonne_reponse":2},
+      {"id":"q3","type":"qcm","question":"Qu'est-ce que le lama a sali ?","choix":["le tableau","le mur","la maîtresse"],"bonne_reponse":1},
+      {"id":"q4","type":"qcm","question":"Qui a vu le mur sale ?","choix":["Éva","mamie","la maîtresse"],"bonne_reponse":2},
+      {"id":"q5","type":"qcm","question":"Qu'est-ce que la maîtresse a dit ?","choix":["le musée n'est pas un safari","le lama est joli","Rémi est un ami"],"bonne_reponse":0},
+      {"id":"q6","type":"qcm","question":"À la fin, Rémi est comment ?","choix":["furieux","triste","souriant"],"bonne_reponse":2},
+      {"id":"q7","type":"micro","question":"Où est-ce que Rémi a amené le lama ?","mots_cles_acceptes":["musée"],"reponse_modele":"Rémi a amené le lama au musée.","bonus":false},
+      {"id":"q8","type":"micro","question":"Qu'est-ce que le lama a fait au mur ?","mots_cles_acceptes":["sali","sale","mur"],"reponse_modele":"Le lama a sali le mur.","bonus":false},
+      {"id":"q9","type":"micro","question":"Qu'est-ce que la maîtresse a dit ?","mots_cles_acceptes":["safari","musée","pas un safari"],"reponse_modele":"Elle a dit : le musée n'est pas un safari.","bonus":false},
+      {"id":"q10","type":"micro","question":"Est-ce que Rémi est triste à la fin ?","mots_cles_acceptes":["non","souriant","content","rit","souri"],"reponse_modele":"Non, Rémi a souri.","bonus":false},
+      {"id":"q11","type":"micro","question":"Tu penses que le lama a aimé le musée ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
+  }
+]

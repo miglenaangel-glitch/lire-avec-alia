@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ text.titre }} — Lire avec Alia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #fdf8f0; --surface: #fff; --border: #e8d5b7;
+      --accent: #c2622a; --text: #2c1810; --muted: #8b6f5e;
+      --consonant: #1a3a6b; --vowel: #c0392b; --silent: #b0a090;
+      --success: #2d7a3a; --error: #c0392b;
+      --font: 'Nunito', sans-serif; --radius: 16px;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+    .header { display:flex; align-items:center; gap:1rem; padding:1rem 1.5rem; max-width:600px; margin:0 auto; }
+    .back { background:var(--surface); border:1.5px solid var(--border); color:var(--muted); font-size:1.2rem; width:44px; height:44px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; text-decoration:none; }
+    .prog-wrap { flex:1; height:8px; background:var(--border); border-radius:99px; overflow:hidden; }
+    .prog-fill { height:100%; background:var(--accent); border-radius:99px; transition:width 0.3s; }
+    .page { max-width:600px; margin:0 auto; padding:0 1.5rem 3rem; }
+    h1 { font-size:1.3rem; font-weight:900; color:var(--accent); margin-bottom:1.5rem; }
+    .text-box { background:var(--surface); border:2px solid var(--border); border-radius:var(--radius); padding:1.8rem; margin-bottom:2rem; box-shadow:0 2px 12px rgba(44,24,16,0.07); line-height:2; font-size:1.3rem; }
+    .text-box p { margin-bottom:0.5rem; }
+    .c { color: var(--consonant); font-weight:700; }
+    .v { color: var(--vowel); font-weight:700; }
+    .s { color: var(--silent); }
+    .n { color: #1a1a1a; font-weight:700; } /* neutral name */
+    /* Questions */
+    .question-area { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius); padding:1.5rem; margin-bottom:1rem; }
+    .q-number { font-size:0.78rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.5rem; }
+    .q-text { font-size:1.1rem; font-weight:700; margin-bottom:1rem; }
+    .qcm-choices { display:flex; flex-direction:column; gap:0.7rem; }
+    .qcm-btn { background:var(--bg); border:2px solid var(--border); border-radius:12px; padding:0.9rem 1.2rem; font-size:1rem; font-weight:600; font-family:var(--font); cursor:pointer; text-align:left; transition:all 0.15s; }
+    .qcm-btn:active { transform:scale(0.97); }
+    .qcm-btn.correct { border-color:var(--success); background:#f0faf2; color:var(--success); }
+    .qcm-btn.wrong { border-color:var(--error); background:#fff0f0; }
+    .q-feedback { font-size:1rem; font-weight:700; min-height:1.5rem; margin-top:0.8rem; }
+    .mic-btn { background:var(--bg); border:2.5px solid var(--accent); color:var(--accent); font-size:1.1rem; font-weight:800; padding:0.9rem 2.5rem; border-radius:50px; cursor:pointer; font-family:var(--font); transition:all 0.2s; width:100%; margin-top:0.5rem; }
+    .mic-btn.active { background:#fee2e2; border-color:var(--error); color:var(--error); animation:pulse 1s infinite; }
+    .done-btn { background:#2d7a3a; border:none; color:white; font-size:1rem; font-weight:800; padding:0.8rem 2rem; border-radius:50px; cursor:pointer; font-family:var(--font); margin-top:0.7rem; width:100%; display:none; }
+    .next-btn { background:var(--accent); border:none; color:white; font-size:1.1rem; font-weight:800; padding:1rem 2.5rem; border-radius:50px; cursor:pointer; font-family:var(--font); margin-top:1.5rem; box-shadow:0 3px 12px rgba(194,98,42,0.3); }
+    .bonus-badge { background:#fef3c7; border:1.5px solid #f59e0b; border-radius:10px; padding:0.5rem 1rem; font-size:0.85rem; font-weight:700; color:#92400e; margin-bottom:0.8rem; display:inline-block; }
+    @keyframes pulse {
+      0%,100% { box-shadow:0 0 0 0 rgba(192,57,43,0.3); }
+      50% { box-shadow:0 0 0 10px rgba(192,57,43,0); }
+    }
+    @keyframes confettiFall {
+      0% { transform:translateY(0) rotate(0deg); opacity:1; }
+      100% { transform:translateY(110vh) rotate(720deg); opacity:0; }
+    }
+  </style>
+</head>
+<body>
+<div class="header">
+  <a href="{{ url_for('comprehension.home') }}" class="back">←</a>
+  <div class="prog-wrap"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+  <a href="/" class="back">🏠</a>
+</div>
+
+<div class="page">
+  <h1>{{ text.titre }}</h1>
+
+  <!-- Text display -->
+  <div class="text-box" id="text-box">
+    {% for sentence in text.texte %}
+    <p id="sent-{{ loop.index0 }}">{{ sentence }}</p>
+    {% endfor %}
+  </div>
+
+  <!-- Button to read aloud -->
+  <button onclick="readText()" style="background:var(--surface);border:1.5px solid var(--border);padding:0.6rem 1.4rem;border-radius:50px;font-family:var(--font);font-weight:700;cursor:pointer;color:var(--muted);margin-bottom:2rem;">
+    👂 Écouter le texte
+  </button>
+
+  <!-- Questions -->
+  <div id="questions-container"></div>
+
+  <!-- Complete screen (hidden) -->
+  <div id="complete-screen" style="display:none;text-align:center;padding:2rem 0;">
+    <div style="font-size:4rem;margin-bottom:1rem;">🌟</div>
+    <p style="font-size:1.4rem;font-weight:900;color:var(--success);margin-bottom:0.5rem;">Bravo Alia !</p>
+    <p id="score-text" style="color:var(--muted);margin-bottom:2rem;"></p>
+    <a href="{{ url_for('comprehension.home') }}" style="background:var(--accent);color:white;padding:1rem 2.5rem;border-radius:50px;font-size:1.1rem;font-weight:800;text-decoration:none;">
+      Retour aux textes →
+    </a>
+  </div>
+</div>
+
+<script>
+const TEXT = {{ text | tojson }};
+const PLAYLIST = "{{ playlist_key }}";
+const NEUTRAL_NAMES = {{ neutral_names | tojson }};
+const VOWELS = 'aeéèêëiîïoôuûùy';
+
+let currentQ = 0;
+let correctCount = 0;
+let totalAnswerable = 0; // excludes bonus
+let recognition = null;
+let micActive = false;
+let spokenTranscript = [];
+
+// Count answerable questions
+totalAnswerable = TEXT.questions.filter(q => !q.bonus).length;
+
+// ── Colorize text ──
+function colorize(text) {
+  // Split into tokens, detect neutral names
+  const neutralSet = new Set(NEUTRAL_NAMES.map(n => n.toLowerCase()));
+  return text.replace(/[^\s\-.,!?'«»:]+/g, word => {
+    const lower = word.toLowerCase().replace(/[^a-zàâäéèêëîïôùûüœç\-]/g, '');
+    if (neutralSet.has(lower)) return `<span class="n">${word}</span>`;
+    let html = '';
+    let i = 0;
+    while (i < word.length) {
+      const ch = word[i];
+      const lc = ch.toLowerCase();
+      if (!/[a-zàâäéèêëîïôùûüœç]/i.test(ch)) { html += ch; i++; continue; }
+      const next = word[i+1] ? word[i+1].toLowerCase() : '';
+      if ((lc === 'c' && next === 'h') || (lc === 'p' && next === 'h') || (lc === 'g' && next === 'n')) {
+        html += `<span class="c">${ch}</span><span class="c">${word[i+1]}</span>`; i += 2; continue;
+      }
+      const isLast = (i === word.length - 1) || !/[a-zàâäéèêëîïôùûüœç]/i.test(word.slice(i+1));
+      const vowelCount = lower.split('').filter((c,idx) => VOWELS.includes(c) && !(c==='e'&&idx===lower.length-1)).length;
+      let cls;
+      if (VOWELS.includes(lc)) {
+        cls = (lc === 'e' && isLast && vowelCount > 0) ? 's' : 'v';
+      } else {
+        const silentFinals = new Set(['s','t','d','x','z','p']);
+        cls = (isLast && silentFinals.has(lc)) ? 's' : 'c';
+      }
+      html += `<span class="${cls}">${ch}</span>`;
+      i++;
+    }
+    return html;
+  });
+}
+
+// Apply colorization to text
+document.addEventListener('DOMContentLoaded', () => {
+  TEXT.texte.forEach((sentence, i) => {
+    const el = document.getElementById('sent-' + i);
+    if (el) el.innerHTML = colorize(sentence);
+  });
+  showQuestion(0);
+});
+
+function speak(text, rate) {
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'fr-FR'; u.rate = rate || 0.6;
+  const voices = speechSynthesis.getVoices();
+  const fr = voices.find(v => v.lang.startsWith('fr') && v.localService) || voices.find(v => v.lang.startsWith('fr'));
+  if (fr) u.voice = fr;
+  speechSynthesis.speak(u);
+}
+
+function readText() {
+  const full = TEXT.texte.join(' ');
+  speak(full, 0.6);
+}
+
+function updateProgress() {
+  const pct = (currentQ / TEXT.questions.length) * 100;
+  document.getElementById('prog').style.width = pct + '%';
+}
+
+// ── Build question DOM ──
+function showQuestion(idx) {
+  updateProgress();
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+  if (idx >= TEXT.questions.length) { showComplete(); return; }
+
+  const q = TEXT.questions[idx];
+  const div = document.createElement('div');
+  div.className = 'question-area';
+
+  const qNum = document.createElement('div');
+  qNum.className = 'q-number';
+  qNum.textContent = `Question ${idx + 1} / ${TEXT.questions.length}`;
+  div.appendChild(qNum);
+
+  if (q.bonus) {
+    const badge = document.createElement('div');
+    badge.className = 'bonus-badge';
+    badge.textContent = '🌟 Question bonus';
+    div.appendChild(badge);
+  }
+
+  const qText = document.createElement('div');
+  qText.className = 'q-text';
+  qText.textContent = q.question;
+  div.appendChild(qText);
+
+  const fb = document.createElement('div');
+  fb.className = 'q-feedback';
+  fb.id = 'feedback-' + idx;
+  div.id = 'q-' + idx;
+
+  if (q.type === 'qcm') {
+    const choices = document.createElement('div');
+    choices.className = 'qcm-choices';
+    q.choix.forEach((choice, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'qcm-btn';
+      btn.textContent = choice;
+      btn.onclick = () => answerQCM(idx, ci, btn, div);
+      choices.appendChild(btn);
+    });
+    div.appendChild(choices);
+    div.appendChild(fb);
+  } else {
+    // Micro question
+    div.appendChild(fb);
+    const micBtn = document.createElement('button');
+    micBtn.className = 'mic-btn';
+    micBtn.id = 'mic-' + idx;
+    micBtn.textContent = '🎤 Je réponds';
+    micBtn.onclick = () => startMic(idx, micBtn, div, q);
+    div.appendChild(micBtn);
+    const doneBtn = document.createElement('button');
+    doneBtn.className = 'done-btn';
+    doneBtn.id = 'done-' + idx;
+    doneBtn.textContent = "✓ J'ai répondu";
+    doneBtn.onclick = () => stopMicAndEvaluate(idx, div, q);
+    div.appendChild(doneBtn);
+  }
+
+  container.appendChild(div);
+
+  // Speak question
+  setTimeout(() => speak(q.question), 300);
+}
+
+// ── QCM ──
+function answerQCM(idx, chosen, btn, div) {
+  const q = TEXT.questions[idx];
+  div.querySelectorAll('.qcm-btn').forEach(b => b.disabled = true);
+  const fb = document.getElementById('feedback-' + idx);
+  const feedbacks_correct = ["Super Alia, c'est ça !", "Bravo, tu as bien lu !", "Excellent !"];
+  const feedbacks_wrong = ["Essaie encore une fois !", "Pas tout à fait — relis le texte !"];
+
+  if (chosen === q.bonne_reponse) {
+    btn.classList.add('correct');
+    fb.style.color = 'var(--success)';
+    fb.textContent = feedbacks_correct[Math.floor(Math.random() * feedbacks_correct.length)];
+    speak(feedbacks_correct[0]);
+    correctCount++;
+  } else {
+    btn.classList.add('wrong');
+    div.querySelectorAll('.qcm-btn')[q.bonne_reponse].classList.add('correct');
+    fb.style.color = 'var(--error)';
+    fb.textContent = "Essaie encore !";
+    speak("Essaie encore !");
+    setTimeout(() => speak(q.choix[q.bonne_reponse]), 1500);
+  }
+
+  const next = addNextBtn(div, idx);
+  setTimeout(() => next.style.display = 'inline-block', 1800);
+}
+
+// ── Micro ──
+function startMic(idx, micBtn, div, q) {
+  if (micActive) return;
+  spokenTranscript = [];
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('feedback-' + idx).textContent = '⚠️ Micro non supporté.';
+    return;
+  }
+  recognition = new SpeechRecognition();
+  recognition.lang = 'fr-FR';
+  recognition.interimResults = true;
+  recognition.continuous = true;
+  micActive = true;
+  micBtn.classList.add('active');
+  micBtn.textContent = '🔴 Je t\'écoute…';
+  micBtn.disabled = true;
+  document.getElementById('done-' + idx).style.display = 'block';
+
+  recognition.onresult = (event) => {
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) spokenTranscript.push(event.results[i][0].transcript);
+    }
+  };
+  recognition.onerror = () => {};
+  recognition.start();
+}
+
+function stopMicAndEvaluate(idx, div, q) {
+  if (recognition) { try { recognition.stop(); } catch(e){} }
+  micActive = false;
+  const micBtn = document.getElementById('mic-' + idx);
+  const doneBtn = document.getElementById('done-' + idx);
+  micBtn.classList.remove('active');
+  micBtn.textContent = '🎤 Je réponds';
+  doneBtn.style.display = 'none';
+
+  const fb = document.getElementById('feedback-' + idx);
+
+  setTimeout(() => {
+    // BONUS — always positive
+    if (q.bonus) {
+      fb.style.color = '#92400e';
+      fb.textContent = 'Merci Alia ! 💛';
+      speak('Merci Alia !');
+      const next = addNextBtn(div, idx);
+      setTimeout(() => next.style.display = 'inline-block', 1500);
+      return;
+    }
+
+    const spoken = spokenTranscript.join(' ').toLowerCase();
+    const keywords = q.mots_cles_acceptes || [];
+    const found = keywords.filter(kw => spoken.includes(kw.toLowerCase()));
+
+    if (found.length >= 2) {
+      fb.style.color = 'var(--success)';
+      fb.textContent = 'Bravo Alia, très bonne réponse ! 🎉';
+      speak('Bravo Alia, très bonne réponse !');
+      correctCount++;
+    } else if (found.length === 1) {
+      fb.style.color = 'var(--accent)';
+      fb.textContent = "Bien ! Tu as compris l'essentiel.";
+      speak("Bien ! Tu as compris l'essentiel.");
+      correctCount += 0.5;
+    } else {
+      fb.style.color = 'var(--muted)';
+      fb.textContent = 'Écoute la réponse…';
+      speak('Écoute la réponse.');
+      setTimeout(() => speak(q.reponse_modele), 1500);
+    }
+    const next = addNextBtn(div, idx);
+    setTimeout(() => next.style.display = 'inline-block', found.length >= 1 ? 1800 : 3000);
+  }, 1000);
+}
+
+function addNextBtn(div, idx) {
+  const btn = document.createElement('button');
+  btn.className = 'next-btn';
+  btn.style.display = 'none';
+  btn.textContent = idx + 1 < TEXT.questions.length ? 'Question suivante →' : 'Terminer ✓';
+  btn.onclick = () => { currentQ = idx + 1; showQuestion(currentQ); };
+  div.appendChild(btn);
+  return btn;
+}
+
+// ── Complete ──
+async function showComplete() {
+  document.getElementById('questions-container').style.display = 'none';
+  document.getElementById('complete-screen').style.display = 'block';
+  document.getElementById('prog').style.width = '100%';
+
+  const total = totalAnswerable;
+  const correct = Math.round(correctCount);
+  const pct = total > 0 ? Math.round(correct / total * 100) : 0;
+  document.getElementById('score-text').textContent = `${correct}/${total} bonnes réponses — ${pct}%`;
+  speak('Bravo Alia ! Tu as terminé le texte !');
+  launchConfetti();
+
+  await fetch('/comprehension/api/record', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({playlist: PLAYLIST, text_id: TEXT.id, correct, total})
+  });
+}
+
+function launchConfetti() {
+  const colors = ['#c2622a','#1a3a6b','#c0392b','#f59e0b','#10b981'];
+  for (let i = 0; i < 50; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.textContent = ['⭐','✦','●','★','💛'][Math.floor(Math.random()*5)];
+      const x = Math.random() * 100, dur = 2 + Math.random() * 2;
+      el.style.cssText = `position:fixed;left:${x}%;top:-5%;font-size:1.2rem;color:${colors[Math.floor(Math.random()*colors.length)]};animation:confettiFall ${dur}s linear forwards;z-index:100;pointer-events:none;`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), dur * 1000 + 500);
+    }, i * 60);
+  }
+}
+
+window.addEventListener('beforeunload', () => {
+  if (recognition) try { recognition.stop(); } catch(e){}
+});
+</script>
+</body>
+</html>
