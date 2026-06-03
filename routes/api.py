@@ -30,6 +30,26 @@ def get_mysql():
     return current_app.extensions['mysql']
 
 
+@api_bp.route('/session-end', methods=['POST'])
+def session_end():
+    """Record ended_at for a session — called via sendBeacon on page unload."""
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        session_id = data.get('session_id')
+        if session_id:
+            mysql = get_mysql()
+            cur = mysql.connection.cursor()
+            cur.execute("""
+                UPDATE sessions SET ended_at = NOW()
+                WHERE id = %s AND ended_at IS NULL
+            """, (session_id,))
+            mysql.connection.commit()
+            cur.close()
+    except Exception:
+        pass
+    return '', 204
+
+
 @api_bp.route('/last-visit', methods=['GET'])
 def last_visit():
     """Return hours since last session — for 24h absence video check."""

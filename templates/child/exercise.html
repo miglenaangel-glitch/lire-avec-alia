@@ -129,6 +129,11 @@
 <script>
 const SESSION_ID = {{ session_id }};
 const LEVEL_KEY = "{{ level_key }}";
+
+// Record ended_at when user leaves
+window.addEventListener('beforeunload', () => {
+  navigator.sendBeacon('/api/session-end', JSON.stringify({session_id: SESSION_ID}));
+});
 let totalAnswered = 0;
 let totalCorrect = 0;
 
