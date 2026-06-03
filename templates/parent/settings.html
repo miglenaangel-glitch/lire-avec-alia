@@ -16,6 +16,16 @@
 <div class="page">
   <h1>Настройки</h1>
 
+  <!-- Смяна на парола -->
+  <div class="card">
+    <h2>Парола за кабинета</h2>
+    <div class="add-phrase-row">
+      <input type="password" id="new-password" placeholder="Нова парола (мин. 4 символа)">
+      <button class="btn-primary" onclick="changePassword()">Смени</button>
+    </div>
+    <p id="pass-msg" style="margin-top:0.8rem;font-size:0.9rem;"></p>
+  </div>
+
   <!-- Персонажи -->
   <div class="card">
     <h2>Активен персонаж</h2>
@@ -54,6 +64,24 @@
 
 {% block js %}
 <script>
+async function changePassword() {
+  const pass = document.getElementById('new-password').value.trim();
+  const msg = document.getElementById('pass-msg');
+  if (pass.length < 4) { msg.textContent = '⚠️ Минимум 4 символа.'; msg.style.color='#dc2626'; return; }
+  const res = await fetch('/parent/settings/password', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ password: pass })
+  });
+  const data = await res.json();
+  if (data.success) {
+    msg.textContent = '✅ Паролата е сменена!'; msg.style.color='#16a34a';
+    document.getElementById('new-password').value = '';
+  } else {
+    msg.textContent = '❌ ' + (data.error || 'Грешка'); msg.style.color='#dc2626';
+  }
+}
+
 async function activateChar(id) {
   await fetch(`/parent/settings/character/activate/${id}`, { method: 'POST' });
   document.querySelectorAll('.char-card').forEach(c => {

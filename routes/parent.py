@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, current_app
+from flask import Blueprint, render_template, request, jsonify, current_app, session, redirect, url_for
 
 parent_bp = Blueprint('parent', __name__)
 
@@ -7,7 +7,42 @@ def get_mysql():
     return current_app.extensions['mysql']
 
 
+def parent_required(f):
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get('parent_logged_in'):
+            return redirect(url_for('parent.login'))
+        return f(*args, **kwargs)
+    return decorated
+
+
+@parent_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        mysql = get_mysql()
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT setting_value FROM parent_settings WHERE setting_key='password'")
+        row = cur.fetchone()
+        cur.close()
+        stored = row['setting_value'] if row else 'maman'
+        if password == stored:
+            session['parent_logged_in'] = True
+            return redirect(url_for('parent.dashboard'))
+        error = 'Mot de passe incorrect.'
+    return render_template('parent/login.html', error=error)
+
+
+@parent_bp.route('/logout')
+def logout():
+    session.pop('parent_logged_in', None)
+    return redirect(url_for('parent.login'))
+
+
 @parent_bp.route('/')
+@parent_required
 def dashboard():
     mysql = get_mysql()
     cur = mysql.connection.cursor()
@@ -43,6 +78,7 @@ def dashboard():
 
 
 @parent_bp.route('/progress')
+@parent_required
 def progress():
     mysql = get_mysql()
     cur = mysql.connection.cursor()
@@ -53,6 +89,7 @@ def progress():
 
 
 @parent_bp.route('/settings')
+@parent_required
 def settings():
     mysql = get_mysql()
     cur = mysql.connection.cursor()
@@ -102,6 +139,7 @@ def delete_phrase(phrase_id):
 
 # ── MAILBOX ──
 @parent_bp.route('/mailbox')
+@parent_required
 def mailbox():
     mysql = get_mysql()
     cur = mysql.connection.cursor()
@@ -130,6 +168,7 @@ def download_postcard(mailbox_id):
 
 # ── LEVELS ──
 @parent_bp.route('/levels')
+@parent_required
 def levels():
     mysql = get_mysql()
     cur = mysql.connection.cursor()
@@ -156,6 +195,7 @@ def toggle_level(level_key):
 
 # ── DAILY REPORTS ──
 @parent_bp.route('/reports')
+@parent_required
 def reports():
     mysql = get_mysql()
     cur = mysql.connection.cursor()
@@ -167,3 +207,21 @@ def reports():
     all_reports = cur.fetchall()
     cur.close()
     return render_template('parent/reports.html', reports=all_reports)
+
+
+@parent_bp.route('/settings/password', methods=['POST'])
+@parent_required
+def change_password():
+    data = request.get_json()
+    new_pass = data.get('password', '').strip()
+    if len(new_pass) < 4:
+        return jsonify({'error': 'Mot de passe trop court (4 caractères minimum).'}), 400
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        INSERT INTO parent_settings (setting_key, setting_value) VALUES ('password', %s)
+        ON DUPLICATE KEY UPDATE setting_value = %s
+    """, (new_pass, new_pass))
+    mysql.connection.commit()
+    cur.close()
+    return jsonify({'success': True})

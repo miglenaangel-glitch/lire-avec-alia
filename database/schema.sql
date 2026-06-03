@@ -90,3 +90,12 @@ INSERT IGNORE INTO reward_phrases (phrase) VALUES
   ('Alia, je suis tellement fière de toi !'),
   ('Alia, tu es la meilleure !'),
   ('Alia, continue comme ça, tu es fantastique !');
+
+-- Parent password (hashed)
+CREATE TABLE IF NOT EXISTS parent_settings (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  setting_key VARCHAR(50) UNIQUE,
+  setting_value TEXT
+);
+INSERT IGNORE INTO parent_settings (setting_key, setting_value)
+VALUES ('password', 'maman');
