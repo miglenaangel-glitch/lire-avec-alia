@@ -175,25 +175,23 @@ def progress_summary():
     if not rows:
         return jsonify({'summary': 'Pas encore de données de progression.'})
 
-    progress_text = '\n'.join(
-        "{val} ({typ}): {c}/{a} — {s}".format(
-            val=r['element_value'], typ=r['element_type'],
-            c=r['correct'], a=r['attempts'], s=r['status']
-        )
-        for r in rows
+    # Limit to 50 most recent elements to avoid prompt size issues
+    rows = rows[:50]
+    maitrise = [r['element_value'] for r in rows if r['status'] == 'maitrise']
+    difficile = [r['element_value'] for r in rows if r['status'] == 'difficile']
+    en_cours = [r['element_value'] for r in rows if r['status'] == 'en_cours']
+
+    prompt = (
+        "Tu es un assistant pedagogique. Ecris un resume de 3-4 phrases en francais "
+        "pour la maman d'Alia (13 ans, implant cochleaire, methode Apili).\n"
+        "Maitrise: " + ", ".join(maitrise[:20]) + "\n"
+        "Difficile: " + ", ".join(difficile[:20]) + "\n"
+        "En cours: " + ", ".join(en_cours[:20]) + "\n"
+        "Sois encourageant et donne un conseil concret pour la prochaine seance."
     )
-
-    prompt = """Voici les données de progression d'Alia pour cette semaine:
-{data}
-
-Écris un bref résumé (3-4 phrases) pour sa maman, en français, expliquant:
-- Ce qu'Alia maîtrise bien
-- Ce qui lui pose encore des difficultés
-- Un conseil concret pour la prochaine séance
-Sois encourageant et précis.""".format(data=progress_text)
 
     try:
         summary = claude(prompt)
         return jsonify({'summary': summary})
     except Exception as e:
-        return jsonify({'summary': 'ERROR: ' + str(e)})
+        return jsonify({'summary': 'Résumé temporairement indisponible. Les données sont bien enregistrées.'})
