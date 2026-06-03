@@ -76,6 +76,14 @@
       </div>
       <div class="stat-label">Точност</div>
     </div>
+    <div class="stat-box">
+      <div class="stat-num">
+        {% set mins = namespace(n=0) %}
+        {% for d in weekly %}{% if d.minutes %}{% set mins.n = mins.n + d.minutes %}{% endif %}{% endfor %}
+        {{ mins.n }} мин
+      </div>
+      <div class="stat-label">Общо работено (7д)</div>
+    </div>
   </div>
 
   <!-- AI резюме -->
@@ -89,13 +97,14 @@
   <div class="card">
     <h2>Тази седмица</h2>
     <table>
-      <tr><th>Дата</th><th>Сесии</th><th>Упражнения</th><th>Точност</th></tr>
+      <tr><th>Дата</th><th>Сесии</th><th>Упражнения</th><th>Точност</th><th>Време</th></tr>
       {% for d in weekly %}
       <tr>
         <td>{{ d.day }}</td>
         <td>{{ d.sessions }}</td>
         <td>{{ d.total }}</td>
         <td>{% if d.total > 0 %}{{ ((d.correct / d.total) * 100) | int }}%{% else %}—{% endif %}</td>
+        <td>{{ d.minutes or 0 }} мин</td>
       </tr>
       {% endfor %}
     </table>

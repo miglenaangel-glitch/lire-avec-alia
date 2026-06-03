@@ -169,10 +169,42 @@ function playRewardVideo() {
   }, { once: true });
 }
 
-// Start 15-min timer
-setTimeout(playRewardVideo, VIDEO_INTERVAL);
-// Schedule repeating
-setInterval(playRewardVideo, VIDEO_INTERVAL);
+// 15-min timer — persists across page loads via localStorage
+const SESSION_START_KEY = 'alia_session_start';
+const LAST_VIDEO_KEY = 'alia_last_video_time';
+
+function checkVideoTimer() {
+  const now = Date.now();
+  const sessionStart = parseInt(localStorage.getItem(SESSION_START_KEY) || now);
+  const lastVideo = parseInt(localStorage.getItem(LAST_VIDEO_KEY) || '0');
+
+  // Set session start if not set
+  if (!localStorage.getItem(SESSION_START_KEY)) {
+    localStorage.setItem(SESSION_START_KEY, now);
+  }
+
+  // Time since last video (or session start if no video yet)
+  const reference = lastVideo > sessionStart ? lastVideo : sessionStart;
+  const elapsed = now - reference;
+
+  if (elapsed >= VIDEO_INTERVAL) {
+    playRewardVideo();
+    localStorage.setItem(LAST_VIDEO_KEY, now);
+  } else {
+    // Schedule for remaining time
+    setTimeout(() => {
+      playRewardVideo();
+      localStorage.setItem(LAST_VIDEO_KEY, Date.now());
+      setInterval(() => {
+        playRewardVideo();
+        localStorage.setItem(LAST_VIDEO_KEY, Date.now());
+      }, VIDEO_INTERVAL);
+    }, VIDEO_INTERVAL - elapsed);
+  }
+}
+
+// Reset session start on home page visit (tracked separately)
+checkVideoTimer();
 
 function updateProgress(pct) {
   document.getElementById('progress-bar').style.width = pct + '%';

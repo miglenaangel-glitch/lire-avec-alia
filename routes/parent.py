@@ -49,7 +49,9 @@ def dashboard():
 
     cur.execute("""
         SELECT DATE(started_at) as day, COUNT(*) as sessions,
-               SUM(correct_answers) as correct, SUM(total_exercises) as total
+               SUM(correct_answers) as correct, SUM(total_exercises) as total,
+               ROUND(SUM(TIMESTAMPDIFF(SECOND, started_at,
+                 COALESCE(ended_at, NOW()))) / 60) as minutes
         FROM sessions
         WHERE started_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
         GROUP BY DATE(started_at)

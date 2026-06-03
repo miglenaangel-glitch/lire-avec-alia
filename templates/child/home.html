@@ -91,6 +91,10 @@ document.getElementById('mama-pass').addEventListener('keydown', function(e) {
 
 function showStars() {}
 
+// Reset video session timer when returning to home menu
+localStorage.removeItem('alia_session_start');
+localStorage.removeItem('alia_last_video_time');
+
 // ── VIDEO SYSTEM ──
 const SO_LONG_VIDEO = '/static/videos/so-long.mp4';
 let pendingVideoSrc = null;
