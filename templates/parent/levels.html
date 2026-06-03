@@ -17,18 +17,23 @@
 <div class="page">
   <h1>Нива на обучение</h1>
   <p style="color:var(--text-muted);margin-bottom:2rem;">
-    Активирай или заключи нивата, до които Алия има достъп. Заключено ниво показва 🔒 в менюто й.
+    Активирай или заключи нивата. Натисни <strong>+</strong> за да видиш съдържанието преди да отключиш.
   </p>
 
   {% set level_icons = {
-    'voyelles':       '🔤',
-    'consonnes_1':    '🔗',
-    'consonnes_2':    '🔗',
-    'lecture_rapide': '⚡',
-    'mots_simples':   '📖',
-    'phrases':        '💬',
+    'voyelles': '🔤', 'consonnes_1': '🔗', 'consonnes_2': '🔗',
+    'lecture_rapide': '⚡', 'lecture_rapide_2': '⚡',
+    'mots_simples': '📖', 'mots_2': '📖',
+    'phrases': '💬', 'phrases_2': '💬',
   } %}
   {% set level_blocks = {1: 'Bloc 1 — Bases', 2: 'Bloc 2 — Extension', 3: 'Bloc 3', 4: 'Bloc 4', 5: 'Bloc 5', 6: 'Bloc 6'} %}
+  {% set exercise_labels = {
+    'tap_to_hear': 'Намери буквата',
+    'slide_to_merge': 'Слей сричката',
+    'rapid_read': 'Бързо четене',
+    'word_tap': 'Произнеси думата',
+    'sentence_read': 'Прочети изречението',
+  } %}
 
   {% set current_block = namespace(val=0) %}
   <div class="card">
@@ -39,21 +44,43 @@
         {{ level_blocks.get(lock.block, 'Bloc ' ~ lock.block) }}
       </p>
     {% endif %}
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:0.8rem 0;border-bottom:1px solid var(--border);">
-      <div style="display:flex;align-items:center;gap:1rem;">
-        <div style="font-size:1.5rem;width:40px;text-align:center;">{{ level_icons.get(lock.level_key, '📚') }}</div>
-        <div>
-          <div style="font-weight:700;font-size:1rem;">{{ lock.name_fr }}</div>
-          <div style="font-size:0.8rem;color:var(--text-muted);">{{ lock.level_key }}</div>
+
+    <div>
+      <!-- Main row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.8rem 0;">
+        <div style="display:flex;align-items:center;gap:1rem;flex:1;">
+          <div style="font-size:1.5rem;width:40px;text-align:center;">{{ level_icons.get(lock.level_key, '📚') }}</div>
+          <div>
+            <div style="font-weight:700;font-size:1rem;">{{ lock.name_fr }}</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">{{ exercise_labels.get(lock.exercise_type, lock.exercise_type) }}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.6rem;">
+          <!-- + preview button -->
+          <button
+            onclick="togglePreview('{{ lock.level_key }}')"
+            id="preview-btn-{{ lock.level_key }}"
+            style="width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface2);font-size:1rem;font-weight:700;cursor:pointer;color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            +
+          </button>
+          <!-- Lock/unlock button -->
+          <button
+            class="toggle-btn {% if lock.is_locked %}locked{% else %}unlocked{% endif %}"
+            id="btn-{{ lock.level_key }}"
+            onclick="toggleLevel('{{ lock.level_key }}', this)">
+            {% if lock.is_locked %}🔒 Заключено{% else %}✅ Активно{% endif %}
+          </button>
         </div>
       </div>
-      <button
-        class="toggle-btn {% if lock.is_locked %}locked{% else %}unlocked{% endif %}"
-        id="btn-{{ lock.level_key }}"
-        onclick="toggleLevel('{{ lock.level_key }}', this)">
-        {% if lock.is_locked %}🔒 Заключено{% else %}✅ Активно{% endif %}
-      </button>
+
+      <!-- Expandable preview -->
+      <div id="preview-{{ lock.level_key }}"
+           style="display:none;background:var(--surface2);border-radius:10px;padding:1rem;margin-bottom:0.8rem;font-size:0.88rem;border:1px solid var(--border);">
+        <p style="color:var(--text-muted);font-style:italic;margin-bottom:0.5rem;">Зареждане…</p>
+      </div>
     </div>
+
+    {% if not loop.last %}<div style="border-bottom:1px solid var(--border);"></div>{% endif %}
     {% endfor %}
   </div>
 </div>
@@ -75,6 +102,59 @@ async function toggleLevel(key, btn) {
       btn.classList.add('unlocked');
     }
   }
+}
+
+const previewCache = {};
+
+async function togglePreview(key) {
+  const div = document.getElementById('preview-' + key);
+  const btn = document.getElementById('preview-btn-' + key);
+  if (div.style.display === 'block') {
+    div.style.display = 'none';
+    btn.textContent = '+';
+    return;
+  }
+  div.style.display = 'block';
+  btn.textContent = '−';
+
+  if (previewCache[key]) { div.innerHTML = previewCache[key]; return; }
+
+  const res = await fetch(`/parent/levels/content/${key}`);
+  const data = await res.json();
+  if (data.error) { div.innerHTML = '<em>Няма съдържание.</em>'; return; }
+
+  let html = `<strong>${data.name}</strong> — <em>${typeLabel(data.exercise_type)}</em><br><br>`;
+
+  const letters = data.items.filter(i => i.type === 'letter' && !i.value.startsWith('{'));
+  const vowels  = data.items.filter(i => i.type === 'syllable');
+  const words   = data.items.filter(i => i.type === 'word');
+  const sents   = data.items.filter(i => i.type === 'sentence');
+  const lettersJSON = data.items.filter(i => i.type === 'letter' && i.value.startsWith('{'));
+
+  if (lettersJSON.length) {
+    const ls = lettersJSON.map(i => { try { return JSON.parse(i.value).letter; } catch(e){ return i.value; }});
+    html += `<b>Гласни:</b> ${ls.join(' · ')}<br>`;
+  }
+  if (letters.length) html += `<b>Съгласни:</b> ${letters.map(i=>i.value).join(' · ')}<br>`;
+  if (vowels.length)  html += `<b>Гласни:</b> ${vowels.map(i=>i.value).join(' · ')}<br>`;
+  if (words.length) {
+    const ws = words.map(i => { try { return JSON.parse(i.value).word; } catch(e){ return i.value; }});
+    html += `<b>Думи (${ws.length}):</b> ${ws.slice(0,10).join(', ')}${ws.length>10?'…':''}<br>`;
+  }
+  if (sents.length) {
+    html += `<b>Изречения (${sents.length}):</b><br>`;
+    sents.slice(0,3).forEach(s => { html += `<span style="color:var(--text-muted);">• ${s.value}</span><br>`; });
+    if (sents.length > 3) html += `<span style="color:var(--text-muted);">… и още ${sents.length-3}</span>`;
+  }
+
+  previewCache[key] = html;
+  div.innerHTML = html;
+}
+
+function typeLabel(t) {
+  const m = {'tap_to_hear':'Намери буквата','slide_to_merge':'Слей сричката',
+             'rapid_read':'Бързо четене','word_tap':'Произнеси думата','sentence_read':'Прочети изречението'};
+  return m[t] || t;
 }
 </script>
 {% endblock %}

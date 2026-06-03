@@ -218,6 +218,34 @@ def reports():
     return render_template('parent/reports.html', reports=all_reports)
 
 
+@parent_bp.route('/levels/content/<level_key>')
+@parent_required
+def level_content(level_key):
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM levels WHERE level_key = %s", (level_key,))
+    level = cur.fetchone()
+    cur.execute("""
+        SELECT type, value, order_index FROM level_content
+        WHERE level_key = %s ORDER BY type, order_index
+    """, (level_key,))
+    content = cur.fetchall()
+    cur.close()
+    if not level:
+        return jsonify({'error': 'Not found'}), 404
+    import json
+    result = {'name': level['name_fr'], 'exercise_type': level['exercise_type'], 'items': []}
+    for c in content:
+        item = {'type': c['type'], 'value': c['value']}
+        if c['type'] in ('word', 'letter') and c['value'].startswith('{'):
+            try:
+                item['parsed'] = json.loads(c['value'])
+            except:
+                pass
+        result['items'].append(item)
+    return jsonify(result)
+
+
 @parent_bp.route('/settings/password', methods=['POST'])
 @parent_required
 def change_password():
