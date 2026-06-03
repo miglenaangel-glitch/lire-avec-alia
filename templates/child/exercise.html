@@ -282,8 +282,9 @@ function askNextVowel() {
   currentTarget = pool[Math.floor(Math.random() * pool.length)];
   // Show finger only, NO letter — Alia must connect sound to letter
   document.getElementById('tap-task').textContent = '👆';
-  // Speak only the letter sound — avoid context that distorts accented vowels
-  speak(currentTarget);
+  // Map letters to clear pronunciation words
+  const pronunciation = {'a':'a','é':'é, é, é','i':'i','o':'o','u':'u','e':'e'};
+  speak(pronunciation[currentTarget] || currentTarget);
 }
 
 function tapAnswer(letter, card) {
