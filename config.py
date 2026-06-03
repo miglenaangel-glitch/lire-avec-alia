@@ -13,3 +13,4 @@ class Config:
     CLAUDE_MODEL = 'claude-sonnet-4-20250514'
     CLAUDE_MAX_TOKENS = 1000
     REWARD_MIN_ACCURACY = 0.70
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max upload
