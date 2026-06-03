@@ -1,3 +1,23 @@
+CREATE TABLE IF NOT EXISTS levels (
+  id            INT PRIMARY KEY AUTO_INCREMENT,
+  level_key     VARCHAR(50) UNIQUE NOT NULL,
+  block         TINYINT NOT NULL,
+  order_index   TINYINT NOT NULL,
+  name_fr       VARCHAR(100) NOT NULL,
+  exercise_type ENUM('tap_to_hear','slide_to_merge','rapid_read','word_tap','sentence_read') NOT NULL,
+  is_unlocked   BOOLEAN DEFAULT FALSE,
+  unlocked_at   TIMESTAMP NULL
+);
+
+CREATE TABLE IF NOT EXISTS level_content (
+  id          INT PRIMARY KEY AUTO_INCREMENT,
+  level_key   VARCHAR(50) NOT NULL,
+  type        ENUM('letter','syllable','word','sentence') NOT NULL,
+  value       VARCHAR(500) NOT NULL,
+  order_index INT DEFAULT 0,
+  INDEX idx_level_key (level_key)
+);
+
 CREATE TABLE IF NOT EXISTS sessions (
   id INT PRIMARY KEY AUTO_INCREMENT,
   started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
