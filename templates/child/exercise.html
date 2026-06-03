@@ -365,7 +365,7 @@ function toggleSylMic() {
       speak(feedbackMsg.replace(/[🎉👏💪]/g, ''));
       // System always reads the syllable slowly after feedback
       setTimeout(() => speak(allSyllables[current].syl), 1800);
-    }, 3000);
+    }, 1000);
   };
 
   rec.onerror = () => {
@@ -504,7 +504,7 @@ function toggleWordMic() {
         document.getElementById('next-word-btn').style.display = 'inline-block';
         btn.disabled = false;
       }, 1800 + wordDur);
-    }, 3000);
+    }, 1000);
   };
 
   rec.onerror = () => {
@@ -666,7 +666,7 @@ function toggleMic() {
     } else {
       afterFeedback('On va le dire mieux… réessaie ! 💪', 'var(--error)', false);
     }
-    }, 3000); // 3 sec pause before evaluation
+    }, 1000); // 1 sec pause before evaluation
   };
 
   recognition.onerror = () => {
