@@ -104,8 +104,14 @@ def home():
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM characters WHERE is_active = TRUE LIMIT 1")
     character = cur.fetchone()
-    cur.execute("SELECT level_key, is_locked FROM level_locks")
-    locks = {r['level_key']: r['is_locked'] for r in cur.fetchall()}
+    # Combine level_locks + levels.is_unlocked
+    cur.execute("""
+        SELECT l.level_key,
+               COALESCE(ll.is_locked, IF(l.is_unlocked, 0, 1)) AS is_locked
+        FROM levels l
+        LEFT JOIN level_locks ll ON ll.level_key = l.level_key
+    """)
+    locks = {r['level_key']: bool(r['is_locked']) for r in cur.fetchall()}
     cur.close()
 
     levels = load_levels_from_db()
