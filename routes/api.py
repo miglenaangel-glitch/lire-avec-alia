@@ -95,9 +95,25 @@ def record_answer():
 
     show_reward = False
     new_postcard = False
-    if session and session['total_exercises'] >= 5:
-        accuracy = session['correct_answers'] / session['total_exercises']
-        show_reward = accuracy >= Config.REWARD_MIN_ACCURACY
+
+    # Per-level reward thresholds
+    thresholds = {
+        'phrases': 15,
+        'mots_simples': 20,
+        'lecture_rapide': 20,
+        'consonnes_1': 25,
+        'voyelles': 999,  # voyelles has its own completion logic
+    }
+    if session_id and session:
+        cur2 = get_mysql().connection.cursor()
+        cur2.execute("SELECT level FROM sessions WHERE id = %s", (session_id,))
+        sess_row = cur2.fetchone()
+        cur2.close()
+        level_key = sess_row['level'] if sess_row else ''
+        threshold = thresholds.get(level_key, 20)
+        if session['total_exercises'] >= threshold:
+            accuracy = session['correct_answers'] / session['total_exercises']
+            show_reward = accuracy >= Config.REWARD_MIN_ACCURACY
 
     # Check if this session qualifies (≥70% accuracy) and award postcard every 3 such sessions
     if session_id and session and session['total_exercises'] >= 5:
