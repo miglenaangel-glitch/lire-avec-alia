@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Votre enfant progresse — Parent{% endblock %}
+{% block css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/parent.css') }}">{% endblock %}
+
+{% block content %}
+<nav>
+  <a href="{{ url_for('parent.dashboard') }}" class="brand">Lire avec Alia</a>
+  <a href="{{ url_for('parent.dashboard') }}">Tableau de bord</a>
+  <a href="{{ url_for('parent.mailbox') }}">💌 Boîte aux lettres</a>
+  <a href="{{ url_for('parent.levels') }}">Niveaux</a>
+  <a href="{{ url_for('parent.reports') }}" class="active">Progrès</a>
+  <a href="{{ url_for('parent.settings') }}">Réglages</a>
+</nav>
+
+<div class="page">
+  <h1>📈 Votre enfant progresse</h1>
+  <p style="color:var(--text-muted);margin-bottom:2rem;">
+    Rapport quotidien généré à 21h00. Conservé 30 jours.
+  </p>
+
+  {% if not reports %}
+  <div class="card" style="text-align:center;padding:3rem;color:var(--text-muted);">
+    <div style="font-size:3rem;margin-bottom:1rem;">📊</div>
+    <p>Pas encore de rapport. Le premier sera généré ce soir à 21h00.</p>
+  </div>
+  {% endif %}
+
+  {% for report in reports %}
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <h2 style="text-transform:none;font-size:1rem;color:var(--text);">
+        {{ report.report_date.strftime('%A %d %B %Y') if report.report_date else '' }}
+      </h2>
+      {% if report.worked %}
+      <span class="badge badge-maitrise">✓ A travaillé</span>
+      {% else %}
+      <span class="badge badge-difficile">✗ Pas de séance</span>
+      {% endif %}
+    </div>
+    <div class="summary-box">{{ report.summary }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

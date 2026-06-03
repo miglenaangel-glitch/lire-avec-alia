@@ -34,6 +34,49 @@ CREATE TABLE IF NOT EXISTS reward_phrases (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Level locks (parent controls which levels are accessible)
+CREATE TABLE IF NOT EXISTS level_locks (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  level_key VARCHAR(50) UNIQUE,
+  is_locked BOOLEAN DEFAULT FALSE,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Postcards for Alia's mailbox
+CREATE TABLE IF NOT EXISTS postcards (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  image_path VARCHAR(255),
+  label VARCHAR(100),
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Mailbox — postcards earned by Alia
+CREATE TABLE IF NOT EXISTS mailbox (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  postcard_id INT,
+  earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  downloaded BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (postcard_id) REFERENCES postcards(id)
+);
+
+-- Daily progress reports
+CREATE TABLE IF NOT EXISTS daily_reports (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  report_date DATE UNIQUE,
+  worked BOOLEAN DEFAULT FALSE,
+  summary TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Default level locks (all unlocked)
+INSERT IGNORE INTO level_locks (level_key, is_locked) VALUES
+  ('voyelles', FALSE),
+  ('consonnes_1', FALSE),
+  ('lecture_rapide', FALSE),
+  ('mots_simples', FALSE),
+  ('phrases', FALSE);
+
 -- Default characters
 INSERT IGNORE INTO characters (name, image_path, is_active) VALUES
   ('Karumi', 'characters/karumi.png', TRUE),

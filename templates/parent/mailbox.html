@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Boîte aux lettres d'Alia{% endblock %}
+{% block css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/parent.css') }}">{% endblock %}
+
+{% block content %}
+<nav>
+  <a href="{{ url_for('parent.dashboard') }}" class="brand">Lire avec Alia</a>
+  <a href="{{ url_for('parent.dashboard') }}">Tableau de bord</a>
+  <a href="{{ url_for('parent.mailbox') }}" class="active">💌 Boîte aux lettres</a>
+  <a href="{{ url_for('parent.levels') }}">Niveaux</a>
+  <a href="{{ url_for('parent.reports') }}">Progrès</a>
+  <a href="{{ url_for('parent.settings') }}">Réglages</a>
+</nav>
+
+<div class="page">
+  <h1>💌 Boîte aux lettres d'Alia</h1>
+  <p style="color:var(--text-muted);margin-bottom:2rem;">
+    Alia reçoit une carte après chaque 3 séances réussies (≥70%). Total reçu : <strong>{{ total }}</strong>
+  </p>
+
+  {% if latest %}
+  <div class="card" style="text-align:center;max-width:500px;margin:0 auto;">
+    <img src="{{ url_for('static', filename=latest.image_path) }}"
+         style="width:100%;border-radius:12px;margin-bottom:1.5rem;"
+         alt="Carte pour Alia">
+    {% if latest.label %}
+    <p style="font-size:1rem;color:var(--text-muted);margin-bottom:1rem;">{{ latest.label }}</p>
+    {% endif %}
+    <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:1.5rem;">
+      Reçue le {{ latest.earned_at.strftime('%d/%m/%Y à %H:%M') if latest.earned_at else '' }}
+      {% if latest.downloaded %} · <span style="color:var(--success);">✓ Téléchargée</span>{% endif %}
+    </p>
+    <a href="{{ url_for('static', filename=latest.image_path) }}"
+       download
+       onclick="markDownloaded({{ latest.id }})"
+       class="btn-primary"
+       style="display:inline-block;text-decoration:none;padding:0.8rem 2rem;border-radius:50px;">
+      ⬇️ Télécharger pour Alia
+    </a>
+  </div>
+  {% else %}
+  <div class="card" style="text-align:center;padding:3rem;color:var(--text-muted);">
+    <div style="font-size:3rem;margin-bottom:1rem;">💌</div>
+    <p>Pas encore de carte. Alia doit réussir 3 séances !</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+function markDownloaded(id) {
+  fetch(`/parent/mailbox/download/${id}`, { method: 'POST' });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Niveaux — Parent{% endblock %}
+{% block css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/parent.css') }}">{% endblock %}
+
+{% block content %}
+<nav>
+  <a href="{{ url_for('parent.dashboard') }}" class="brand">Lire avec Alia</a>
+  <a href="{{ url_for('parent.dashboard') }}">Tableau de bord</a>
+  <a href="{{ url_for('parent.mailbox') }}">💌 Boîte aux lettres</a>
+  <a href="{{ url_for('parent.levels') }}" class="active">Niveaux</a>
+  <a href="{{ url_for('parent.reports') }}">Progrès</a>
+  <a href="{{ url_for('parent.settings') }}">Réglages</a>
+</nav>
+
+<div class="page">
+  <h1>Niveaux d'apprentissage</h1>
+  <p style="color:var(--text-muted);margin-bottom:2rem;">
+    Activez ou bloquez les niveaux auxquels Alia a accès. Un niveau bloqué affiche 🔒 dans son menu.
+  </p>
+
+  {% set level_info = {
+    'voyelles':       ('🔤', 'Les voyelles',     'a · é · i · o · u · e'),
+    'consonnes_1':    ('🔗', 'Les consonnes',    'Glisser et fusionner les syllabes'),
+    'lecture_rapide': ('⚡', 'Lecture rapide',   'Lire les syllabes sans s\'arrêter'),
+    'mots_simples':   ('📖', 'Les mots',         'chat · vélo · mamie…'),
+    'phrases':        ('💬', 'Les phrases',       'Rémi et Éva ont des aventures…'),
+  } %}
+
+  <div class="card">
+    {% for lock in locks %}
+    {% set info = level_info.get(lock.level_key, ('📚', lock.level_key, '')) %}
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div style="font-size:1.8rem;width:44px;text-align:center;">{{ info[0] }}</div>
+        <div>
+          <div style="font-weight:700;font-size:1rem;">{{ info[1] }}</div>
+          <div style="font-size:0.85rem;color:var(--text-muted);">{{ info[2] }}</div>
+        </div>
+      </div>
+      <button
+        class="toggle-btn {% if lock.is_locked %}locked{% else %}unlocked{% endif %}"
+        id="btn-{{ lock.level_key }}"
+        onclick="toggleLevel('{{ lock.level_key }}', this)">
+        {% if lock.is_locked %}🔒 Bloqué{% else %}✅ Actif{% endif %}
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+async function toggleLevel(key, btn) {
+  const res = await fetch(`/parent/levels/toggle/${key}`, { method: 'POST' });
+  const data = await res.json();
+  if (data.success) {
+    if (data.is_locked) {
+      btn.textContent = '🔒 Bloqué';
+      btn.classList.remove('unlocked');
+      btn.classList.add('locked');
+    } else {
+      btn.textContent = '✅ Actif';
+      btn.classList.remove('locked');
+      btn.classList.add('unlocked');
+    }
+  }
+}
+</script>
+{% endblock %}

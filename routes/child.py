@@ -83,8 +83,10 @@ def home():
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM characters WHERE is_active = TRUE LIMIT 1")
     character = cur.fetchone()
+    cur.execute("SELECT level_key, is_locked FROM level_locks")
+    locks = {r['level_key']: r['is_locked'] for r in cur.fetchall()}
     cur.close()
-    return render_template('child/home.html', character=character, levels=LEVELS)
+    return render_template('child/home.html', character=character, levels=LEVELS, locks=locks)
 
 
 @child_bp.route('/exercise/<level_key>')
@@ -94,6 +96,13 @@ def exercise(level_key):
 
     mysql = current_app.extensions['mysql']
     cur = mysql.connection.cursor()
+
+    # Check if level is locked
+    cur.execute("SELECT is_locked FROM level_locks WHERE level_key = %s", (level_key,))
+    lock = cur.fetchone()
+    if lock and lock['is_locked']:
+        cur.close()
+        return redirect(url_for('child.home'))
 
     # Start a new session
     cur.execute(

@@ -16,49 +16,38 @@
     </div>
   </div>
 
+  {% set level_data = [
+    ('voyelles',      '🔤', 'Les voyelles',    'a · é · i · o · u · e'),
+    ('consonnes_1',   '🔗', 'Les consonnes',   'Glisse et fusionne les syllabes'),
+    ('lecture_rapide','⚡', 'Lecture rapide',  "Lis les syllabes sans t'arrêter"),
+    ('mots_simples',  '📖', 'Les mots',        'chat · vélo · mamie…'),
+    ('phrases',       '💬', 'Les phrases',     'Rémi et Éva ont des aventures…'),
+  ] %}
+
   <div class="levels-grid">
-    <a href="{{ url_for('child.exercise', level_key='voyelles') }}" class="level-card">
-      <div class="level-icon">🔤</div>
+    {% for key, icon, name, desc in level_data %}
+    {% set locked = locks.get(key, False) %}
+    {% if locked %}
+    <div class="level-card level-locked">
+      <div class="level-icon" style="opacity:0.5;">🔒</div>
       <div>
-        <div class="level-name">Les voyelles</div>
-        <div class="level-desc">a · é · i · o · u · e</div>
+        <div class="level-name" style="opacity:0.5;">{{ name }}</div>
+        <div class="level-desc" style="opacity:0.5;">Bientôt disponible…</div>
+      </div>
+    </div>
+    {% else %}
+    <a href="{{ url_for('child.exercise', level_key=key) }}" class="level-card">
+      <div class="level-icon">{{ icon }}</div>
+      <div>
+        <div class="level-name">{{ name }}</div>
+        <div class="level-desc">{{ desc }}</div>
       </div>
     </a>
-
-    <a href="{{ url_for('child.exercise', level_key='consonnes_1') }}" class="level-card">
-      <div class="level-icon">🔗</div>
-      <div>
-        <div class="level-name">Les consonnes</div>
-        <div class="level-desc">Glisse et fusionne les syllabes</div>
-      </div>
-    </a>
-
-    <a href="{{ url_for('child.exercise', level_key='lecture_rapide') }}" class="level-card">
-      <div class="level-icon">⚡</div>
-      <div>
-        <div class="level-name">Lecture rapide</div>
-        <div class="level-desc">Lis les syllabes sans t'arrêter</div>
-      </div>
-    </a>
-
-    <a href="{{ url_for('child.exercise', level_key='mots_simples') }}" class="level-card">
-      <div class="level-icon">📖</div>
-      <div>
-        <div class="level-name">Les mots</div>
-        <div class="level-desc">chat · vélo · mamie…</div>
-      </div>
-    </a>
-
-    <a href="{{ url_for('child.exercise', level_key='phrases') }}" class="level-card">
-      <div class="level-icon">💬</div>
-      <div>
-        <div class="level-name">Les phrases</div>
-        <div class="level-desc">Rémi et Éva ont des aventures…</div>
-      </div>
-    </a>
+    {% endif %}
+    {% endfor %}
 
     <a href="#" class="level-card mama-card" onclick="openMama(event)">
-      <div class="level-icon">🌸</div>
+      <div class="level-icon">💝</div>
       <div>
         <div class="level-name">Maman</div>
         <div class="level-desc">Espace réservé à maman</div>

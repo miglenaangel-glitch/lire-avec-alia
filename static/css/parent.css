@@ -212,6 +212,20 @@ td {
   color: var(--text);
 }
 
+.toggle-btn {
+  padding: 0.5rem 1.2rem;
+  border-radius: 50px;
+  border: none;
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.toggle-btn.unlocked { background: #dcfce7; color: #16a34a; }
+.toggle-btn.locked   { background: #fee2e2; color: #dc2626; }
+
 .gen-btn {
   background: none;
   border: 1px solid var(--accent);

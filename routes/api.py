@@ -94,11 +94,47 @@ def record_answer():
     cur.close()
 
     show_reward = False
+    new_postcard = False
     if session and session['total_exercises'] >= 5:
         accuracy = session['correct_answers'] / session['total_exercises']
         show_reward = accuracy >= Config.REWARD_MIN_ACCURACY
 
-    return jsonify({'success': True, 'show_reward': show_reward})
+    # Check if this session qualifies (≥70% accuracy) and award postcard every 3 such sessions
+    if session_id and session and session['total_exercises'] >= 5:
+        accuracy = session['correct_answers'] / session['total_exercises']
+        if accuracy >= Config.REWARD_MIN_ACCURACY:
+            cur2 = get_mysql().connection.cursor()
+            # Count successful sessions total
+            cur2.execute("""
+                SELECT COUNT(*) as cnt FROM sessions
+                WHERE correct_answers >= total_exercises * 0.7
+                AND total_exercises >= 5
+            """)
+            row = cur2.fetchone()
+            count = row['cnt'] if row else 0
+            # Award postcard on every 3rd successful session
+            if count > 0 and count % 3 == 0:
+                # Pick next postcard (rotate)
+                cur2.execute("""
+                    SELECT p.id FROM postcards p
+                    WHERE p.is_active = TRUE
+                    AND p.id NOT IN (
+                        SELECT postcard_id FROM mailbox ORDER BY earned_at DESC LIMIT 1
+                    )
+                    ORDER BY RAND() LIMIT 1
+                """)
+                pc = cur2.fetchone()
+                if not pc:
+                    # All used — pick any active
+                    cur2.execute("SELECT id FROM postcards WHERE is_active=TRUE ORDER BY RAND() LIMIT 1")
+                    pc = cur2.fetchone()
+                if pc:
+                    cur2.execute("INSERT INTO mailbox (postcard_id) VALUES (%s)", (pc['id'],))
+                    get_mysql().connection.commit()
+                    new_postcard = True
+            cur2.close()
+
+    return jsonify({'success': True, 'show_reward': show_reward, 'new_postcard': new_postcard})
 
 
 @api_bp.route('/generate-sentences', methods=['POST'])

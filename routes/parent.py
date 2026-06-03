@@ -98,3 +98,72 @@ def delete_phrase(phrase_id):
     mysql.connection.commit()
     cur.close()
     return jsonify({'success': True})
+
+
+# ── MAILBOX ──
+@parent_bp.route('/mailbox')
+def mailbox():
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    # Latest undownloaded postcard
+    cur.execute("""
+        SELECT m.id, m.earned_at, m.downloaded, p.image_path, p.label
+        FROM mailbox m JOIN postcards p ON m.postcard_id = p.id
+        ORDER BY m.earned_at DESC LIMIT 1
+    """)
+    latest = cur.fetchone()
+    cur.execute("SELECT COUNT(*) as total FROM mailbox")
+    total = cur.fetchone()['total']
+    cur.close()
+    return render_template('parent/mailbox.html', latest=latest, total=total)
+
+
+@parent_bp.route('/mailbox/download/<int:mailbox_id>', methods=['POST'])
+def download_postcard(mailbox_id):
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    cur.execute("UPDATE mailbox SET downloaded = TRUE WHERE id = %s", (mailbox_id,))
+    mysql.connection.commit()
+    cur.close()
+    return jsonify({'success': True})
+
+
+# ── LEVELS ──
+@parent_bp.route('/levels')
+def levels():
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT level_key, is_locked FROM level_locks ORDER BY id")
+    locks = cur.fetchall()
+    cur.close()
+    return render_template('parent/levels.html', locks=locks)
+
+
+@parent_bp.route('/levels/toggle/<level_key>', methods=['POST'])
+def toggle_level(level_key):
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        INSERT INTO level_locks (level_key, is_locked) VALUES (%s, TRUE)
+        ON DUPLICATE KEY UPDATE is_locked = NOT is_locked
+    """, (level_key,))
+    mysql.connection.commit()
+    cur.execute("SELECT is_locked FROM level_locks WHERE level_key = %s", (level_key,))
+    row = cur.fetchone()
+    cur.close()
+    return jsonify({'success': True, 'is_locked': bool(row['is_locked'])})
+
+
+# ── DAILY REPORTS ──
+@parent_bp.route('/reports')
+def reports():
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT * FROM daily_reports
+        WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        ORDER BY report_date DESC
+    """)
+    all_reports = cur.fetchall()
+    cur.close()
+    return render_template('parent/reports.html', reports=all_reports)
