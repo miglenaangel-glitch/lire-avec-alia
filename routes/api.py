@@ -30,6 +30,17 @@ def get_mysql():
     return current_app.extensions['mysql']
 
 
+@api_bp.route('/stars', methods=['GET'])
+def stars():
+    """Return count of mastered elements for the star display."""
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT COUNT(*) as cnt FROM progress WHERE status = 'maitrise'")
+    row = cur.fetchone()
+    cur.close()
+    return jsonify({'stars': row['cnt'] if row else 0})
+
+
 @api_bp.route('/session-end', methods=['POST'])
 def session_end():
     """Record ended_at for a session — called via sendBeacon on page unload."""

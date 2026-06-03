@@ -98,7 +98,12 @@ document.getElementById('mama-pass').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') checkMama();
 });
 
-function showStars() {}
+async function showStars() {
+  const res = await fetch('/api/stars');
+  const data = await res.json();
+  document.getElementById('star-count').textContent = data.stars;
+}
+showStars();
 
 // Reset video session timer when returning to home menu
 localStorage.removeItem('alia_session_start');
