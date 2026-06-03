@@ -9,6 +9,7 @@
     <div class="progress-bar-wrap">
       <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
     </div>
+    <a href="/" class="back-btn" style="text-decoration:none;font-size:1rem;">🏠</a>
   </header>
 
   <!-- Level complete overlay -->
@@ -182,6 +183,7 @@ function speak(text) {
 
 // ── LEVEL COMPLETE ──
 function levelComplete() {
+  levelDone = true;
   const overlay = document.getElementById('level-complete');
   overlay.style.display = 'flex';
   speak('Bravo Alia ! Tu as terminé tous les exercices !');
@@ -216,6 +218,8 @@ function normalize(str) {
     .replace(/\s+/g, ' ').trim();
 }
 
+let levelDone = false; // prevent reward redirect after level complete
+
 async function recordAnswer(elementType, elementValue, correct) {
   totalAnswered++;
   if (correct) totalCorrect++;
@@ -232,7 +236,8 @@ async function recordAnswer(elementType, elementValue, correct) {
     })
   });
   const data = await res.json();
-  if (data.show_reward) {
+  // Don't redirect to reward if level is already done
+  if (data.show_reward && !levelDone) {
     window.location.href = `/child/reward/${SESSION_ID}`;
   }
 }
