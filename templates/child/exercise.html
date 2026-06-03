@@ -74,6 +74,10 @@
   <div class="word-display" id="word-display"></div>
   <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;margin-top:1rem;">
     <button class="mic-btn" id="word-mic-btn" onclick="toggleWordMic()">🎤 À toi !</button>
+    <button class="ilu-btn" id="word-done-btn" onclick="stopAndEvaluateWord()"
+            style="display:none;background:#2d7a3a;font-size:1.1rem;padding:0.9rem 2.5rem;">
+      ✓ J'ai dit !
+    </button>
     <p id="word-feedback" style="font-size:1.2rem;font-weight:700;min-height:2rem;text-align:center;"></p>
     <button class="ilu-btn" id="word-listen-btn" onclick="tapWord()" style="display:none;font-size:1rem;padding:0.7rem 1.8rem;">👂 Écoute comment on le dit</button>
     <button class="next-btn" id="next-word-btn" onclick="nextWord()" style="display:none;">Suivant →</button>
@@ -498,6 +502,8 @@ let wordIdx = 0;
 const VOWEL_LETTERS = ['a','â','à','e','é','è','ê','ë','i','î','ï','o','ô','u','û','ù','y'];
 
 let wordMicActive = false;
+let wordRec = null;
+let wordTranscript = [];
 
 function renderWord(wordObj) {
   const display = document.getElementById('word-display');
@@ -515,6 +521,7 @@ function renderWord(wordObj) {
   document.getElementById('word-feedback').textContent = '';
   document.getElementById('word-listen-btn').style.display = 'none';
   document.getElementById('next-word-btn').style.display = 'none';
+  document.getElementById('word-done-btn').style.display = 'none';
   document.getElementById('word-mic-btn').disabled = false;
   document.getElementById('word-mic-btn').classList.remove('mic-on');
   document.getElementById('word-mic-btn').textContent = '🎤 À toi !';
@@ -532,50 +539,64 @@ function toggleWordMic() {
     document.getElementById('word-feedback').textContent = '⚠️ Micro non supporté.';
     return;
   }
-  const rec = new SpeechRecognition();
-  rec.lang = 'fr-FR';
-  rec.interimResults = false;
-  rec.maxAlternatives = 3;
+  wordTranscript = [];
+  wordRec = new SpeechRecognition();
+  wordRec.lang = 'fr-FR';
+  wordRec.interimResults = true;
+  wordRec.continuous = true;
+  wordRec.maxAlternatives = 1;
   wordMicActive = true;
+
   const btn = document.getElementById('word-mic-btn');
+  const doneBtn = document.getElementById('word-done-btn');
   btn.classList.add('mic-on');
   btn.textContent = '🔴 Je t\'écoute…';
+  btn.disabled = true;
+  doneBtn.style.display = 'inline-block';
 
-  rec.onresult = (event) => {
-    wordMicActive = false;
-    btn.textContent = '⏳'; btn.disabled = true;
-    document.getElementById('word-feedback').textContent = '…';
-    setTimeout(() => {
-      btn.textContent = '🎤 À toi !';
-      const alts = Array.from(event.results[0]).map(a => normalize(a.transcript));
-      const target = normalize(WORDS[wordIdx].word);
-      const match = alts.some(a => a.includes(target) || target.includes(a));
-      const feedback = document.getElementById('word-feedback');
-      const wordDur = WORDS[wordIdx].word.length * 100 + 800;
-      if (match) {
-        feedback.textContent = 'Bravo ! 🎉'; feedback.style.color = 'var(--success)';
-        speak('Bravo !');
-        recordAnswer('mot', WORDS[wordIdx].word, true);
-      } else {
-        feedback.textContent = 'On va le dire mieux… réessaie ! 💪'; feedback.style.color = 'var(--error)';
-        speak('On va le dire mieux, réessaie !');
+  wordRec.onresult = (event) => {
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        wordTranscript.push(event.results[i][0].transcript);
       }
-      setTimeout(() => speak(WORDS[wordIdx].word), 1800);
-      setTimeout(() => {
-        document.getElementById('word-listen-btn').style.display = 'inline-block';
-        document.getElementById('next-word-btn').style.display = 'inline-block';
-        btn.disabled = false;
-      }, 1800 + wordDur);
-    }, 1000);
+    }
   };
+  wordRec.onerror = () => {};
+  wordRec.start();
+}
 
-  rec.onerror = () => {
-    wordMicActive = false;
-    btn.classList.remove('mic-on');
+function stopAndEvaluateWord() {
+  if (wordRec) { try { wordRec.stop(); } catch(e){} }
+  wordMicActive = false;
+
+  const btn = document.getElementById('word-mic-btn');
+  const doneBtn = document.getElementById('word-done-btn');
+  btn.classList.remove('mic-on');
+  btn.textContent = '⏳';
+  doneBtn.style.display = 'none';
+
+  setTimeout(() => {
     btn.textContent = '🎤 À toi !';
-    document.getElementById('word-feedback').textContent = '⚠️ Essaie encore.';
-  };
-  rec.start();
+    const spoken = normalize(wordTranscript.join(' '));
+    const target = normalize(WORDS[wordIdx].word);
+    const match = spoken.length > 0 && (spoken.includes(target) || target.includes(spoken));
+    const feedback = document.getElementById('word-feedback');
+    const wordDur = WORDS[wordIdx].word.length * 100 + 800;
+    if (match) {
+      feedback.textContent = 'Bravo ! 🎉'; feedback.style.color = 'var(--success)';
+      speak('Bravo !');
+      recordAnswer('mot', WORDS[wordIdx].word, true);
+    } else {
+      feedback.textContent = 'On va le dire mieux… réessaie ! 💪'; feedback.style.color = 'var(--error)';
+      speak('On va le dire mieux, réessaie !');
+    }
+    setTimeout(() => speak(WORDS[wordIdx].word), 1800);
+    setTimeout(() => {
+      document.getElementById('word-listen-btn').style.display = 'inline-block';
+      document.getElementById('next-word-btn').style.display = 'inline-block';
+      btn.disabled = false;
+    }, 1800 + wordDur);
+  }, 1000);
 }
 
 function nextWord() {
