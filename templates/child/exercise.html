@@ -195,7 +195,11 @@ function levelComplete() {
   levelDone = true;
   const overlay = document.getElementById('level-complete');
   overlay.style.display = 'flex';
-  speak('Bravo Alia ! Tu as terminé tous les exercices !');
+  // Play laugh sound
+  const laugh = new Audio('/static/sounds/laugh.m4a');
+  laugh.play().catch(() => {});
+  // Speak after laugh starts
+  setTimeout(() => speak('Bravo Alia ! Tu as terminé tous les exercices !'), 1500);
   launchConfetti();
 }
 
