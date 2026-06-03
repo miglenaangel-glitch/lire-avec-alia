@@ -11,6 +11,15 @@
     </div>
   </header>
 
+  <!-- Level complete overlay -->
+  <div id="level-complete" style="display:none;position:fixed;inset:0;background:linear-gradient(135deg,#fdf8f0,#fef3e2);z-index:8888;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;">
+    <div id="confetti-container" style="position:fixed;inset:0;pointer-events:none;overflow:hidden;"></div>
+    <div style="font-size:5rem;margin-bottom:1rem;position:relative;z-index:1;">🌟</div>
+    <h2 style="font-size:2rem;font-weight:900;color:#c2622a;margin-bottom:0.5rem;font-family:'Nunito',sans-serif;position:relative;z-index:1;">Bravo Alia !</h2>
+    <p style="font-size:1.1rem;color:#8b6f5e;margin-bottom:2.5rem;font-family:'Nunito',sans-serif;position:relative;z-index:1;">Tu as terminé tous les exercices ! 🎉</p>
+    <a href="/" style="background:#c2622a;color:white;padding:1rem 2.5rem;border-radius:50px;font-size:1.1rem;font-weight:800;font-family:'Nunito',sans-serif;text-decoration:none;position:relative;z-index:1;">Retour au menu →</a>
+  </div>
+
   {# ── TAP TO HEAR (voyelles) ── #}
   {% if level.exercise_type == 'tap_to_hear' %}
   <div style="text-align:center;margin-bottom:1.5rem;">
@@ -171,6 +180,35 @@ function speak(text) {
   speechSynthesis.speak(utt);
 }
 
+// ── LEVEL COMPLETE ──
+function levelComplete() {
+  const overlay = document.getElementById('level-complete');
+  overlay.style.display = 'flex';
+  speak('Bravo Alia ! Tu as terminé tous les exercices !');
+  launchConfetti();
+}
+
+function launchConfetti() {
+  const container = document.getElementById('confetti-container');
+  const colors = ['#c2622a','#e8956d','#1a3a6b','#c0392b','#f59e0b','#10b981','#a78bfa'];
+  const shapes = ['●','★','✦','♥','◆'];
+  for (let i = 0; i < 80; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const shape = shapes[Math.floor(Math.random() * shapes.length)];
+      const x = Math.random() * 100;
+      const size = 0.8 + Math.random() * 1.5;
+      const dur = 2 + Math.random() * 3;
+      const delay = Math.random() * 2;
+      el.textContent = shape;
+      el.style.cssText = `position:absolute;left:${x}%;top:-5%;font-size:${size}rem;color:${color};animation:confettiFall ${dur}s ${delay}s linear forwards;`;
+      container.appendChild(el);
+      setTimeout(() => el.remove(), (dur + delay + 0.5) * 1000);
+    }, i * 30);
+  }
+}
+
 function normalize(str) {
   return str.toLowerCase()
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -204,20 +242,21 @@ async function recordAnswer(elementType, elementValue, correct) {
 const VOWELS_TASK = {{ level.elements | map(attribute='letter') | list | tojson }};
 let currentTarget = null;
 let tapLocked = false;
+const vowelsMastered = new Set();
 
 function askNextVowel() {
   tapLocked = false;
-  // Reset card styles
   document.querySelectorAll('.tap-card').forEach(c => {
     c.style.borderColor = '';
     c.style.background = '';
   });
   document.getElementById('tap-feedback').textContent = '';
-  // Pick random vowel
-  currentTarget = VOWELS_TASK[Math.floor(Math.random() * VOWELS_TASK.length)];
-  const msg = 'Appuie sur le  ' + currentTarget + ' !';
+  // Prefer unmastered vowels
+  const remaining = VOWELS_TASK.filter(v => !vowelsMastered.has(v));
+  const pool = remaining.length > 0 ? remaining : VOWELS_TASK;
+  currentTarget = pool[Math.floor(Math.random() * pool.length)];
   document.getElementById('tap-task').textContent = '👆 ' + currentTarget.toUpperCase();
-  speak(msg);
+  speak('Appuie sur le ' + currentTarget + ' !');
 }
 
 function tapAnswer(letter, card) {
@@ -231,7 +270,13 @@ function tapAnswer(letter, card) {
     feedback.style.color = 'var(--success)';
     speak('Bravo !');
     recordAnswer('voyelle', letter, true);
-    setTimeout(askNextVowel, 1800);
+    vowelsMastered.add(letter);
+    // All vowels answered correctly at least once → level complete
+    if (vowelsMastered.size >= VOWELS_TASK.length) {
+      setTimeout(levelComplete, 1200);
+    } else {
+      setTimeout(askNextVowel, 1800);
+    }
   } else {
     card.style.borderColor = 'var(--error)';
     card.style.background = '#fff0f0';
@@ -382,8 +427,7 @@ function nextSyllable() {
   if (current < allSyllables.length) {
     showSyllable();
   } else {
-    current = 0;
-    showSyllable();
+    levelComplete();
   }
 }
 
@@ -422,6 +466,7 @@ function rapidTap(syl, i) {
   recordAnswer('syllabe', syl, true);
   if (rapidDone === rapidSyls.length) {
     document.getElementById('rapid-score').textContent = '🎉 Toutes les syllabes lues !';
+    setTimeout(levelComplete, 1000);
   }
 }
 
@@ -518,7 +563,10 @@ function toggleWordMic() {
 
 function nextWord() {
   wordIdx++;
-  if (wordIdx >= WORDS.length) wordIdx = 0;
+  if (wordIdx >= WORDS.length) {
+    levelComplete();
+    return;
+  }
   renderWord(WORDS[wordIdx]);
   setTimeout(() => speak('Appuie sur le micro et lis le mot !'), 600);
 }
@@ -681,7 +729,10 @@ function toggleMic() {
 
 function nextSentence() {
   sentIdx++;
-  if (sentIdx >= SENTENCES.length) sentIdx = 0;
+  if (sentIdx >= SENTENCES.length) {
+    levelComplete();
+    return;
+  }
   showSentence();
   setTimeout(() => speak('Appuie sur le micro et lis la phrase !'), 600);
 }
