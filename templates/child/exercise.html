@@ -51,6 +51,10 @@
     <div style="display:flex;flex-direction:column;align-items:center;gap:0.8rem;margin-bottom:1.5rem;">
       <p id="syl-prompt" style="color:var(--accent);font-weight:700;font-size:1rem;min-height:1.4rem;text-align:center;"></p>
       <button class="mic-btn" id="syl-mic-btn" onclick="toggleSylMic()" style="display:none;">🎤 À toi !</button>
+      <button class="ilu-btn" id="syl-done-btn" onclick="stopAndEvaluateSyl()"
+              style="display:none;background:#2d7a3a;font-size:1.1rem;padding:0.9rem 2.5rem;">
+        ✓ J'ai dit !
+      </button>
       <p id="syl-feedback" style="font-size:1.1rem;font-weight:700;min-height:1.5rem;text-align:center;"></p>
       <div style="display:flex;gap:1rem;">
         <button class="next-btn" id="repeat-btn" onclick="repeatSyllable()" style="display:none;background:var(--surface);color:var(--accent);border:2px solid var(--accent);">↺ Répéter</button>
@@ -374,6 +378,7 @@ function animateSlide(s) {
       document.getElementById('syl-mic-btn').disabled = false;
       document.getElementById('syl-mic-btn').classList.remove('mic-on');
       document.getElementById('syl-mic-btn').textContent = '🎤 À toi !';
+      document.getElementById('syl-done-btn').style.display = 'none';
       document.getElementById('syl-feedback').textContent = '';
       document.getElementById('repeat-btn').style.display = 'none';
       document.getElementById('next-btn').style.display = 'none';
@@ -394,60 +399,74 @@ function toggleSylMic() {
     document.getElementById('syl-feedback').textContent = '⚠️ Micro non supporté.';
     return;
   }
-  const rec = new SpeechRecognition();
-  rec.lang = 'fr-FR';
-  rec.interimResults = false;
-  rec.maxAlternatives = 3;
+  sylTranscript = [];
+  sylRec = new SpeechRecognition();
+  sylRec.lang = 'fr-FR';
+  sylRec.interimResults = true;
+  sylRec.continuous = true;
+  sylRec.maxAlternatives = 1;
   sylMicActive = true;
+
   const btn = document.getElementById('syl-mic-btn');
+  const doneBtn = document.getElementById('syl-done-btn');
   btn.classList.add('mic-on');
   btn.textContent = '🔴 Je t\'écoute…';
+  btn.disabled = true;
+  doneBtn.style.display = 'inline-block';
 
-  rec.onresult = (event) => {
-    sylMicActive = false;
-    btn.textContent = '⏳'; btn.disabled = true;
-    document.getElementById('syl-feedback').textContent = '…';
-    setTimeout(() => {
-      btn.textContent = '🎤 À toi !';
-      const alts = Array.from(event.results[0]).map(a => normalize(a.transcript));
-      const target = normalize(allSyllables[current].syl);
-      let bestScore = 0;
-      alts.forEach(a => {
-        if (a === target || a.includes(target) || target.includes(a)) bestScore = 1;
-        else if (a.length > 0 && target.length > 0) {
-          const common = [...target].filter(c => a.includes(c)).length;
-          bestScore = Math.max(bestScore, common / target.length);
-        }
-      });
-
-      const feedback = document.getElementById('syl-feedback');
-      let feedbackMsg, feedbackColor;
-      if (bestScore >= 0.8) {
-        feedbackMsg = 'Bravo ! 🎉'; feedbackColor = 'var(--success)';
-        recordAnswer('syllabe', allSyllables[current].syl, true);
-        setTimeout(() => { document.getElementById('next-btn').style.display = 'inline-block'; }, 2400);
-      } else if (bestScore >= 0.4) {
-        feedbackMsg = 'Bien essayé ! 👏 Réessaie !'; feedbackColor = 'var(--accent)';
-        setTimeout(() => { btn.disabled = false; document.getElementById('repeat-btn').style.display = 'inline-block'; }, 2400);
-      } else {
-        feedbackMsg = 'Réessaie ! 💪'; feedbackColor = 'var(--error)';
-        setTimeout(() => { btn.disabled = false; document.getElementById('repeat-btn').style.display = 'inline-block'; }, 2400);
-      }
-      feedback.textContent = feedbackMsg;
-      feedback.style.color = feedbackColor;
-      speak(feedbackMsg.replace(/[🎉👏💪]/g, ''));
-      // System always reads the syllable slowly after feedback
-      setTimeout(() => speak(allSyllables[current].syl), 1800);
-    }, 1000);
+  sylRec.onresult = (event) => {
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) sylTranscript.push(event.results[i][0].transcript);
+    }
   };
+  sylRec.onerror = () => {};
+  sylRec.start();
+}
 
-  rec.onerror = () => {
-    sylMicActive = false;
-    btn.classList.remove('mic-on');
+let sylRec = null;
+let sylTranscript = [];
+
+function stopAndEvaluateSyl() {
+  if (sylRec) { try { sylRec.stop(); } catch(e){} }
+  sylMicActive = false;
+
+  const btn = document.getElementById('syl-mic-btn');
+  const doneBtn = document.getElementById('syl-done-btn');
+  btn.classList.remove('mic-on');
+  btn.textContent = '⏳';
+  doneBtn.style.display = 'none';
+
+  setTimeout(() => {
     btn.textContent = '🎤 À toi !';
-    document.getElementById('syl-feedback').textContent = '⚠️ Essaie encore.';
-  };
-  rec.start();
+    const spoken = normalize(sylTranscript.join(' '));
+    const target = normalize(allSyllables[current].syl);
+    let bestScore = 0;
+    if (spoken.length > 0) {
+      if (spoken === target || spoken.includes(target) || target.includes(spoken)) bestScore = 1;
+      else {
+        const common = [...target].filter(c => spoken.includes(c)).length;
+        bestScore = common / target.length;
+      }
+    }
+
+    const feedback = document.getElementById('syl-feedback');
+    let feedbackMsg, feedbackColor;
+    if (bestScore >= 0.8) {
+      feedbackMsg = 'Bravo ! 🎉'; feedbackColor = 'var(--success)';
+      recordAnswer('syllabe', allSyllables[current].syl, true);
+      setTimeout(() => { document.getElementById('next-btn').style.display = 'inline-block'; }, 2400);
+    } else if (bestScore >= 0.4) {
+      feedbackMsg = 'Bien essayé ! 👏 Réessaie !'; feedbackColor = 'var(--accent)';
+      setTimeout(() => { btn.disabled = false; document.getElementById('repeat-btn').style.display = 'inline-block'; }, 2400);
+    } else {
+      feedbackMsg = 'Réessaie ! 💪'; feedbackColor = 'var(--error)';
+      setTimeout(() => { btn.disabled = false; document.getElementById('repeat-btn').style.display = 'inline-block'; }, 2400);
+    }
+    feedback.textContent = feedbackMsg;
+    feedback.style.color = feedbackColor;
+    speak(feedbackMsg.replace(/[🎉👏💪]/g, ''));
+    setTimeout(() => speak(allSyllables[current].syl), 1800);
+  }, 1000);
 }
 
 function nextSyllable() {
