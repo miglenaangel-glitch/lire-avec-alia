@@ -260,6 +260,8 @@ async function recordAnswer(elementType, elementValue, correct) {
 const VOWELS_TASK = {{ level.elements | map(attribute='letter') | list | tojson }};
 let currentTarget = null;
 let tapLocked = false;
+levelDone = true; // voyelles has its own completion logic — block reward redirect
+levelDone = true; // disable reward redirect for voyelles — levelComplete() handles exit
 // Track correct answers per vowel — need 3 each
 const vowelCorrect = {};
 VOWELS_TASK.forEach(v => vowelCorrect[v] = 0);
