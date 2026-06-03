@@ -59,7 +59,7 @@
   {# ── WORD TAP ── #}
   {% elif level.exercise_type == 'word_tap' %}
   <p style="color:var(--accent);font-weight:700;font-size:1.1rem;margin-bottom:0.5rem;text-align:center;">
-    📖 Lis le mot, puis appuie sur le micro !
+    🎤 Appuie sur le micro et lis le mot !
   </p>
   <div class="word-display" id="word-display"></div>
   <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;margin-top:1rem;">
@@ -72,7 +72,7 @@
   {# ── SENTENCE READ ── #}
   {% elif level.exercise_type == 'sentence_read' %}
   <p id="sentence-prompt" style="color:var(--accent);font-weight:700;font-size:1.1rem;margin-bottom:0.5rem;text-align:center;">
-    📖 Lis la phrase, puis appuie sur le micro !
+    🎤 Appuie sur le micro et lis la phrase !
   </p>
   <div class="sentence-display" id="sentence-display"></div>
 
@@ -246,8 +246,8 @@ function animateSlide(s) {
       // After system reads: prompt Alia
       setTimeout(() => {
         const prompt = document.getElementById('syl-prompt');
-        prompt.textContent = '📖 Lis cette syllabe, puis appuie sur le micro !';
-        speak('Lis cette syllabe !');
+        prompt.textContent = '🎤 Appuie sur le micro et lis la syllabe !';
+        speak('Appuie sur le micro et lis la syllabe !');
         document.getElementById('syl-mic-btn').style.display = 'inline-block';
         document.getElementById('syl-mic-btn').disabled = false;
         document.getElementById('syl-mic-btn').classList.remove('mic-on');
@@ -459,9 +459,13 @@ function nextWord() {
   wordIdx++;
   if (wordIdx >= WORDS.length) wordIdx = 0;
   renderWord(WORDS[wordIdx]);
+  setTimeout(() => speak('Appuie sur le micro et lis le mot !'), 600);
 }
 
-document.addEventListener('DOMContentLoaded', () => renderWord(WORDS[0]));
+document.addEventListener('DOMContentLoaded', () => {
+  renderWord(WORDS[0]);
+  setTimeout(() => speak('Appuie sur le micro et lis le mot !'), 600);
+});
 {% endif %}
 
 /* ── SENTENCE READ ── */
@@ -618,9 +622,13 @@ function nextSentence() {
   sentIdx++;
   if (sentIdx >= SENTENCES.length) sentIdx = 0;
   showSentence();
+  setTimeout(() => speak('Appuie sur le micro et lis la phrase !'), 600);
 }
 
-document.addEventListener('DOMContentLoaded', () => showSentence());
+document.addEventListener('DOMContentLoaded', () => {
+  showSentence();
+  setTimeout(() => speak('Appuie sur le micro et lis la phrase !'), 600);
+});
 {% endif %}
 </script>
 {% endblock %}
