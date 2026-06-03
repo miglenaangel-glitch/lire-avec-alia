@@ -368,8 +368,14 @@ function toggleMic() {
   btn.textContent = '🔴 Je t\'écoute…';
 
   recognition.onresult = (event) => {
+    // Wait for speech to finish + 3 sec pause before evaluating
     micActive = false;
     btn.classList.remove('mic-on');
+    btn.textContent = '⏳';
+    btn.disabled = true;
+    document.getElementById('sentence-feedback').textContent = '…';
+
+    setTimeout(() => {
     btn.textContent = '🎤 À toi !';
 
     const alternatives = Array.from(event.results[0]).map(a => normalize(a.transcript));
@@ -408,6 +414,7 @@ function toggleMic() {
     } else {
       afterFeedback('On va le dire mieux… réessaie ! 💪', 'var(--error)', false);
     }
+    }, 3000); // 3 sec pause before evaluation
   };
 
   recognition.onerror = () => {
