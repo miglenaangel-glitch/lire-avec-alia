@@ -442,10 +442,22 @@ function stopAndEvaluateSyl() {
     const target = normalize(allSyllables[current].syl);
     let bestScore = 0;
     if (spoken.length > 0) {
-      if (spoken === target || spoken.includes(target) || target.includes(spoken)) bestScore = 1;
-      else {
-        const common = [...target].filter(c => spoken.includes(c)).length;
-        bestScore = common / target.length;
+      // Syllables are short (2-3 chars) — use lenient matching
+      if (spoken === target || spoken.includes(target) || target.includes(spoken)) {
+        bestScore = 1;
+      } else {
+        // Check if first consonant matches (most important)
+        const firstMatch = target[0] === spoken[0];
+        // Check vowel presence
+        const vowels = 'aeiouy';
+        const targetVowel = [...target].find(c => vowels.includes(c)) || '';
+        const spokenHasVowel = targetVowel && spoken.includes(targetVowel);
+        if (firstMatch && spokenHasVowel) bestScore = 1;
+        else if (firstMatch || spokenHasVowel) bestScore = 0.7;
+        else {
+          const common = [...target].filter(c => spoken.includes(c)).length;
+          bestScore = common / target.length;
+        }
       }
     }
 
