@@ -479,9 +479,12 @@ body {
   border-radius: var(--radius);
   padding: 2rem 1.5rem;
   box-shadow: 0 3px 16px rgba(44,24,16,0.08);
-  color: var(--text);
   width: 100%;
 }
+
+.sentence-display .vowel { color: var(--vowel); }
+.sentence-display .consonant { color: var(--consonant); }
+.sentence-display .silent { color: var(--silent); }
 
 .ilu-btn {
   background: var(--accent);
