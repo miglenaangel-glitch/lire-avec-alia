@@ -134,22 +134,25 @@ function startVideoPlayback() {
   const video = document.getElementById('overlay-video');
   const prompt = document.getElementById('video-play-prompt');
   prompt.style.display = 'none';
-  video.style.display = 'block';
-  video.play();
-  // Request fullscreen
-  const el = document.getElementById('video-overlay');
-  if (el.requestFullscreen) el.requestFullscreen();
-  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+  const p = video.play();
+  if (p !== undefined) {
+    p.catch(e => { console.log('play error:', e); });
+  }
+  // Fullscreen on the video element itself
+  if (video.requestFullscreen) video.requestFullscreen();
+  else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+  else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
 }
 
 function closeVideo() {
   const overlay = document.getElementById('video-overlay');
   const video = document.getElementById('overlay-video');
-  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  try { if (document.fullscreenElement) document.exitFullscreen(); } catch(e){}
   overlay.style.display = 'none';
   video.src = '';
   video.style.display = 'none';
-  document.getElementById('video-play-prompt').style.display = 'block';
+  document.getElementById('video-play-prompt').style.display = 'flex';
 }
 
 // Check 24-hour absence
