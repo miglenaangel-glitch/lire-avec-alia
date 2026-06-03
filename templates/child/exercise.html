@@ -54,9 +54,19 @@
 
   {# ── SENTENCE READ ── #}
   {% elif level.exercise_type == 'sentence_read' %}
-  <p style="color:var(--text-muted);margin-bottom:1rem;font-size:1rem;">Lis la phrase à voix haute !</p>
   <div class="sentence-display" id="sentence-display"></div>
-  <button class="ilu-btn" id="ilu-btn" onclick="nextSentence()">J'ai lu ! 🎉</button>
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;margin-top:1rem;">
+    <button class="ilu-btn" id="listen-btn" onclick="listenSentence()">👂 Écoute !</button>
+
+    <button class="mic-btn" id="mic-btn" onclick="toggleMic()" disabled>
+      🎤 À toi !
+    </button>
+
+    <p id="sentence-feedback" style="font-size:1.2rem;font-weight:700;min-height:2rem;text-align:center;"></p>
+
+    <button class="next-btn" id="next-sent-btn" onclick="nextSentence()" style="display:none;">Suivant →</button>
+  </div>
   {% endif %}
 </div>
 {% endblock %}
@@ -266,19 +276,107 @@ document.addEventListener('DOMContentLoaded', () => renderWord(WORDS[0]));
 {% if level.exercise_type == 'sentence_read' %}
 const SENTENCES = {{ level.sentences | tojson }};
 let sentIdx = 0;
+let recognition = null;
+let micActive = false;
 
 function showSentence() {
   document.getElementById('sentence-display').textContent = SENTENCES[sentIdx];
+  document.getElementById('sentence-feedback').textContent = '';
+  document.getElementById('next-sent-btn').style.display = 'none';
+  document.getElementById('mic-btn').disabled = true;
+  document.getElementById('mic-btn').classList.remove('mic-on');
+  document.getElementById('mic-btn').textContent = '🎤 À toi !';
+  document.getElementById('listen-btn').disabled = false;
+}
+
+function listenSentence() {
+  speak(SENTENCES[sentIdx]);
+  document.getElementById('listen-btn').disabled = true;
+  // Enable mic after speech ends (estimate duration)
+  const dur = SENTENCES[sentIdx].length * 60 + 800;
+  setTimeout(() => {
+    document.getElementById('mic-btn').disabled = false;
+  }, dur);
+}
+
+function normalize(str) {
+  return str.toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9 ]/g, '')
+    .replace(/\s+/g, ' ').trim();
+}
+
+function toggleMic() {
+  if (micActive) return;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('sentence-feedback').textContent = '⚠️ Micro non supporté sur ce navigateur.';
+    return;
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.lang = 'fr-FR';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 3;
+
+  micActive = true;
+  const btn = document.getElementById('mic-btn');
+  btn.classList.add('mic-on');
+  btn.textContent = '🔴 Je t\'écoute…';
+
+  recognition.onresult = (event) => {
+    micActive = false;
+    btn.classList.remove('mic-on');
+    btn.textContent = '🎤 À toi !';
+
+    const alternatives = Array.from(event.results[0]).map(a => normalize(a.transcript));
+    const target = normalize(SENTENCES[sentIdx]);
+    const match = alternatives.some(a => {
+      const targetWords = target.split(' ');
+      const spokenWords = a.split(' ');
+      const common = targetWords.filter(w => spokenWords.includes(w));
+      return common.length / targetWords.length >= 0.6;
+    });
+
+    const feedback = document.getElementById('sentence-feedback');
+    if (match) {
+      feedback.textContent = 'Bravo ! 🎉';
+      feedback.style.color = 'var(--success)';
+      recordAnswer('phrase', SENTENCES[sentIdx].slice(0, 30), true);
+      document.getElementById('next-sent-btn').style.display = 'inline-block';
+    } else {
+      feedback.textContent = 'Écoute encore 👂';
+      feedback.style.color = 'var(--error)';
+      setTimeout(() => {
+        speak(SENTENCES[sentIdx]);
+        setTimeout(() => {
+          btn.disabled = false;
+        }, SENTENCES[sentIdx].length * 60 + 800);
+      }, 600);
+    }
+  };
+
+  recognition.onerror = () => {
+    micActive = false;
+    btn.classList.remove('mic-on');
+    btn.textContent = '🎤 À toi !';
+    document.getElementById('sentence-feedback').textContent = '⚠️ Essaie encore.';
+  };
+
+  recognition.start();
 }
 
 function nextSentence() {
-  recordAnswer('phrase', SENTENCES[sentIdx].slice(0, 30), true);
   sentIdx++;
   if (sentIdx >= SENTENCES.length) sentIdx = 0;
   showSentence();
+  listenSentence();
 }
 
-document.addEventListener('DOMContentLoaded', showSentence);
+document.addEventListener('DOMContentLoaded', () => {
+  showSentence();
+  listenSentence();
+});
 {% endif %}
 </script>
 {% endblock %}
