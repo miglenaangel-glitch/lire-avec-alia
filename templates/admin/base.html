@@ -1,58 +1,58 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="bg">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Admin{% endblock %} — Lire avec Alia</title>
+  <title>{% block title %}Админ{% endblock %} — Lire avec Alia</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f0f1a; --surface: #1a1a2e; --surface2: #16213e;
-      --accent: #7c3aed; --accent-light: #a78bfa;
-      --text: #f1f5f9; --muted: #64748b; --border: #1e293b;
-      --success: #22c55e; --error: #ef4444;
+      --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+      --accent: #7c3aed; --accent-light: #6d28d9;
+      --text: #1e293b; --muted: #64748b; --border: #e2e8f0;
+      --success: #16a34a; --error: #dc2626;
       --font: 'Nunito', sans-serif;
     }
     body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
-    nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; gap: 1.5rem; height: 54px; flex-wrap: wrap; }
-    nav .brand { font-weight: 800; color: var(--accent-light); text-decoration: none; font-size: 1rem; margin-right: 0.5rem; }
+    nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; gap: 1.5rem; height: 54px; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    nav .brand { font-weight: 800; color: var(--accent); text-decoration: none; font-size: 1rem; margin-right: 0.5rem; }
     nav a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; padding: 0.25rem 0; border-bottom: 2px solid transparent; }
-    nav a.active, nav a:hover { color: var(--accent-light); border-bottom-color: var(--accent); }
-    nav .logout { margin-left: auto; color: var(--error) !important; }
+    nav a.active, nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+    nav .logout { margin-left: auto; color: var(--error) !important; border-bottom-color: transparent !important; }
     .page { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
-    h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; }
-    h2 { font-size: 0.95rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--text); }
+    h2 { font-size: 0.85rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
     .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-    .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; text-align: center; }
-    .stat-num { font-size: 2rem; font-weight: 800; color: var(--accent-light); }
+    .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+    .stat-num { font-size: 2rem; font-weight: 800; color: var(--accent); }
     .stat-label { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; }
-    .btn { display: inline-block; padding: 0.6rem 1.4rem; border-radius: 8px; font-family: var(--font); font-weight: 700; font-size: 0.9rem; cursor: pointer; border: none; text-decoration: none; }
+    .btn { display: inline-block; padding: 0.6rem 1.4rem; border-radius: 8px; font-family: var(--font); font-weight: 700; font-size: 0.9rem; cursor: pointer; border: none; text-decoration: none; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; }
     .btn-primary { background: var(--accent); color: white; }
-    .btn-danger { background: #7f1d1d; color: #fca5a5; }
+    .btn-danger { background: #fee2e2; color: var(--error); }
     .btn-ghost { background: var(--surface2); color: var(--text); }
     table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
     th { text-align: left; padding: 0.6rem 0.8rem; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
-    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    .upload-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; color: var(--muted); transition: border-color 0.2s; }
-    .upload-zone:hover { border-color: var(--accent); }
-    input[type=text], input[type=password], input[type=file] { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--font); font-size: 0.95rem; padding: 0.6rem 0.9rem; outline: none; }
+    td { padding: 0.7rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    input[type=text], input[type=password] { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--font); font-size: 0.95rem; padding: 0.6rem 0.9rem; outline: none; }
+    input[type=file] { font-family: var(--font); font-size: 0.9rem; color: var(--muted); }
     input:focus { border-color: var(--accent); }
-    .badge-ok { background: #14532d; color: #86efac; padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.78rem; font-weight: 700; }
-    .badge-no { background: #7f1d1d; color: #fca5a5; padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.78rem; font-weight: 700; }
+    .badge-ok { background: #dcfce7; color: #16a34a; padding: 0.2rem 0.7rem; border-radius: 99px; font-size: 0.78rem; font-weight: 700; }
+    .badge-no { background: #fee2e2; color: #dc2626; padding: 0.2rem 0.7rem; border-radius: 99px; font-size: 0.78rem; font-weight: 700; }
     .summary-box { background: var(--surface2); border-radius: 10px; padding: 1rem 1.2rem; font-size: 0.9rem; line-height: 1.7; color: var(--text); }
   </style>
   {% block css %}{% endblock %}
 </head>
 <body>
 <nav>
-  <a href="{{ url_for('admin.dashboard') }}" class="brand">⚙️ Admin</a>
-  <a href="{{ url_for('admin.dashboard') }}" {% if request.endpoint == 'admin.dashboard' %}class="active"{% endif %}>Dashboard</a>
-  <a href="{{ url_for('admin.postcards') }}" {% if request.endpoint == 'admin.postcards' %}class="active"{% endif %}>💌 Cartes</a>
-  <a href="{{ url_for('admin.videos') }}" {% if request.endpoint == 'admin.videos' %}class="active"{% endif %}>🎬 Vidéos</a>
-  <a href="{{ url_for('admin.reports') }}" {% if request.endpoint == 'admin.reports' %}class="active"{% endif %}>📊 Rapports</a>
-  <a href="{{ url_for('admin.logout') }}" class="logout">Déconnexion</a>
+  <a href="{{ url_for('admin.dashboard') }}" class="brand">⚙️ Администрация</a>
+  <a href="{{ url_for('admin.dashboard') }}" {% if request.endpoint == 'admin.dashboard' %}class="active"{% endif %}>Начало</a>
+  <a href="{{ url_for('admin.postcards') }}" {% if request.endpoint == 'admin.postcards' %}class="active"{% endif %}>💌 Картички</a>
+  <a href="{{ url_for('admin.videos') }}" {% if request.endpoint == 'admin.videos' %}class="active"{% endif %}>🎬 Видеа</a>
+  <a href="{{ url_for('admin.reports') }}" {% if request.endpoint == 'admin.reports' %}class="active"{% endif %}>📊 Отчети</a>
+  <a href="{{ url_for('admin.logout') }}" class="logout">Изход</a>
 </nav>
 <div class="page">
   {% block content %}{% endblock %}

@@ -1,24 +1,25 @@
 {% extends "admin/base.html" %}
-{% block title %}Rapports{% endblock %}
+{% block title %}Отчети{% endblock %}
 
 {% block content %}
-<h1>📊 Rapports quotidiens</h1>
-<p style="color:var(--muted);margin-bottom:2rem;">Générés à 21h00 chaque jour. Conservés 30 jours.</p>
+<h1>📊 Ежедневни отчети</h1>
+<p style="color:var(--muted);margin-bottom:2rem;">Генерират се всеки ден в 21:00 ч. Пазят се 30 дни.</p>
 
 {% if not reports %}
 <div class="card" style="text-align:center;padding:3rem;color:var(--muted);">
-  Pas encore de rapport.
+  <div style="font-size:3rem;margin-bottom:1rem;">📊</div>
+  Няма отчети все още. Първият ще бъде генериран тази вечер в 21:00 ч.
 </div>
 {% endif %}
 
 {% for r in reports %}
 <div class="card">
   <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
-    <strong>{{ r.report_date }}</strong>
+    <strong style="font-size:1rem;">{{ r.report_date }}</strong>
     {% if r.worked %}
-    <span class="badge-ok">✓ A travaillé</span>
+    <span class="badge-ok">✓ Работила</span>
     {% else %}
-    <span class="badge-no">✗ Pas de séance</span>
+    <span class="badge-no">✗ Не е работила</span>
     {% endif %}
   </div>
   <div class="summary-box">{{ r.summary }}</div>

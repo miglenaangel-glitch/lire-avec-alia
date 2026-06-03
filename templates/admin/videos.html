@@ -1,35 +1,35 @@
 {% extends "admin/base.html" %}
-{% block title %}Vidéos{% endblock %}
+{% block title %}Видеа{% endblock %}
 
 {% block content %}
-<h1>🎬 Vidéos de récompense</h1>
-<p style="color:var(--muted);margin-bottom:2rem;">
-  Vidéos affichées toutes les 15 minutes de travail.<br>
-  <strong>I-love-you.mp4</strong> et <strong>love-learning-with-you.mp4</strong> s'alternent.<br>
-  <strong>so-long.mp4</strong> s'affiche après 24h d'absence.
+<h1>🎬 Видеа за награди</h1>
+<p style="color:var(--muted);margin-bottom:1rem;">
+  Видеата се показват на Алия по време на работа.<br>
+  <strong>I-love-you.mp4</strong> и <strong>love-learning-with-you.mp4</strong> се редуват на всеки 15 минути.<br>
+  <strong>so-long.mp4</strong> се показва при отсъствие повече от 24 часа.
 </p>
 
 <div class="card">
-  <h2>Ajouter une vidéo</h2>
+  <h2>Качи ново видео</h2>
   <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
     <div>
-      <label style="color:var(--muted);font-size:0.85rem;display:block;margin-bottom:0.4rem;">Fichier (MP4, MOV)</label>
+      <label style="color:var(--muted);font-size:0.85rem;display:block;margin-bottom:0.4rem;">Файл (MP4, MOV)</label>
       <input type="file" id="vid-file" accept="video/*">
     </div>
-    <button class="btn btn-primary" onclick="uploadVideo()">⬆️ Ajouter</button>
+    <button class="btn btn-primary" onclick="uploadVideo()">⬆️ Качи</button>
   </div>
   <p id="vid-msg" style="margin-top:0.8rem;font-size:0.9rem;"></p>
 </div>
 
 <div class="card">
-  <h2>Vidéos sur le serveur</h2>
+  <h2>Видеа на сървъра</h2>
   {% if videos %}
   <table>
-    <tr><th>Fichier</th><th>Aperçu</th><th>Supprimer</th></tr>
+    <tr><th>Файл</th><th>Преглед</th><th>Изтрий</th></tr>
     {% for v in videos %}
-    <tr id="vid-{{ loop.index }}">
+    <tr id="vid-row-{{ loop.index }}">
       <td>{{ v }}</td>
-      <td><a href="/static/videos/{{ v }}" target="_blank" class="btn btn-ghost" style="font-size:0.8rem;padding:0.3rem 0.8rem;">▶ Voir</a></td>
+      <td><a href="/static/videos/{{ v }}" target="_blank" class="btn btn-ghost" style="font-size:0.8rem;padding:0.3rem 0.8rem;">▶ Пусни</a></td>
       <td>
         <button class="btn btn-danger" style="font-size:0.8rem;padding:0.3rem 0.8rem;"
                 onclick="deleteVideo('{{ v }}', {{ loop.index }})">🗑</button>
@@ -38,7 +38,7 @@
     {% endfor %}
   </table>
   {% else %}
-  <p style="color:var(--muted);">Aucune vidéo.</p>
+  <p style="color:var(--muted);">Няма видеа.</p>
   {% endif %}
 </div>
 {% endblock %}
@@ -48,26 +48,26 @@
 async function uploadVideo() {
   const file = document.getElementById('vid-file').files[0];
   const msg = document.getElementById('vid-msg');
-  if (!file) { msg.textContent = '⚠️ Choisissez une vidéo.'; return; }
+  if (!file) { msg.textContent = '⚠️ Избери видео файл.'; msg.style.color='#dc2626'; return; }
   const fd = new FormData();
   fd.append('video', file);
-  msg.textContent = 'Envoi en cours…';
+  msg.textContent = 'Качване…'; msg.style.color = 'var(--muted)';
   const res = await fetch('{{ url_for("admin.upload_video") }}', { method: 'POST', body: fd });
   const data = await res.json();
   if (data.success) {
-    msg.textContent = '✅ Vidéo ajoutée ! Rechargez la page.';
-    msg.style.color = '#22c55e';
+    msg.textContent = '✅ Видеото е качено! Презареди страницата.';
+    msg.style.color = '#16a34a';
   } else {
-    msg.textContent = '❌ ' + (data.error || 'Erreur');
-    msg.style.color = '#ef4444';
+    msg.textContent = '❌ ' + (data.error || 'Грешка');
+    msg.style.color = '#dc2626';
   }
 }
 
 async function deleteVideo(filename, idx) {
-  if (!confirm('Supprimer ' + filename + ' ?')) return;
+  if (!confirm('Изтриване на ' + filename + '?')) return;
   const res = await fetch(`/admin/laykuchka/videos/delete/${filename}`, { method: 'POST' });
   const data = await res.json();
-  if (data.success) document.getElementById('vid-' + idx).remove();
+  if (data.success) document.getElementById('vid-row-' + idx).remove();
 }
 </script>
 {% endblock %}

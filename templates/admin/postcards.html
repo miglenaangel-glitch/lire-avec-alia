@@ -1,45 +1,42 @@
 {% extends "admin/base.html" %}
-{% block title %}Cartes postales{% endblock %}
+{% block title %}Картички{% endblock %}
 
 {% block content %}
-<h1>💌 Cartes postales</h1>
-<p style="color:var(--muted);margin-bottom:2rem;">Ces cartes sont envoyées à Alia après chaque 3 séances réussies.</p>
+<h1>💌 Картички за Алия</h1>
+<p style="color:var(--muted);margin-bottom:2rem;">Картичките се изпращат след всеки 3 успешни сесии (≥70% точност). Ротират се автоматично.</p>
 
-<!-- Upload form -->
 <div class="card">
-  <h2>Ajouter une carte</h2>
+  <h2>Добави картичка</h2>
   <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;">
     <div>
-      <label style="color:var(--muted);font-size:0.85rem;display:block;margin-bottom:0.4rem;">Image (PNG, JPG, WebP)</label>
+      <label style="color:var(--muted);font-size:0.85rem;display:block;margin-bottom:0.4rem;">Изображение (PNG, JPG, WebP)</label>
       <input type="file" id="pc-file" accept="image/*">
     </div>
     <div>
-      <label style="color:var(--muted);font-size:0.85rem;display:block;margin-bottom:0.4rem;">Label (optionnel)</label>
-      <input type="text" id="pc-label" placeholder="Bravo Alia !" style="width:220px;">
+      <label style="color:var(--muted);font-size:0.85rem;display:block;margin-bottom:0.4rem;">Описание (по желание)</label>
+      <input type="text" id="pc-label" placeholder="Браво Алия!" style="width:220px;">
     </div>
-    <button class="btn btn-primary" onclick="uploadPostcard()">⬆️ Ajouter</button>
+    <button class="btn btn-primary" onclick="uploadPostcard()">⬆️ Добави</button>
   </div>
   <p id="upload-msg" style="margin-top:0.8rem;font-size:0.9rem;"></p>
 </div>
 
-<!-- Cards grid -->
-<div id="cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.2rem;">
+<div id="cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1.2rem;">
   {% for card in cards %}
   <div class="card" id="card-{{ card.id }}" style="padding:1rem;text-align:center;">
     <img src="{{ url_for('static', filename=card.image_path) }}"
          style="width:100%;border-radius:8px;margin-bottom:0.8rem;aspect-ratio:16/9;object-fit:cover;">
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.8rem;">
-      {{ card.label or '—' }}
-    </p>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.8rem;">{{ card.label or '—' }}</p>
+    <p style="font-size:0.75rem;color:var(--muted);margin-bottom:0.8rem;">Добавена: {{ card.created_at.strftime('%d.%m.%Y') if card.created_at else '' }}</p>
     <button class="btn btn-danger" style="font-size:0.8rem;padding:0.4rem 1rem;"
-            onclick="deleteCard({{ card.id }})">🗑 Supprimer</button>
+            onclick="deleteCard({{ card.id }})">🗑 Изтрий</button>
   </div>
   {% endfor %}
 </div>
 
 {% if not cards %}
 <div class="card" style="text-align:center;padding:3rem;color:var(--muted);">
-  Aucune carte. Ajoutez la première !
+  Няма картички. Добави първата!
 </div>
 {% endif %}
 {% endblock %}
@@ -50,26 +47,24 @@ async function uploadPostcard() {
   const file = document.getElementById('pc-file').files[0];
   const label = document.getElementById('pc-label').value;
   const msg = document.getElementById('upload-msg');
-  if (!file) { msg.textContent = '⚠️ Choisissez une image.'; return; }
-
+  if (!file) { msg.textContent = '⚠️ Избери изображение.'; msg.style.color='#dc2626'; return; }
   const fd = new FormData();
   fd.append('image', file);
   fd.append('label', label);
-  msg.textContent = 'Envoi en cours…';
-
+  msg.textContent = 'Качване…'; msg.style.color = 'var(--muted)';
   const res = await fetch('{{ url_for("admin.upload_postcard") }}', { method: 'POST', body: fd });
   const data = await res.json();
   if (data.success) {
-    msg.textContent = '✅ Carte ajoutée ! Rechargez la page.';
-    msg.style.color = '#22c55e';
+    msg.textContent = '✅ Картичката е добавена! Презареди страницата.';
+    msg.style.color = '#16a34a';
   } else {
-    msg.textContent = '❌ ' + (data.error || 'Erreur');
-    msg.style.color = '#ef4444';
+    msg.textContent = '❌ ' + (data.error || 'Грешка');
+    msg.style.color = '#dc2626';
   }
 }
 
 async function deleteCard(id) {
-  if (!confirm('Supprimer cette carte ?')) return;
+  if (!confirm('Изтриване на картичката?')) return;
   const res = await fetch(`/admin/laykuchka/postcards/delete/${id}`, { method: 'POST' });
   const data = await res.json();
   if (data.success) document.getElementById('card-' + id).remove();
