@@ -140,13 +140,17 @@ let totalCorrect = 0;
 // ── 15-MINUTE VIDEO SYSTEM ──
 const REWARD_VIDEOS = [
   '/static/videos/I-love-you.mp4',
-  '/static/videos/love-learning-with-you.mp4'
+  '/static/videos/love-learning-with-you.mp4',
+  '/static/videos/little-bee.mp4',
+  '/static/videos/light-up-star.mp4',
+  '/static/videos/your-smile.mp4'
+  // so-long.mp4 е запазено само за 24ч отсъствие
 ];
 const VIDEO_INTERVAL = 15 * 60 * 1000; // 15 minutes
 
 function getNextVideoIdx() {
   const idx = parseInt(localStorage.getItem('alia_next_video') || '0');
-  return idx % 2;
+  return idx % REWARD_VIDEOS.length;
 }
 
 function playRewardVideo() {
