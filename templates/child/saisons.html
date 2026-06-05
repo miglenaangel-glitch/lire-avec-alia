@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+{% block title %}Les Saisons — Lire avec Alia{% endblock %}
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/child.css') }}">
+<style>
+/* ── PAGE ── */
+.saisons-page {
+  min-height: 100vh;
+  background: #fdf8f0;
+  font-family: 'Nunito', sans-serif;
+  padding-bottom: 4rem;
+}
+
+.saisons-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 1.2rem 0.4rem;
+}
+
+.saisons-back {
+  background: none; border: none;
+  font-size: 1.5rem; cursor: pointer; padding: 0.3rem; line-height: 1;
+}
+
+.saisons-title {
+  font-size: 1.3rem; font-weight: 900; color: #1a3a6b; margin: 0;
+}
+
+/* ── SAISON TABS ── */
+.saison-tabs {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0 1rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-bottom: 2px solid #e8e0d5;
+  margin-bottom: 0;
+}
+
+.saison-tab {
+  padding: 0.5rem 0.9rem;
+  border: none; background: none;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem; font-weight: 700;
+  color: #aaa; cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+.saison-tab.active { color: #1a3a6b; border-bottom-color: #1a3a6b; }
+
+/* ── SAISON PANELS ── */
+.saison-panel { display: none; }
+.saison-panel.active { display: block; }
+
+.saison-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.saison-big-icon  { font-size: 2rem; }
+.saison-big-label { font-size: 1.5rem; font-weight: 900; }
+
+/* ── SECTIONS ── */
+.saison-section {
+  padding: 0.9rem 1.2rem 0;
+}
+
+.saison-section-title {
+  font-size: 0.72rem; font-weight: 800; color: #aaa;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  margin-bottom: 0.6rem;
+}
+
+/* ── MONTHS ── */
+.saison-mois-row {
+  display: flex; gap: 0.6rem; flex-wrap: wrap;
+}
+
+.saison-mois-card {
+  border: 1.5px solid #ddd;
+  border-radius: 12px;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  transition: transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.saison-mois-card:active { transform: scale(0.95); }
+.saison-mois-num { font-size: 0.65rem; font-weight: 800; color: #bbb; }
+.saison-mois-nom { line-height: 1.3; }
+
+/* ── FÊTES ── */
+.saison-fete-row, .saison-anniv-row, .saison-vacance-row {
+  display: flex; align-items: baseline; gap: 0.5rem;
+  padding: 5px 0; font-size: 0.95rem;
+  border-bottom: 1px solid #f0ebe3;
+}
+
+.saison-fete-row:last-child,
+.saison-anniv-row:last-child { border-bottom: none; }
+
+.saison-fete-date {
+  font-size: 0.72rem; font-weight: 800; color: #bbb;
+  min-width: 48px; flex-shrink: 0;
+}
+
+.saison-fete-label { color: #333; font-weight: 600; }
+
+.saison-fete-note {
+  font-size: 0.72rem; color: #e67e22; font-style: italic;
+}
+
+.saison-fete-row.halloween {
+  background: #fef0e6; border-radius: 10px;
+  padding: 8px 10px; border: 1.5px solid #e67e22;
+  margin: 4px 0; display: flex; flex-wrap: wrap; gap: 0.4rem;
+}
+
+.saison-fete-row.bonibon {
+  background: #eef2fa; border-radius: 10px;
+  padding: 8px 10px; border: 1.5px solid #1a3a6b;
+  margin: 4px 0;
+}
+
+.saison-vacance-row {
+  color: #555; font-size: 0.9rem;
+}
+
+/* ── SPECIAL ── */
+.anniversaire-special {
+  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  padding: 10px 14px; border-radius: 12px;
+  background: linear-gradient(135deg, #fef9e7, #fef3c7);
+  border: 1.5px solid #f0b429; margin: 6px 0;
+  font-size: 1rem;
+}
+
+.anniversaire-bonibon {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 10px 14px; border-radius: 12px;
+  background: #eef2fa; border: 1.5px solid #1a3a6b;
+  margin: 6px 0; font-size: 0.95rem;
+}
+
+@keyframes starPulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.3); }
+}
+.star-anim { display: inline-block; animation: starPulse 1.5s infinite; }
+
+/* ── EX TABS ── */
+.ex-tabs-wrap {
+  padding: 1rem 1.2rem 0;
+  border-top: 2px solid #e8e0d5;
+  margin-top: 1rem;
+}
+
+.ex-tabs-label {
+  font-size: 0.72rem; font-weight: 800; color: #aaa;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  margin-bottom: 0.5rem;
+}
+
+.ex-tabs {
+  display: flex; gap: 0.5rem;
+  border-bottom: 2px solid #e8e0d5;
+  margin-bottom: 1rem;
+}
+
+.ex-tab {
+  padding: 0.5rem 1rem;
+  border: none; background: none;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem; font-weight: 700;
+  color: #aaa; cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s;
+}
+.ex-tab.active { color: #1a3a6b; border-bottom-color: #1a3a6b; }
+
+.ex-panel { display: none; padding: 0 1.2rem; }
+.ex-panel.active { display: block; }
+
+/* ── EX1 MATCH ── */
+.match-mois-display {
+  text-align: center; padding: 1.2rem 0 0.5rem;
+  font-size: 1.4rem;
+}
+
+.match-btns {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0.7rem; margin: 0.8rem 0;
+}
+
+.match-saison-btn {
+  padding: 0.8rem 0.5rem;
+  border-radius: 14px; border: 2px solid #e8e0d5;
+  background: #fff; cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem; font-weight: 800;
+  transition: transform 0.1s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+}
+.match-saison-btn:active:not(:disabled) { transform: scale(0.95); }
+.match-saison-btn:disabled { cursor: default; }
+.match-saison-btn.correct { border-color: #16a34a; background: #f0fdf4; }
+.match-saison-btn.wrong   { border-color: #ea580c; background: #fff7ed; }
+
+.saison-feedback {
+  font-size: 1rem; font-weight: 800; text-align: center;
+  padding: 0.5rem; border-radius: 10px; min-height: 2rem; margin: 0.5rem 0;
+}
+.saison-feedback.success { color: #16a34a; background: #f0fdf4; }
+.saison-feedback.partial { color: #ea580c; background: #fff7ed; }
+
+/* ── EX2 CALENDRIER ── */
+.calendrier-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+  padding-bottom: 1rem;
+}
+
+@media (min-width: 500px) {
+  .calendrier-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.cal-card {
+  border: 1.5px solid #e8e0d5;
+  border-radius: 12px;
+  padding: 0.6rem;
+  cursor: pointer;
+  transition: transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.cal-card:active { transform: scale(0.97); }
+
+.cal-card-header {
+  display: flex; align-items: center; gap: 4px;
+  margin-bottom: 0.4rem;
+}
+.cal-num { font-size: 0.65rem; font-weight: 800; color: #bbb; }
+.cal-nom  { flex: 1; line-height: 1.2; }
+.cal-saison-icon { font-size: 0.9rem; }
+
+.cal-events { font-size: 0.75rem; display: none; margin-top: 0.3rem; }
+.cal-card.expanded .cal-events { display: block; }
+
+.cal-ev { padding: 2px 0; }
+.cal-ev.special { color: #c0392b; font-weight: 800; }
+.cal-ev.halloween { color: #e67e22; font-weight: 700; }
+.cal-ev.bonibon   { color: #1a3a6b; font-weight: 700; }
+.cal-ev.anniv     { color: #555; }
+.cal-ev.fete      { color: #666; }
+
+/* ── BUTTON ── */
+.saison-btn {
+  padding: 0.65rem 1.4rem;
+  background: #1a3a6b; color: #fff;
+  border: none; border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem; font-weight: 800;
+  cursor: pointer; transition: transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.saison-btn:active { transform: scale(0.95); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="saisons-page">
+  <div class="saisons-header">
+    <button class="saisons-back" onclick="window.location='/'">🏠</button>
+    <h1 class="saisons-title">Les Saisons — Le Calendrier Vivant</h1>
+  </div>
+
+  <!-- Saison selector tabs -->
+  <div class="saison-tabs">
+    <button class="saison-tab {% if not active_saison or active_saison == 'hiver' %}active{% endif %}"
+            data-saison="hiver">❄ Hiver</button>
+    <button class="saison-tab {% if active_saison == 'printemps' %}active{% endif %}"
+            data-saison="printemps">🌸 Printemps</button>
+    <button class="saison-tab {% if active_saison == 'ete' %}active{% endif %}"
+            data-saison="ete">☀ Été</button>
+    <button class="saison-tab {% if active_saison == 'automne' %}active{% endif %}"
+            data-saison="automne">🍂 Automne</button>
+  </div>
+
+  <!-- Saison panels (built by JS) -->
+  <div class="saison-panel {% if not active_saison or active_saison == 'hiver' %}active{% endif %}"
+       id="panel-hiver"></div>
+  <div class="saison-panel {% if active_saison == 'printemps' %}active{% endif %}"
+       id="panel-printemps"></div>
+  <div class="saison-panel {% if active_saison == 'ete' %}active{% endif %}"
+       id="panel-ete"></div>
+  <div class="saison-panel {% if active_saison == 'automne' %}active{% endif %}"
+       id="panel-automne"></div>
+
+  <!-- Exercises -->
+  <div class="ex-tabs-wrap">
+    <div class="ex-tabs-label">Exercices</div>
+    <div class="ex-tabs">
+      <button class="ex-tab active" data-ex="match">Trouve la saison</button>
+      <button class="ex-tab" data-ex="calendrier">Calendrier</button>
+    </div>
+
+    <!-- EX1 : saison_match -->
+    <div class="ex-panel active" id="expanel-match">
+      <div class="match-mois-display" id="match-mois"></div>
+      <div class="saison-feedback" id="match-feedback"></div>
+      <div class="match-btns">
+        <button class="match-saison-btn" data-saison="hiver"
+                style="background:#e8f4fc;border-color:#1a527640"
+                onclick="answerMatch('hiver')">
+          <span style="font-size:1.4rem">❄</span>
+          <span style="color:#1a5276">Hiver</span>
+        </button>
+        <button class="match-saison-btn" data-saison="printemps"
+                style="background:#edfaf1;border-color:#1e844940"
+                onclick="answerMatch('printemps')">
+          <span style="font-size:1.4rem">🌸</span>
+          <span style="color:#1e8449">Printemps</span>
+        </button>
+        <button class="match-saison-btn" data-saison="ete"
+                style="background:#fef9e7;border-color:#9a7d0a40"
+                onclick="answerMatch('ete')">
+          <span style="font-size:1.4rem">☀</span>
+          <span style="color:#9a7d0a">Été</span>
+        </button>
+        <button class="match-saison-btn" data-saison="automne"
+                style="background:#fef5ec;border-color:#a0400040"
+                onclick="answerMatch('automne')">
+          <span style="font-size:1.4rem">🍂</span>
+          <span style="color:#a04000">Automne</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- EX2 : calendrier_vivant -->
+    <div class="ex-panel" id="expanel-calendrier">
+      <p style="font-size:0.82rem;color:#aaa;margin-bottom:0.8rem;">
+        Touche un mois pour écouter et voir ses événements.
+      </p>
+      <div class="calendrier-grid" id="calendrier-grid"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<!-- mois.js fournit MOIS + apiliHTML (nécessaire pour les couleurs Apili) -->
+<script src="{{ url_for('static', filename='js/mois.js') }}"></script>
+<script src="{{ url_for('static', filename='js/saisons.js') }}"></script>
+{% endblock %}

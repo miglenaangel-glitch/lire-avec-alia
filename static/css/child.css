@@ -604,3 +604,9 @@ body {
 /* ── HEURE MODULE ─────────────────────────────────────────── */
 .heure-skye { background: #fffbf0; }
 .heure-lumi { background: #f5f0ff; }
+
+/* ── SAISONS MODULE ───────────────────────────────────────── */
+.saison-hiver     { background: #e8f4fc; }
+.saison-printemps { background: #edfaf1; }
+.saison-ete       { background: #fef9e7; }
+.saison-automne   { background: #fef5ec; }

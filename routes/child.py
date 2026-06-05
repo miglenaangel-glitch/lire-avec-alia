@@ -169,6 +169,18 @@ def exercise(level_key):
     )
 
 
+@child_bp.route('/saisons')
+def saisons():
+    return render_template('child/saisons.html')
+
+
+@child_bp.route('/saisons/<saison>')
+def saison_detail(saison):
+    if saison not in ['hiver', 'printemps', 'ete', 'automne']:
+        return redirect(url_for('child.saisons'))
+    return render_template('child/saisons.html', active_saison=saison)
+
+
 @child_bp.route('/heure')
 def heure():
     return render_template('child/heure.html')
