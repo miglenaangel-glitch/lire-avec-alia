@@ -126,22 +126,7 @@
 
 {% block js %}
 <script>
-const MAMA_PASSWORD = 'maman';
-
-function openMama(e) {
-  e.preventDefault();
-  window.location.href = "{{ url_for('parent.login') }}";
-}
-
-function closeMama() {
-  document.getElementById('mama-modal').style.display = 'none';
-  document.getElementById('mama-pass').value = '';
-  document.getElementById('mama-error').style.display = 'none';
-}
-
-document.getElementById('mama-pass').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') checkMama();
-});
+// Maman link is now a direct <a> tag — no JS needed
 
 // Load daily assignment
 async function loadDaily() {
