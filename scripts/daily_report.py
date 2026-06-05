@@ -6,6 +6,7 @@ sys.path.insert(0, '/var/www/lire-avec-alia')
 
 from datetime import date, datetime, timedelta
 import MySQLdb
+import MySQLdb.cursors
 import requests as http
 from dotenv import load_dotenv
 
