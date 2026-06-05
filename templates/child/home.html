@@ -176,31 +176,40 @@ async function loadDaily() {
 }
 loadDaily();
 
+// Preload voices
+speechSynthesis.getVoices();
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+
 // Locked tile tap — Minion message
 let minionPlaying = false;
+let minionSpoken = false;
 function tappedLocked() {
   if (minionPlaying) return;
   minionPlaying = true;
+  minionSpoken = false;
 
   const laugh = new Audio('/static/sounds/laugh.m4a');
   laugh.play().catch(() => {});
 
-  // Speak when laugh ends (or after 2s fallback)
   function speakMinion() {
-    speechSynthesis.cancel();
+    if (minionSpoken) return;
+    minionSpoken = true;
     const utt = new SpeechSynthesisUtterance(
       "Ton ami Minion fait la sieste aujourd'hui, retrouve-le plus tard !"
     );
     utt.lang = 'fr-FR';
     utt.rate = 0.7;
-    utt.pitch = 1.1;
     utt.onend = () => { minionPlaying = false; };
     speechSynthesis.speak(utt);
     setTimeout(() => { minionPlaying = false; }, 6000);
   }
 
   laugh.onended = speakMinion;
-  setTimeout(speakMinion, 3000); // fallback if onended doesn't fire
+  // Fallback: if laugh doesn't fire onended
+  laugh.onerror = speakMinion;
+  setTimeout(speakMinion, 4000);
 }
 
 function showStars() {
