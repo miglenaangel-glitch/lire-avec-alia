@@ -10,7 +10,7 @@ const MOIS = [
   { n:3,  nom:"mars",      syl:"mars",        saison:"printemps",
     apili:[{l:"m",t:"C"},{l:"a",t:"V"},{l:"r",t:"C"},{l:"s",t:"C"}] },
   { n:4,  nom:"avril",     syl:"a-vril",      saison:"printemps",
-    apili:[{l:"a",t:"V"},{l:"vr",t:"C"},{l:"i",t:"V"},{l:"l",t:"M"}] },
+    apili:[{l:"a",t:"V"},{l:"vr",t:"C"},{l:"i",t:"V"},{l:"l",t:"C"}] },
   { n:5,  nom:"mai",       syl:"mai",         saison:"printemps",
     apili:[{l:"m",t:"C"},{l:"ai",t:"V"}] },
   { n:6,  nom:"juin",      syl:"juin",        saison:"été",
@@ -39,6 +39,14 @@ const SAISONS = {
 const COLORS = { C: '#1a3a6b', V: '#c0392b', M: '#b0a090' };
 
 // ── UTILITIES ─────────────────────────────────────────────────────────────────
+
+function getLetterColorFromApili(letter, apili) {
+  for (const seg of apili) {
+    if (seg.l.includes(letter)) return COLORS[seg.t];
+  }
+  // distractor not in apili — fall back to basic vowel check
+  return 'aeiouyéèêëàâîïôùûü'.includes(letter.toLowerCase()) ? COLORS.V : COLORS.C;
+}
 
 function speak(text, rate = 0.7) {
   if (!window.speechSynthesis) return;
@@ -293,9 +301,8 @@ function showEcritureMois() {
   ecritureTiles = allTiles;
   allTiles.forEach(letter => {
     const tile = document.createElement('button');
-    const isVowel = 'aeiouyàáâãäåèéêëìíîïòóôõöùúûü'.includes(letter.toLowerCase());
     tile.className = 'ecriture-tile';
-    tile.style.background = isVowel ? '#c0392b' : '#1a3a6b';
+    tile.style.background = getLetterColorFromApili(letter, m.apili);
     tile.textContent = letter;
     tile.addEventListener('click', () => addLetter(letter, tile));
     tilesEl.appendChild(tile);
@@ -310,9 +317,9 @@ function addLetter(letter, tile) {
   tile.style.opacity = '0.35';
 
   const slot = document.querySelector(`.ecriture-slot[data-idx="${nextIdx}"]`);
-  const isVowel = 'aeiouyàáâãäåèéêëìíîïòóôõöùúûü'.includes(letter.toLowerCase());
+  const currentMois = ecritureQueue[ecritureIdx];
   slot.textContent = letter;
-  slot.style.color = isVowel ? '#c0392b' : '#1a3a6b';
+  slot.style.color = getLetterColorFromApili(letter, currentMois.apili);
   slot.dataset.letter = letter;
 }
 

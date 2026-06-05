@@ -597,3 +597,6 @@ body {
   animation: burst 1.2s ease-out forwards;
   z-index: 100;
 }
+
+/* Apili mute-letter color (used by mois module) */
+.m-col { color: #b0a090; }
