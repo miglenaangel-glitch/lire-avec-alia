@@ -112,7 +112,6 @@ def home():
         LEFT JOIN level_locks ll ON ll.level_key = l.level_key
     """)
     locks = {r['level_key']: bool(r['is_locked']) for r in cur.fetchall()}
-    cur.close()
 
     # Load today's daily assignment
     from datetime import date, timedelta
