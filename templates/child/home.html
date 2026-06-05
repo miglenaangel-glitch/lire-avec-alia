@@ -79,6 +79,7 @@
     {% endif %}
 
     <!-- Les Nombres tile -->
+    {% if not locks.get('nombres_sector', False) %}
     <a href="{{ url_for('numbers.home') }}" class="level-card" style="border-color:#e67e22;">
       <div class="level-icon" style="background:#fef3e2;">🔢</div>
       <div>
@@ -86,6 +87,12 @@
         <div class="level-desc">zéro… vingt… cent…</div>
       </div>
     </a>
+    {% else %}
+    <div class="level-card level-locked">
+      <div class="level-icon" style="opacity:0.5;">🔒</div>
+      <div><div class="level-name" style="opacity:0.5;">Les Nombres</div><div class="level-desc" style="opacity:0.5;">Bientôt…</div></div>
+    </div>
+    {% endif %}
 
     <a href="#" class="level-card mama-card" onclick="openMama(event)">
       <div class="level-icon">💝</div>
