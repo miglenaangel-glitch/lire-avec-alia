@@ -32,16 +32,40 @@ def get_mysql():
 
 @api_bp.route('/daily', methods=['GET'])
 def daily_assignment():
-    """Return today's assignment for Alia."""
-    from datetime import date
+    """Return today's assignment. If none exists, carry over yesterday's."""
+    from datetime import date, timedelta
     mysql = get_mysql()
     cur = mysql.connection.cursor()
     today = date.today().isoformat()
+    yesterday = (date.today() - timedelta(days=1)).isoformat()
+
     cur.execute("""
         SELECT exercise_key, exercise_name, exercise_url, completed
         FROM daily_assignment WHERE assigned_date = %s ORDER BY order_index
     """, (today,))
     assignments = cur.fetchall()
+
+    if not assignments:
+        # No assignment today — copy yesterday's (reset completed)
+        cur.execute("""
+            SELECT exercise_key, exercise_name, exercise_url, order_index
+            FROM daily_assignment WHERE assigned_date = %s ORDER BY order_index
+        """, (yesterday,))
+        yesterday_rows = cur.fetchall()
+        if yesterday_rows:
+            for row in yesterday_rows:
+                cur.execute("""
+                    INSERT IGNORE INTO daily_assignment
+                    (exercise_key, exercise_name, exercise_url, assigned_date, completed, order_index)
+                    VALUES (%s, %s, %s, %s, FALSE, %s)
+                """, (row['exercise_key'], row['exercise_name'], row['exercise_url'], today, row['order_index']))
+            mysql.connection.commit()
+            cur.execute("""
+                SELECT exercise_key, exercise_name, exercise_url, completed
+                FROM daily_assignment WHERE assigned_date = %s ORDER BY order_index
+            """, (today,))
+            assignments = cur.fetchall()
+
     cur.close()
     return jsonify({'assignments': assignments})
 
