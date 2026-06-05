@@ -47,6 +47,7 @@
     {% endfor %}
 
     <!-- Compréhension Rémi/Éva tile -->
+    {% if not locks.get('comprehension_remi_eva', False) %}
     <a href="{{ url_for('comprehension.playlist_view', playlist_key='remi_eva') }}" class="level-card" style="border-color:#7c3aed;">
       <div class="level-icon" style="background:#ede9fe;">📖</div>
       <div>
@@ -54,8 +55,15 @@
         <div class="level-desc">Rémi et Éva ont des histoires…</div>
       </div>
     </a>
+    {% else %}
+    <div class="level-card level-locked">
+      <div class="level-icon" style="opacity:0.5;">🔒</div>
+      <div><div class="level-name" style="opacity:0.5;">Compréhension</div><div class="level-desc" style="opacity:0.5;">Bientôt…</div></div>
+    </div>
+    {% endif %}
 
     <!-- Ma famille tile -->
+    {% if not locks.get('comprehension_famille', False) %}
     <a href="{{ url_for('comprehension.playlist_view', playlist_key='famille') }}" class="level-card" style="border-color:#e91e8c;">
       <div class="level-icon" style="background:#fce4ec;">💛</div>
       <div>
@@ -63,6 +71,12 @@
         <div class="level-desc">Baba-fille, Damien, Marci…</div>
       </div>
     </a>
+    {% else %}
+    <div class="level-card level-locked">
+      <div class="level-icon" style="opacity:0.5;">🔒</div>
+      <div><div class="level-name" style="opacity:0.5;">Ma famille</div><div class="level-desc" style="opacity:0.5;">Bientôt…</div></div>
+    </div>
+    {% endif %}
 
     <!-- Les Nombres tile -->
     <a href="{{ url_for('numbers.home') }}" class="level-card" style="border-color:#e67e22;">

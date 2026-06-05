@@ -131,3 +131,8 @@ CREATE TABLE IF NOT EXISTS parent_settings (
 );
 INSERT IGNORE INTO parent_settings (setting_key, setting_value)
 VALUES ('password', 'maman');
+
+-- Comprehension modules for parent locking
+INSERT IGNORE INTO levels (level_key, block, order_index, name_fr, exercise_type, is_unlocked) VALUES
+  ('comprehension_remi_eva', 20, 0, 'Compréhension — Rémi et Éva', 'sentence_read', TRUE),
+  ('comprehension_famille',  20, 1, 'Ma famille',                   'sentence_read', TRUE);
