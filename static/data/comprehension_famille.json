@@ -7,7 +7,7 @@
     "questions": [
       {"id":"q1","type":"qcm","question":"Avec qui Alia va à la mer ?","choix":["Damien","baba-fille","Marci"],"bonne_reponse":1},
       {"id":"q2","type":"qcm","question":"Où est-ce qu'Alia va ?","choix":["en Allemagne","à la mer","au marché"],"bonne_reponse":1},
-      {"id":"q3","type":"qcm","question":"Est-ce que baba-fille rit ?","choix":["Non, elle est triste","Oui, elle rit aussi","On ne sait pas"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"Est-ce que baba-fille rit ?","choix":["Non, elle dort","Oui, elle rit aussi","Elle nage"],"bonne_reponse":1},
       {"id":"q4","type":"micro","question":"Avec qui Alia va à la mer ?","mots_cles_acceptes":["baba-fille"],"reponse_modele":"Alia va à la mer avec baba-fille.","bonus":false},
       {"id":"q5","type":"micro","question":"Est-ce qu'Alia est contente ?","mots_cles_acceptes":["oui","rit","contente","heureuse"],"reponse_modele":"Oui, Alia rit.","bonus":false}
     ]
@@ -20,10 +20,10 @@
     "questions": [
       {"id":"q1","type":"qcm","question":"C'est le vélo de qui ?","choix":["Alia","Damien","Marci"],"bonne_reponse":1},
       {"id":"q2","type":"qcm","question":"Qu'est-ce qu'Alia a fait ?","choix":["Elle a lavé le vélo","Elle a emprunté le vélo","Elle a lu"],"bonne_reponse":1},
-      {"id":"q3","type":"qcm","question":"Comment est Damien ?","choix":["furieux","triste","content — il rit"],"bonne_reponse":2},
-      {"id":"q4","type":"qcm","question":"Est-ce que Damien est fâché contre Alia ?","choix":["Oui, il est furieux","Non, il aime Alia","On ne sait pas"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"Comment est Damien ?","choix":["surpris","fatigué","content — il rit"],"bonne_reponse":2},
+      {"id":"q4","type":"qcm","question":"Comment est Damien avec Alia ?","choix":["Il est triste","Il aime Alia et rit","Il ne dit rien"],"bonne_reponse":1},
       {"id":"q5","type":"micro","question":"Qu'est-ce qu'Alia a fait avec le vélo de Damien ?","mots_cles_acceptes":["emprunté","pris","vélo"],"reponse_modele":"Alia a emprunté le vélo de Damien.","bonus":false},
-      {"id":"q6","type":"micro","question":"Est-ce que Damien est fâché ?","mots_cles_acceptes":["non","rit","aime","pas fâché"],"reponse_modele":"Non, Damien rit. Il aime Alia.","bonus":false}
+      {"id":"q6","type":"micro","question":"Comment est Damien avec Alia ?","mots_cles_acceptes":["rit","aime","content","bien"],"reponse_modele":"Damien rit. Il aime Alia.","bonus":false}
     ]
   },
   {
@@ -35,7 +35,7 @@
       {"id":"q1","type":"qcm","question":"Quel âge a Marci ?","choix":["trois ans","six ans","quatorze ans"],"bonne_reponse":1},
       {"id":"q2","type":"qcm","question":"Où est-ce que Marci a vu le lama ?","choix":["à la mer","au musée","au marché"],"bonne_reponse":2},
       {"id":"q3","type":"qcm","question":"Qu'est-ce que le lama a sali ?","choix":["le vélo","la robe de Marci","le mur"],"bonne_reponse":1},
-      {"id":"q4","type":"qcm","question":"À la fin, Marci est comment ?","choix":["triste et furieuse","elle pleure","elle rit aussi"],"bonne_reponse":2},
+      {"id":"q4","type":"qcm","question":"À la fin, Marci est comment ?","choix":["elle est surprise","elle est étonnée","elle rit aussi"],"bonne_reponse":2},
       {"id":"q5","type":"micro","question":"Qui a vu le lama ?","mots_cles_acceptes":["Marci"],"reponse_modele":"Marci a vu le lama.","bonus":false},
       {"id":"q6","type":"micro","question":"Qu'est-ce que le lama a fait à la robe ?","mots_cles_acceptes":["sali","sale","tachée"],"reponse_modele":"Le lama a sali la robe de Marci.","bonus":false},
       {"id":"q7","type":"micro","question":"Tu penses que Marci est fâchée contre le lama ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
@@ -49,8 +49,8 @@
     "questions": [
       {"id":"q1","type":"qcm","question":"Avec qui Alia est à la mer ?","choix":["Damien et Marci","baba-fille et la famille","le lama"],"bonne_reponse":1},
       {"id":"q2","type":"qcm","question":"Qui a vu un gros poisson ?","choix":["Alia","baba-fille","Ile"],"bonne_reponse":2},
-      {"id":"q3","type":"qcm","question":"Est-ce que Maxi rit ?","choix":["Non, il est triste","Oui, il rit","On ne sait pas"],"bonne_reponse":1},
-      {"id":"q4","type":"qcm","question":"Comment est baba-fille à la fin ?","choix":["furieuse","elle rit","elle sourit"],"bonne_reponse":2},
+      {"id":"q3","type":"qcm","question":"Est-ce que Maxi rit ?","choix":["Non, il dort","Oui, il rit","Il nage"],"bonne_reponse":1},
+      {"id":"q4","type":"qcm","question":"Comment est baba-fille à la fin ?","choix":["elle nage","elle rit","elle sourit"],"bonne_reponse":2},
       {"id":"q5","type":"qcm","question":"Est-ce que toute la famille est là ?","choix":["Non, il manque des gens","Oui, la famille est là","On ne sait pas"],"bonne_reponse":1},
       {"id":"q6","type":"micro","question":"Qui a vu un gros poisson ?","mots_cles_acceptes":["Ile"],"reponse_modele":"Ile a vu un gros poisson.","bonus":false},
       {"id":"q7","type":"micro","question":"Qui rit dans le texte ?","mots_cles_acceptes":["Maxi","Nayden","Victor"],"reponse_modele":"Maxi rit, Nayden rit et Victor rit.","bonus":false},
@@ -69,7 +69,7 @@
       {"id":"q3","type":"qcm","question":"Qu'est-ce que Damien a lu ?","choix":["un livre sur la mer","un livre sur le safari","un livre sur la famille"],"bonne_reponse":1},
       {"id":"q4","type":"qcm","question":"Qu'est-ce que Damien a mis dans la voiture ?","choix":["Alia et Marci","le chat, le lama et la vache","le vélo"],"bonne_reponse":1},
       {"id":"q5","type":"qcm","question":"Qui a appelé à la fin ?","choix":["Stéphanie","Ile","baba-fille"],"bonne_reponse":2},
-      {"id":"q6","type":"qcm","question":"Est-ce que baba-fille a ri ?","choix":["Non, elle était fâchée","Oui, elle a ri aussi","Elle n'a pas appelé"],"bonne_reponse":1},
+      {"id":"q6","type":"qcm","question":"Est-ce que baba-fille a ri ?","choix":["Non, elle dormait","Oui, elle a ri aussi","Elle n'a pas appelé"],"bonne_reponse":1},
       {"id":"q7","type":"micro","question":"Quel âge a Damien ?","mots_cles_acceptes":["quatorze","14"],"reponse_modele":"Damien a quatorze ans.","bonus":false},
       {"id":"q8","type":"micro","question":"Qu'est-ce que Damien a mis dans la voiture ?","mots_cles_acceptes":["chat","lama","vache","animaux"],"reponse_modele":"Il a mis le chat, le lama et la vache dans la voiture.","bonus":false},
       {"id":"q9","type":"micro","question":"Qu'est-ce que Damien a dit ?","mots_cles_acceptes":["safari","notre","nous"],"reponse_modele":"Il a dit : c'est notre safari à nous !","bonus":false},
