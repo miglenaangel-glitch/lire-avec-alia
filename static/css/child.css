@@ -600,3 +600,7 @@ body {
 
 /* Apili mute-letter color (used by mois module) */
 .m-col { color: #b0a090; }
+
+/* ── HEURE MODULE ─────────────────────────────────────────── */
+.heure-skye { background: #fffbf0; }
+.heure-lumi { background: #f5f0ff; }

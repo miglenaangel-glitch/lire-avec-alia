@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+{% block title %}L'Heure — Lire avec Alia{% endblock %}
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/child.css') }}">
+<style>
+/* ── LAYOUT ── */
+.heure-page {
+  min-height: 100vh;
+  background: #fdf8f0;
+  font-family: 'Nunito', sans-serif;
+  padding: 0 0 4rem;
+  transition: background 0.4s;
+}
+
+.heure-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 1.2rem 0;
+}
+
+.heure-back {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.3rem;
+  line-height: 1;
+}
+
+.heure-title {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #1a3a6b;
+  margin: 0;
+}
+
+.heure-world {
+  font-size: 0.78rem;
+  color: #aaa;
+  padding: 0.1rem 1.2rem 0.6rem;
+}
+
+/* ── TABS ── */
+.heure-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem 0;
+  border-bottom: 2px solid #e8e0d5;
+  margin-bottom: 1.2rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.heure-tab {
+  padding: 0.55rem 1rem;
+  border-radius: 10px 10px 0 0;
+  border: none;
+  background: none;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #888;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+.heure-tab.active {
+  color: #1a3a6b;
+  border-bottom-color: #1a3a6b;
+  background: #fdf8f0;
+}
+
+.heure-panel {
+  display: none;
+  padding: 0.5rem 1rem 1rem;
+  transition: background 0.4s;
+}
+
+.heure-panel.active {
+  display: block;
+}
+
+/* ── HEURE DISPLAY ── */
+.heure-display {
+  font-size: 56px;
+  font-weight: 700;
+  color: #1a3a6b;
+  text-align: center;
+  letter-spacing: 0.05em;
+  margin: 1.2rem 0 0.5rem;
+}
+
+.heure-midi-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 20px;
+  font-weight: 800;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.heure-minuit-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 20px;
+  font-weight: 800;
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.personnage-badge {
+  font-size: 2.2rem;
+  text-align: center;
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── FEEDBACK ── */
+.heure-feedback {
+  font-size: 1rem;
+  font-weight: 800;
+  text-align: center;
+  padding: 0.5rem;
+  border-radius: 10px;
+  min-height: 2rem;
+  margin: 0.6rem 0;
+}
+
+.heure-feedback.success { color: #16a34a; background: #f0fdf4; }
+.heure-feedback.partial { color: #ea580c; background: #fff7ed; }
+
+/* ── BUTTONS ── */
+.heure-btn {
+  padding: 0.65rem 1.4rem;
+  background: #1a3a6b;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.heure-btn:active:not(:disabled) { transform: scale(0.95); }
+.heure-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* ── EX1 : MATCH ── */
+.match-choices {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  margin: 1rem 0;
+}
+
+.heure-choice-btn {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  background: #fff;
+  border: 2px solid #e8e0d5;
+  border-radius: 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.1s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.heure-choice-btn:active { transform: scale(0.97); }
+.heure-choice-btn.correct { border-color: #16a34a; background: #f0fdf4; }
+.heure-choice-btn.wrong   { border-color: #ea580c; background: #fff7ed; }
+
+/* ── EX2 : QUI PARLE ── */
+.parle-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.parle-choco {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  border-radius: 14px;
+  padding: 0.7rem 1.1rem;
+  border: 2px solid #e8e0d5;
+  font-size: 1rem;
+  color: #555;
+}
+
+/* ── EX3 : SKYE OU LUMI ── */
+.skylumi-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.skylumi-btn {
+  padding: 1.2rem 0.5rem;
+  border: 3px solid #e8e0d5;
+  border-radius: 18px;
+  background: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.1s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.skylumi-btn[data-choice="skye"] { border-color: #f0b429; }
+.skylumi-btn[data-choice="lumi"] { border-color: #9b59b6; }
+.skylumi-btn:active:not(:disabled) { transform: scale(0.95); }
+.skylumi-btn:disabled { opacity: 0.5; cursor: default; }
+.skylumi-btn.correct { background: #f0fdf4; border-color: #16a34a; }
+.skylumi-btn.wrong   { background: #fff7ed; border-color: #ea580c; }
+.skylumi-btn-icon { font-size: 2rem; }
+.skylumi-btn-label { font-size: 0.85rem; color: #666; }
+
+.skylumi-score {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #aaa;
+  margin-bottom: 0.3rem;
+}
+
+/* ── INTRO BANNER ── */
+.heure-intro {
+  background: linear-gradient(135deg, #fffbf0, #f5f0ff);
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 1.2rem;
+  border: 1px solid #e8e0d5;
+  font-size: 0.85rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+.heure-intro strong { color: #1a3a6b; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="heure-page" id="heure-page">
+  <div class="heure-header">
+    <button class="heure-back" onclick="window.location='/'">🏠</button>
+    <h1 class="heure-title">L'Heure</h1>
+  </div>
+  <div class="heure-world">🦄 Skye · 🦊 Lumi · La Vallée des Nuages</div>
+
+  <div class="heure-tabs">
+    <button class="heure-tab {% if not active_niveau or active_niveau == 'h1' %}active{% endif %}"
+            data-tab="match">Reconnais</button>
+    <button class="heure-tab {% if active_niveau == 'parle' %}active{% endif %}"
+            data-tab="parle">Lis à voix haute</button>
+    <button class="heure-tab {% if active_niveau == 'skylumi' %}active{% endif %}"
+            data-tab="skyLumi">Skye ou Lumi ?</button>
+  </div>
+
+  <!-- EX1 : heure_match -->
+  <div class="heure-panel {% if not active_niveau or active_niveau == 'h1' %}active{% endif %}"
+       id="panel-match">
+
+    <div class="heure-display" id="match-display"></div>
+    <div class="personnage-badge" id="match-perso"></div>
+    <div class="heure-feedback" id="match-feedback"></div>
+    <div class="match-choices" id="match-choices"></div>
+
+  </div>
+
+  <!-- EX2 : qui_parle -->
+  <div class="heure-panel {% if active_niveau == 'parle' %}active{% endif %}"
+       id="panel-parle">
+
+    <div class="parle-wrap">
+      <div class="parle-choco" id="parle-choco">
+        <span style="font-size:1.5rem;">🐶</span>
+        <span>Il est quelle heure ?</span>
+      </div>
+      <div class="heure-display" id="parle-display"></div>
+      <div class="heure-feedback" id="parle-feedback"></div>
+      <button class="heure-btn" id="parle-btn" onclick="parleConfirm()">J'ai dit !</button>
+    </div>
+
+  </div>
+
+  <!-- EX3 : skye_ou_lumi -->
+  <div class="heure-panel {% if active_niveau == 'skylumi' %}active{% endif %}"
+       id="panel-skyLumi">
+
+    <div class="heure-intro">
+      <strong>Skye 🦄</strong> commande les heures du jour (1h → midi)<br>
+      <strong>Lumi 🦊</strong> commande minuit
+    </div>
+
+    <div class="skylumi-score" id="skylumi-score">0 / 13</div>
+    <div class="heure-display" id="skylumi-display"></div>
+    <div class="heure-feedback" id="skylumi-feedback"></div>
+
+    <div class="skylumi-btns">
+      <button class="skylumi-btn" data-choice="skye" onclick="answerSkyLumi('skye')">
+        <span class="skylumi-btn-icon">🦄</span>
+        <span style="font-weight:800;color:#f0b429">Skye</span>
+        <span class="skylumi-btn-label">jour ☀</span>
+      </button>
+      <button class="skylumi-btn" data-choice="lumi" onclick="answerSkyLumi('lumi')">
+        <span class="skylumi-btn-icon">🦊</span>
+        <span style="font-weight:800;color:#9b59b6">Lumi</span>
+        <span class="skylumi-btn-label">nuit 🌙</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/heure.js') }}"></script>
+{% endblock %}

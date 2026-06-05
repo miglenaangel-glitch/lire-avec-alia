@@ -169,6 +169,18 @@ def exercise(level_key):
     )
 
 
+@child_bp.route('/heure')
+def heure():
+    return render_template('child/heure.html')
+
+
+@child_bp.route('/heure/<niveau>')
+def heure_niveau(niveau):
+    if niveau not in ['h1', 'h2', 'h3', 'h4', 'h5']:
+        return redirect(url_for('child.heure'))
+    return render_template('child/heure.html', active_niveau=niveau)
+
+
 @child_bp.route('/mois')
 def mois():
     return render_template('child/mois.html')
