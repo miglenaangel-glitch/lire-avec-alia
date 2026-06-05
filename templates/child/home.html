@@ -197,10 +197,12 @@ function tappedLocked() {
   setTimeout(speakMinion, 4000);
 }
 
-function showStars() {
-  const res = await fetch('/api/stars');
-  const data = await res.json();
-  document.getElementById('star-count').textContent = data.stars;
+async function showStars() {
+  try {
+    const res = await fetch('/api/stars');
+    const data = await res.json();
+    document.getElementById('star-count').textContent = data.stars;
+  } catch(e) {}
 }
 showStars();
 
