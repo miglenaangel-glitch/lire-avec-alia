@@ -34,8 +34,7 @@
     {% for key, icon, name, desc in level_data %}
     {% set locked = locks.get(key, False) or (has_daily and key not in daily_keys) %}
     {% if locked %}
-    <div class="level-card level-locked" style="cursor:pointer;"
-         onclick="{% if has_daily and key not in daily_keys %}tappedLocked(){% endif %}">
+    <div class="level-card level-locked" style="cursor:pointer;" onclick="tappedLocked()">
       <div class="level-icon" style="opacity:0.4;">🔒</div>
       <div>
         <div class="level-name" style="opacity:0.4;">{{ name }}</div>
@@ -63,7 +62,7 @@
       </div>
     </a>
     {% else %}
-    <div class="level-card level-locked">
+    <div class="level-card level-locked" style="cursor:pointer;" onclick="tappedLocked()">
       <div class="level-icon" style="opacity:0.5;">🔒</div>
       <div><div class="level-name" style="opacity:0.5;">Compréhension</div><div class="level-desc" style="opacity:0.5;">Bientôt…</div></div>
     </div>
@@ -79,7 +78,7 @@
       </div>
     </a>
     {% else %}
-    <div class="level-card level-locked">
+    <div class="level-card level-locked" style="cursor:pointer;" onclick="tappedLocked()">
       <div class="level-icon" style="opacity:0.5;">🔒</div>
       <div><div class="level-name" style="opacity:0.5;">Ma famille</div><div class="level-desc" style="opacity:0.5;">Bientôt…</div></div>
     </div>
@@ -95,7 +94,7 @@
       </div>
     </a>
     {% else %}
-    <div class="level-card level-locked">
+    <div class="level-card level-locked" style="cursor:pointer;" onclick="tappedLocked()">
       <div class="level-icon" style="opacity:0.5;">🔒</div>
       <div><div class="level-name" style="opacity:0.5;">Les Nombres</div><div class="level-desc" style="opacity:0.5;">Bientôt…</div></div>
     </div>
@@ -144,7 +143,7 @@ document.getElementById('mama-pass').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') checkMama();
 });
 
-async // Load daily assignment
+// Load daily assignment
 async function loadDaily() {
   try {
     const res = await fetch('/api/daily');
