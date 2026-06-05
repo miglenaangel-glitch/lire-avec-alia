@@ -852,4 +852,177 @@ static/characters/karumi.png       # Персонажът
 
 ---
 
+## РАЗДЕЛ 21. CHANGE LOG v1.2 — 2026-06-05
+
+### Три нови лексикални модула
+
+---
+
+#### 📅 Модул "Les Mois de l'Année"
+
+**Маршрути:**
+```
+GET /mois
+GET /mois/<exercise>    # lecture | ordre | ecriture
+```
+
+**Файлове:**
+```
+templates/child/mois.html
+static/js/mois.js
+```
+
+**Упражнения:**
+| Таб | Тип | Описание |
+|-----|-----|---------|
+| Lecture | Изследване | 12 карти tap-to-hear с Apili цветове, сезонни баджове, срички |
+| Ordre | Наредба | 6 случайни месеца, tap-to-select → tap-to-place, Vérifier |
+| Écriture | Писане | Letter tiles по Apili цветове, 12 прогрес точки, `/api/record` |
+
+**Данни (в `mois.js`):**
+- `const MOIS` — 12 месеца с Apili разбивка (`l`, `t`: C/V/M), срички, сезон
+- `const SAISONS` — 4 сезона с иконки и цветове
+- `apiliHTML(mois, fontSize)` — рендира Apili цветове
+- `getLetterColorFromApili(letter, apili)` — цвят по позиция в думата (не само гласна/съгласна)
+- `speak(text, rate)` — TTS fr-FR, rate:0.7, pitch:1.05
+
+**Важни правила спазени:**
+- Финалното `l` на `avril` е синьо (C) — произнася се
+- Неми букви (`er`, финално `t`, финално `e`) → сиво (#b0a090)
+- Никога "faux" или "mauvaise réponse"
+
+---
+
+#### 🕐 Модул "L'Heure — La Vallée des Nuages"
+
+**Маршрути:**
+```
+GET /heure
+GET /heure/<niveau>    # h1 | h2 | h3 | h4 | h5
+```
+
+**Файлове:**
+```
+templates/child/heure.html
+static/js/heure.js
+```
+
+**Светът на модула:**
+```
+24 Миньона в Долината на облаците
+Скай 🦄 → дневни часове (1h–12h/midi)
+Луми 🦊 → нощни часове (0h/minuit)
+midi = Скай предава на Луми
+minuit = Луми предава на Скай
+```
+
+**Упражнения H1 (MVP):**
+| Таб | Тип | Описание |
+|-----|-----|---------|
+| Reconnais | `heure_match` | Цифров час → 3 варианта за избор |
+| Lis à voix haute | `qui_parle` | Чоко пита → "J'ai dit !" → TTS потвърждение |
+| Skye ou Lumi ? | `skye_ou_lumi` | Час → избор дневен/нощен персонаж |
+
+**Данни (в `heure.js`):**
+- `const HEURES` — 13 записа (1h–12h + midi + minuit) с `tts`, `personnage`, `midi`/`minuit` флагове
+- `const PERSONNAGE_THEME` — Skye (#fffbf0 жълт) / Lumi (#f5f0ff лилав)
+- `speak()` — същата функция, не е дублирана от mois.js
+
+**Важни правила:**
+- `une heure` — НИКОГА `un` — женски род
+- `midi` и `minuit` → специален златен/лилав бадж
+- Скай при 1h–12h/midi; Луми само при minuit (0h)
+- Прогрес записва се с `element_type: 'heure_exacte'`
+
+**Планирани нива (не имплементирани):**
+```
+H2 → et demie, et quart, moins le quart
+H3 → минутите (5, 10, 15...)
+H4 → 24h формат (13h–23h + реален контекст)
+H5 → аналогов SVG циферблат
+```
+
+---
+
+#### 🌸 Модул "Les Saisons — Le Calendrier Vivant"
+
+**Маршрути:**
+```
+GET /saisons
+GET /saisons/<saison>    # hiver | printemps | ete | automne
+```
+
+**Файлове:**
+```
+templates/child/saisons.html
+static/js/saisons.js
+```
+
+**Структура на данните (`saisons.js`):**
+- `const SAISONS_DATA` — 4 сезона, всеки с: `mois[]`, `fetes[]`, `anniversaires[]`, `vacances[]`
+- Реални семейни данни за Алия:
+  - Адри (мама) + Тити (леля) — 9 януари (един ден!)
+  - Баба Фий — 20 май, Иле чичо — 21 май (два дни, две торти)
+  - **Алия — 21 юли** 🌟 (специален третмент)
+  - Бонибон (кохлеарен имплант) — 3 юни (специален третмент)
+  - Halloween — 31 октомври (голям празник за Алия)
+
+**Упражнения (MVP):**
+| Таб | Тип | Описание |
+|-----|-----|---------|
+| Trouve la saison | `saison_match` | Месец → 4 цветни сезонни бутона |
+| Calendrier | `calendrier_vivant` | 12-месечна решетка, tap за Apili произношение + разгъване |
+
+**Важни правила спазени:**
+- Всички семейни имена → **черно** (без никакви Apili цветове)
+- Pâques → `variable` (не се хардкодва дата)
+- Бонибон → топъл, весел тон, никога клиничен
+- Алия 21/07 → пулсираща звезда анимация
+- Halloween → оранжева рамка, "la fête préférée d'Alia !"
+- `mois.js` се зарежда преди `saisons.js` (Apili цветове за месеците)
+
+---
+
+### Обновена файлова структура (добавки)
+
+```
+templates/child/
+├── mois.html       ← Les Mois (3 упражнения)
+├── heure.html      ← L'Heure H1 (3 упражнения)
+└── saisons.html    ← Les Saisons (2 упражнения)
+
+static/js/
+├── mois.js         ← MOIS данни + apiliHTML() + speak() + getLetterColorFromApili()
+├── heure.js        ← HEURES данни + 3 упражнения
+└── saisons.js      ← SAISONS_DATA + buildSaisonPanels() + 2 упражнения
+```
+
+### Обновена таблица на модулите
+
+| Модул | Път | Тип | Статус |
+|-------|-----|-----|--------|
+| Home screen | `/` | — | ✅ |
+| Les voyelles | `/child/exercise/voyelles` | `tap_to_hear` | ✅ |
+| Les consonnes | `/child/exercise/consonnes_1` | `slide_to_merge` | ✅ |
+| Lecture rapide | `/child/exercise/lecture_rapide` | `rapid_read` | ✅ |
+| Les mots | `/child/exercise/mots_simples` | `word_tap` | ✅ |
+| Les phrases | `/child/exercise/phrases` | `sentence_read` | ✅ |
+| **Les Mois** | `/mois` | лексикален | ✅ **НОВО** |
+| **L'Heure H1** | `/heure` | лексикален | ✅ **НОВО** |
+| **Les Saisons** | `/saisons` | лексикален | ✅ **НОВО** |
+| Compréhension | `/comprehension/...` | четене | ✅ |
+| Les Nombres | `/nombres/...` | лексикален | ✅ |
+| Reward screen | `/child/reward/<id>` | — | ✅ |
+
+### API прогрес — нови element_type стойности
+
+```
+mois_lecture    — EX1 на Les Mois (не се записва — само изследване)
+mois_ordre      — EX2 на Les Mois
+mois_ecriture   — EX3 на Les Mois
+heure_exacte    — H1 на L'Heure
+```
+
+---
+
 *Библията е жив документ. Всяка съществена промяна по проекта → обновяване тук.*
