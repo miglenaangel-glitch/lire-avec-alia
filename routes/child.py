@@ -114,8 +114,21 @@ def home():
     locks = {r['level_key']: bool(r['is_locked']) for r in cur.fetchall()}
     cur.close()
 
+    # Load today's daily assignment
+    from datetime import date, timedelta
+    today = date.today().isoformat()
+    yesterday = (date.today() - timedelta(days=1)).isoformat()
+    cur.execute("SELECT exercise_key FROM daily_assignment WHERE assigned_date = %s", (today,))
+    daily = cur.fetchall()
+    if not daily:
+        cur.execute("SELECT exercise_key FROM daily_assignment WHERE assigned_date = %s", (yesterday,))
+        daily = cur.fetchall()
+    daily_keys = {r['exercise_key'] for r in daily}
+    cur.close()
+
     levels = load_levels_from_db()
-    return render_template('child/home.html', character=character, levels=levels, locks=locks)
+    return render_template('child/home.html', character=character, levels=levels, locks=locks,
+                           daily_keys=daily_keys, has_daily=bool(daily_keys))
 
 
 @child_bp.route('/exercise/<level_key>')
