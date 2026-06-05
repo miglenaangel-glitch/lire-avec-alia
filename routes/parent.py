@@ -205,6 +205,76 @@ def toggle_level(level_key):
     return jsonify({'success': True, 'is_locked': bool(row['is_locked'])})
 
 
+# ── DAILY ASSIGNMENT ──
+
+# All available exercises mama can assign
+ALL_EXERCISES = [
+    # Bloc 1
+    {'key': 'voyelles',       'name': 'Les voyelles',        'url': '/child/exercise/voyelles',       'group': 'Bloc 1'},
+    {'key': 'consonnes_1',    'name': 'Les consonnes',       'url': '/child/exercise/consonnes_1',    'group': 'Bloc 1'},
+    {'key': 'lecture_rapide', 'name': 'Lecture rapide',      'url': '/child/exercise/lecture_rapide', 'group': 'Bloc 1'},
+    {'key': 'mots_simples',   'name': 'Les mots',            'url': '/child/exercise/mots_simples',   'group': 'Bloc 1'},
+    {'key': 'phrases',        'name': 'Les phrases',         'url': '/child/exercise/phrases',        'group': 'Bloc 1'},
+    # Bloc 2
+    {'key': 'consonnes_2',    'name': 'Les consonnes 2',     'url': '/child/exercise/consonnes_2',    'group': 'Bloc 2'},
+    {'key': 'lecture_rapide_2','name': 'Lecture rapide 2',   'url': '/child/exercise/lecture_rapide_2','group': 'Bloc 2'},
+    {'key': 'mots_2',         'name': 'Les mots 2',          'url': '/child/exercise/mots_2',         'group': 'Bloc 2'},
+    {'key': 'phrases_2',      'name': 'Les phrases 2',       'url': '/child/exercise/phrases_2',      'group': 'Bloc 2'},
+    # Nombres
+    {'key': 'nombres_n1',     'name': 'Les nombres 0–10',    'url': '/numbers/n1/match',              'group': 'Les Nombres'},
+    {'key': 'nombres_n1_spell','name': 'Épeler 0–10',        'url': '/numbers/n1/spell',              'group': 'Les Nombres'},
+    {'key': 'nombres_n2',     'name': 'Les nombres 11–20',   'url': '/numbers/n2/match',              'group': 'Les Nombres'},
+    {'key': 'nombres_n2_gallery','name': 'Galerie irréguliers','url': '/numbers/n2/gallery',          'group': 'Les Nombres'},
+    {'key': 'nombres_n2_vingt','name': 'Le piège de vingt',  'url': '/numbers/n2/vingt',              'group': 'Les Nombres'},
+    # Compréhension
+    {'key': 'comp_remi_eva',  'name': 'Compréhension Rémi/Éva', 'url': '/comprehension/playlist/remi_eva', 'group': 'Compréhension'},
+    {'key': 'comp_famille',   'name': 'Ma famille',          'url': '/comprehension/playlist/famille', 'group': 'Compréhension'},
+]
+
+
+@parent_bp.route('/daily')
+@parent_required
+def daily():
+    from datetime import date
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    today = date.today().isoformat()
+    cur.execute("SELECT * FROM daily_assignment WHERE assigned_date = %s ORDER BY order_index", (today,))
+    today_assignments = cur.fetchall()
+    cur.close()
+    assigned_keys = {a['exercise_key'] for a in today_assignments}
+    return render_template('parent/daily.html',
+        exercises=ALL_EXERCISES,
+        assigned_keys=assigned_keys,
+        today=today,
+        today_assignments=today_assignments)
+
+
+@parent_bp.route('/daily/save', methods=['POST'])
+@parent_required
+def daily_save():
+    from datetime import date
+    data = request.get_json()
+    selected = data.get('exercises', [])  # list of exercise keys
+    today = date.today().isoformat()
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    # Clear today's assignments
+    cur.execute("DELETE FROM daily_assignment WHERE assigned_date = %s", (today,))
+    # Insert new ones
+    ex_map = {e['key']: e for e in ALL_EXERCISES}
+    for i, key in enumerate(selected):
+        ex = ex_map.get(key)
+        if ex:
+            cur.execute("""
+                INSERT INTO daily_assignment (exercise_key, exercise_name, exercise_url, assigned_date, order_index)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (key, ex['name'], ex['url'], today, i))
+    mysql.connection.commit()
+    cur.close()
+    return jsonify({'success': True, 'count': len(selected)})
+
+
 # ── DAILY REPORTS ──
 @parent_bp.route('/reports')
 @parent_required

@@ -132,6 +132,17 @@ CREATE TABLE IF NOT EXISTS parent_settings (
 INSERT IGNORE INTO parent_settings (setting_key, setting_value)
 VALUES ('password', 'maman');
 
+-- Daily assignments from parent
+CREATE TABLE IF NOT EXISTS daily_assignment (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  exercise_key VARCHAR(50) NOT NULL,
+  exercise_name VARCHAR(100) NOT NULL,
+  exercise_url VARCHAR(200) NOT NULL,
+  assigned_date DATE NOT NULL,
+  completed BOOLEAN DEFAULT FALSE,
+  order_index TINYINT DEFAULT 0
+);
+
 -- Comprehension modules for parent locking
 INSERT IGNORE INTO levels (level_key, block, order_index, name_fr, exercise_type, is_unlocked) VALUES
   ('comprehension_remi_eva', 20, 0, 'Compréhension — Rémi et Éva', 'sentence_read', TRUE),

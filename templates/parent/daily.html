@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Програма за днес{% endblock %}
+{% block css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/parent.css') }}">{% endblock %}
+
+{% block content %}
+<nav>
+  <a href="{{ url_for('parent.dashboard') }}" class="brand">Lire avec Alia</a>
+  <a href="{{ url_for('parent.dashboard') }}">Табло</a>
+  <a href="{{ url_for('parent.mailbox') }}">💌 Поща</a>
+  <a href="{{ url_for('parent.daily') }}" class="active">📋 Днес</a>
+  <a href="{{ url_for('parent.levels') }}">Нива</a>
+  <a href="{{ url_for('parent.reports') }}">Напредък</a>
+  <a href="{{ url_for('parent.settings') }}">Настройки</a>
+  <a href="{{ url_for('parent.logout') }}" style="margin-left:auto;color:#dc2626;">Изход</a>
+</nav>
+
+<div class="page">
+  <h1>📋 Програма за днес</h1>
+  <p style="color:var(--text-muted);margin-bottom:2rem;">
+    Избери упражненията, които Алия да прави днес. Те ще се появят горе в менюто й.
+  </p>
+
+  {% set groups = ['Bloc 1', 'Bloc 2', 'Les Nombres', 'Compréhension'] %}
+  {% for group in groups %}
+  {% set group_exercises = exercises | selectattr('group', 'equalto', group) | list %}
+  {% if group_exercises %}
+  <div class="card" style="margin-bottom:1.2rem;">
+    <h2>{{ group }}</h2>
+    {% for ex in group_exercises %}
+    <div style="display:flex;align-items:center;gap:1rem;padding:0.7rem 0;border-bottom:1px solid var(--border);">
+      <input type="checkbox" id="ex-{{ ex.key }}" value="{{ ex.key }}"
+             {% if ex.key in assigned_keys %}checked{% endif %}
+             style="width:20px;height:20px;cursor:pointer;accent-color:var(--accent);">
+      <label for="ex-{{ ex.key }}" style="font-size:1rem;font-weight:600;cursor:pointer;flex:1;">
+        {{ ex.name }}
+      </label>
+      {% if ex.key in assigned_keys %}
+        {% for a in today_assignments %}
+          {% if a.exercise_key == ex.key %}
+            {% if a.completed %}
+            <span style="background:#dcfce7;color:#16a34a;padding:0.2rem 0.7rem;border-radius:99px;font-size:0.78rem;font-weight:700;">✓ Направено</span>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endfor %}
+
+  <button onclick="saveAssignment()" class="btn-primary" style="width:100%;padding:1rem;font-size:1.1rem;margin-top:1rem;">
+    💾 Запази програмата за днес
+  </button>
+  <p id="save-msg" style="text-align:center;margin-top:1rem;font-weight:700;min-height:1.5rem;"></p>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+async function saveAssignment() {
+  const selected = [];
+  document.querySelectorAll('input[type=checkbox]:checked').forEach(cb => selected.push(cb.value));
+  const msg = document.getElementById('save-msg');
+  msg.textContent = 'Запазване…'; msg.style.color = 'var(--text-muted)';
+  const res = await fetch('/parent/daily/save', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({exercises: selected})
+  });
+  const data = await res.json();
+  if (data.success) {
+    msg.textContent = `✅ Програмата е запазена! (${data.count} упражнения)`;
+    msg.style.color = '#16a34a';
+  }
+}
+</script>
+{% endblock %}

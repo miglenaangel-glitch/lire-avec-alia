@@ -30,6 +30,40 @@ def get_mysql():
     return current_app.extensions['mysql']
 
 
+@api_bp.route('/daily', methods=['GET'])
+def daily_assignment():
+    """Return today's assignment for Alia."""
+    from datetime import date
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    today = date.today().isoformat()
+    cur.execute("""
+        SELECT exercise_key, exercise_name, exercise_url, completed
+        FROM daily_assignment WHERE assigned_date = %s ORDER BY order_index
+    """, (today,))
+    assignments = cur.fetchall()
+    cur.close()
+    return jsonify({'assignments': assignments})
+
+
+@api_bp.route('/daily/complete', methods=['POST'])
+def daily_complete():
+    """Mark an exercise as completed in today's assignment."""
+    from datetime import date
+    data = request.get_json()
+    key = data.get('exercise_key')
+    today = date.today().isoformat()
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        UPDATE daily_assignment SET completed = TRUE
+        WHERE exercise_key = %s AND assigned_date = %s
+    """, (key, today))
+    mysql.connection.commit()
+    cur.close()
+    return jsonify({'success': True})
+
+
 @api_bp.route('/stars', methods=['GET'])
 def stars():
     """Return count of mastered elements for the star display."""
