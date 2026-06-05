@@ -181,22 +181,26 @@ let minionPlaying = false;
 function tappedLocked() {
   if (minionPlaying) return;
   minionPlaying = true;
-  // Play laugh
+
   const laugh = new Audio('/static/sounds/laugh.m4a');
   laugh.play().catch(() => {});
-  // Speak after laugh
-  setTimeout(() => {
+
+  // Speak when laugh ends (or after 2s fallback)
+  function speakMinion() {
+    speechSynthesis.cancel();
     const utt = new SpeechSynthesisUtterance(
       "Ton ami Minion fait la sieste aujourd'hui, retrouve-le plus tard !"
     );
-    utt.lang = 'fr-FR'; utt.rate = 0.75; utt.pitch = 1.2;
-    const voices = speechSynthesis.getVoices();
-    const fr = voices.find(v => v.lang.startsWith('fr') && v.localService) || voices.find(v => v.lang.startsWith('fr'));
-    if (fr) utt.voice = fr;
-    speechSynthesis.speak(utt);
+    utt.lang = 'fr-FR';
+    utt.rate = 0.7;
+    utt.pitch = 1.1;
     utt.onend = () => { minionPlaying = false; };
-  }, 1200);
-  setTimeout(() => { minionPlaying = false; }, 5000);
+    speechSynthesis.speak(utt);
+    setTimeout(() => { minionPlaying = false; }, 6000);
+  }
+
+  laugh.onended = speakMinion;
+  setTimeout(speakMinion, 3000); // fallback if onended doesn't fire
 }
 
 function showStars() {
