@@ -134,6 +134,16 @@ const LEVEL_KEY = "{{ level_key }}";
 window.addEventListener('beforeunload', () => {
   navigator.sendBeacon('/api/session-end', JSON.stringify({session_id: SESSION_ID}));
 });
+
+// Heartbeat — update ended_at every 60 seconds so minutes are accurate
+setInterval(() => {
+  fetch('/api/session-end', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({session_id: SESSION_ID})
+  }).catch(() => {});
+  localStorage.setItem('alia_last_activity', Date.now());
+}, 60000);
 let totalAnswered = 0;
 let totalCorrect = 0;
 
