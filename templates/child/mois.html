@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+{% block title %}Les Mois — Lire avec Alia{% endblock %}
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/child.css') }}">
+<style>
+/* ── LAYOUT ── */
+.mois-page {
+  min-height: 100vh;
+  background: #fdf8f0;
+  font-family: 'Nunito', sans-serif;
+  padding: 0 0 4rem;
+}
+
+.mois-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 1.2rem 0;
+}
+
+.mois-back {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.3rem;
+  line-height: 1;
+}
+
+.mois-title {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #1a3a6b;
+  margin: 0;
+}
+
+/* ── TABS ── */
+.mois-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 1.2rem 0;
+  border-bottom: 2px solid #e8e0d5;
+  margin-bottom: 1.2rem;
+}
+
+.mois-tab {
+  padding: 0.55rem 1.1rem;
+  border-radius: 10px 10px 0 0;
+  border: none;
+  background: none;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #888;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s;
+}
+
+.mois-tab.active {
+  color: #1a3a6b;
+  border-bottom-color: #1a3a6b;
+  background: #fdf8f0;
+}
+
+.mois-panel {
+  display: none;
+  padding: 0 1rem;
+}
+
+.mois-panel.active {
+  display: block;
+}
+
+/* ── SAISON BADGE ── */
+.saison-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* ── EX1: LECTURE ── */
+.lecture-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+}
+
+@media (min-width: 600px) {
+  .lecture-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.mois-card {
+  background: #fff;
+  border: 2px solid #e8e0d5;
+  border-radius: 14px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.1s, border-color 0.2s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.mois-card.played { border-color: #1a3a6b; }
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.card-num {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #aaa;
+}
+
+.card-nom {
+  text-align: center;
+  padding: 0.3rem 0;
+  line-height: 1.3;
+  min-height: 32px;
+}
+
+.card-syl {
+  text-align: center;
+  font-size: 11px;
+  color: #999;
+  margin-top: 0.3rem;
+}
+
+/* ── EX2: ORDRE ── */
+.ordre-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.ordre-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+}
+
+.ordre-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+
+@media (min-width: 500px) {
+  .ordre-slots { grid-template-columns: repeat(6, 1fr); }
+}
+
+.ordre-slot {
+  min-height: 64px;
+  border: 2px dashed #c8b9a5;
+  border-radius: 12px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0.4rem 0.3rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.slot-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #bbb;
+  display: block;
+}
+
+.ordre-slot.correct { border: 2px solid #16a34a; background: #f0fdf4; }
+.ordre-slot.wrong   { border: 2px solid #ea580c; background: #fff7ed; }
+
+.ordre-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.ordre-tile {
+  padding: 0.55rem 0.8rem;
+  background: #fff;
+  border: 2px solid #e8e0d5;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: transform 0.1s, border-color 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+  line-height: 1.3;
+}
+
+.ordre-tile.selected { border-color: #1a3a6b; background: #eef2fb; }
+
+.ordre-feedback {
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-align: center;
+  padding: 0.5rem;
+  border-radius: 10px;
+  min-height: 2rem;
+}
+
+.ordre-feedback.success { color: #16a34a; background: #f0fdf4; }
+.ordre-feedback.partial { color: #ea580c; background: #fff7ed; }
+
+/* ── EX3: ÉCRITURE ── */
+.ecriture-cue {
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+
+.ecriture-num {
+  font-size: 48px;
+  font-weight: 900;
+  color: #1a3a6b;
+  line-height: 1;
+}
+
+.ecriture-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.ecriture-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ddd;
+}
+
+.ecriture-dot.current { background: #1a3a6b; }
+.ecriture-dot.done    { background: #16a34a; }
+
+.ecriture-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+}
+
+.ecriture-slot {
+  width: 36px;
+  height: 44px;
+  border: none;
+  border-bottom: 3px solid #1a3a6b;
+  background: transparent;
+  font-family: 'Nunito', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  text-align: center;
+  cursor: pointer;
+  line-height: 44px;
+  color: #1a3a6b;
+}
+
+.ecriture-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+}
+
+.ecriture-tile {
+  min-width: 38px;
+  height: 44px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ecriture-tile:active:not(:disabled) { transform: scale(0.92); }
+.ecriture-tile:disabled { cursor: default; }
+
+.ecriture-actions {
+  display: flex;
+  gap: 0.7rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.ecriture-feedback {
+  font-size: 1rem;
+  font-weight: 800;
+  text-align: center;
+  padding: 0.5rem;
+  border-radius: 10px;
+  min-height: 2rem;
+}
+
+.ecriture-feedback.success { color: #16a34a; background: #f0fdf4; }
+.ecriture-feedback.partial { color: #ea580c; background: #fff7ed; }
+
+/* ── BUTTONS ── */
+.mois-btn {
+  padding: 0.65rem 1.4rem;
+  background: #1a3a6b;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mois-btn:active { transform: scale(0.95); }
+
+.mois-btn.secondary {
+  background: #f0ebe3;
+  color: #1a3a6b;
+}
+
+.mois-btn.refresh {
+  background: #f0ebe3;
+  color: #888;
+  font-size: 0.9rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mois-page">
+  <div class="mois-header">
+    <button class="mois-back" onclick="window.location='/'">🏠</button>
+    <h1 class="mois-title">Les Mois de l'Année</h1>
+  </div>
+
+  <div class="mois-tabs">
+    <button class="mois-tab {% if active_tab == 'ordre' or active_tab == 'ecriture' %}{% else %}active{% endif %}"
+            data-tab="lecture">Lecture</button>
+    <button class="mois-tab {% if active_tab == 'ordre' %}active{% endif %}"
+            data-tab="ordre">Ordre</button>
+    <button class="mois-tab {% if active_tab == 'ecriture' %}active{% endif %}"
+            data-tab="ecriture">Écriture</button>
+  </div>
+
+  <!-- EX1: Lecture -->
+  <div class="mois-panel {% if not active_tab or active_tab == 'lecture' %}active{% endif %}" id="panel-lecture">
+    <div class="lecture-grid" id="lecture-grid"></div>
+  </div>
+
+  <!-- EX2: Ordre -->
+  <div class="mois-panel {% if active_tab == 'ordre' %}active{% endif %}" id="panel-ordre">
+    <div class="ordre-wrap">
+      <div>
+        <div class="ordre-label">Place les mois dans l'ordre</div>
+        <div class="ordre-slots" id="ordre-slots"></div>
+      </div>
+      <div>
+        <div class="ordre-label">Les mois</div>
+        <div class="ordre-bank" id="ordre-bank"></div>
+      </div>
+      <div style="display:flex;gap:0.7rem;flex-wrap:wrap;">
+        <button class="mois-btn" onclick="verifierOrdre()">Vérifier</button>
+        <button class="mois-btn refresh" onclick="initOrdre()">Nouveau tirage</button>
+      </div>
+      <div class="ordre-feedback" id="ordre-feedback"></div>
+    </div>
+  </div>
+
+  <!-- EX3: Écriture -->
+  <div class="mois-panel {% if active_tab == 'ecriture' %}active{% endif %}" id="panel-ecriture">
+    <div class="ecriture-dots" id="ecriture-dots"></div>
+    <div class="ecriture-cue">
+      <div class="ecriture-num" id="ecriture-num"></div>
+      <div id="ecriture-badge" style="margin-top:0.4rem;"></div>
+    </div>
+    <div class="ecriture-slots" id="ecriture-slots"></div>
+    <div class="ecriture-tiles" id="ecriture-tiles"></div>
+    <div class="ecriture-actions">
+      <button class="mois-btn secondary" onclick="effacerDerniere()">Effacer</button>
+      <button class="mois-btn" onclick="verifierEcriture()">Vérifier</button>
+    </div>
+    <div class="ecriture-feedback" id="ecriture-feedback"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/mois.js') }}"></script>
+{% endblock %}

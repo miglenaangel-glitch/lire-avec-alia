@@ -169,6 +169,18 @@ def exercise(level_key):
     )
 
 
+@child_bp.route('/mois')
+def mois():
+    return render_template('child/mois.html')
+
+
+@child_bp.route('/mois/<exercise>')
+def mois_exercise(exercise):
+    if exercise not in ['lecture', 'ordre', 'ecriture']:
+        return redirect(url_for('child.mois'))
+    return render_template('child/mois.html', active_tab=exercise)
+
+
 @child_bp.route('/reward/<int:session_id>')
 def reward(session_id):
     mysql = get_mysql()
