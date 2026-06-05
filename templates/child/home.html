@@ -34,7 +34,8 @@
     {% for key, icon, name, desc in level_data %}
     {% set locked = locks.get(key, False) or (has_daily and key not in daily_keys) %}
     {% if locked %}
-    <div class="level-card level-locked">
+    <div class="level-card level-locked" style="cursor:pointer;"
+         onclick="{% if has_daily and key not in daily_keys %}tappedLocked(){% endif %}">
       <div class="level-icon" style="opacity:0.4;">🔒</div>
       <div>
         <div class="level-name" style="opacity:0.4;">{{ name }}</div>
@@ -175,6 +176,29 @@ async function loadDaily() {
   } catch(e) {}
 }
 loadDaily();
+
+// Locked tile tap — Minion message
+let minionPlaying = false;
+function tappedLocked() {
+  if (minionPlaying) return;
+  minionPlaying = true;
+  // Play laugh
+  const laugh = new Audio('/static/sounds/laugh.m4a');
+  laugh.play().catch(() => {});
+  // Speak after laugh
+  setTimeout(() => {
+    const utt = new SpeechSynthesisUtterance(
+      "Ton ami Minion fait la sieste aujourd'hui, retrouve-le plus tard !"
+    );
+    utt.lang = 'fr-FR'; utt.rate = 0.75; utt.pitch = 1.2;
+    const voices = speechSynthesis.getVoices();
+    const fr = voices.find(v => v.lang.startsWith('fr') && v.localService) || voices.find(v => v.lang.startsWith('fr'));
+    if (fr) utt.voice = fr;
+    speechSynthesis.speak(utt);
+    utt.onend = () => { minionPlaying = false; };
+  }, 1200);
+  setTimeout(() => { minionPlaying = false; }, 5000);
+}
 
 function showStars() {
   const res = await fetch('/api/stars');
