@@ -27,6 +27,7 @@
     .v { color: var(--vowel); font-weight:700; }
     .s { color: var(--silent); }
     .n { color: #1a1a1a; font-weight:700; } /* neutral name */
+    .lex { color: #000000; font-weight:700; } /* mois / nombres / heures — unité lexicale */
     /* Questions */
     .question-area { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius); padding:1.5rem; margin-bottom:1rem; }
     .q-number { font-size:0.78rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.5rem; }
@@ -93,6 +94,27 @@ const TEXT = {{ text | tojson }};
 const PLAYLIST = "{{ playlist_key }}";
 const NEUTRAL_NAMES = {{ neutral_names | tojson }};
 const VOWELS = 'aeéèêëiîïoôuûùy';
+const BONIBON_TTS_PAUSE = 800; // ms avant "Il entend tout." (fam_t10)
+
+// Série 2 — unités lexicales (mois, nombres en lettres, heures, dates)
+// Rendues en noir gras, sans décomposition Apili
+const LEXICAL_UNITS_SERIE2 = [
+  "à 10 heures du matin", "à 6 heures du soir",
+  "le 9 janvier", "le 3 juin", "le 21 juillet", "le 24 décembre",
+  "à 7 heures", "à 8 heures", "à 9 heures", "à 14 heures", "à 16 heures", "à 18 heures", "à 20 heures", "à 21 heures",
+  "à midi",
+  "l'hiver", "le printemps", "l'été", "l'automne",
+  "vingt et un", "vingt-quatre", "quinze", "treize", "vingt", "deux",
+  "janvier", "avril", "juin", "juillet", "octobre", "décembre"
+];
+const LEXICAL_REGEX = new RegExp(
+  '(' + LEXICAL_UNITS_SERIE2
+    .slice()
+    .sort((a, b) => b.length - a.length)
+    .map(u => u.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/ /g, '\\s+'))
+    .join('|') + ')',
+  'gi'
+);
 
 let currentQ = 0;
 let correctCount = 0;
@@ -137,11 +159,26 @@ function colorize(text) {
   });
 }
 
+// ── Colorize text + lexical units (mois, nombres, heures — Série 2) ──
+function colorizeLexical(text) {
+  let result = '';
+  let lastIndex = 0;
+  let m;
+  LEXICAL_REGEX.lastIndex = 0;
+  while ((m = LEXICAL_REGEX.exec(text)) !== null) {
+    result += colorize(text.slice(lastIndex, m.index));
+    result += `<span class="lex">${m[0]}</span>`;
+    lastIndex = m.index + m[0].length;
+  }
+  result += colorize(text.slice(lastIndex));
+  return result;
+}
+
 // Apply colorization to text
 document.addEventListener('DOMContentLoaded', () => {
   TEXT.texte.forEach((sentence, i) => {
     const el = document.getElementById('sent-' + i);
-    if (el) el.innerHTML = colorize(sentence);
+    if (el) el.innerHTML = colorizeLexical(sentence);
   });
   showQuestion(0);
 });
@@ -157,8 +194,24 @@ function speak(text, rate) {
 }
 
 function readText() {
-  const full = TEXT.texte.join(' ');
-  speak(full, 0.6);
+  speechSynthesis.cancel();
+  const sentences = TEXT.texte;
+  let i = 0;
+  function speakNext() {
+    if (i >= sentences.length) return;
+    const sentence = sentences[i];
+    const pause = (TEXT.id === 'fam_t10' && sentence.trim() === 'Il entend tout.') ? BONIBON_TTS_PAUSE : 0;
+    setTimeout(() => {
+      const u = new SpeechSynthesisUtterance(sentence);
+      u.lang = 'fr-FR'; u.rate = 0.6;
+      const voices = speechSynthesis.getVoices();
+      const fr = voices.find(v => v.lang.startsWith('fr') && v.localService) || voices.find(v => v.lang.startsWith('fr'));
+      if (fr) u.voice = fr;
+      u.onend = () => { i++; speakNext(); };
+      speechSynthesis.speak(u);
+    }, pause);
+  }
+  speakNext();
 }
 
 function updateProgress() {

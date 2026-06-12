@@ -12,7 +12,8 @@ PLAYLISTS = {
 # Proper names that stay black (no Apili coloring)
 NEUTRAL_NAMES = {
     'alia', 'damien', 'marci', 'maxi', 'nayden', 'victor',
-    'stéphanie', 'stephanie', 'dora', 'ile', 'baba-fille'
+    'stéphanie', 'stephanie', 'dora', 'ile', 'baba-fille',
+    'titi', 'bonibon'
 }
 
 

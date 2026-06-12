@@ -76,5 +76,97 @@
       {"id":"q10","type":"micro","question":"Pourquoi baba-fille a ri ?","mots_cles_acceptes":["drôle","safari","Damien","animaux"],"reponse_modele":"Parce que le safari de Damien est drôle.","bonus":false},
       {"id":"q11","type":"micro","question":"Alia, tu aimes aller chez Damien ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
     ]
+  },
+  {
+    "id": "fam_t6",
+    "titre": "L'Anniversaire de Maman",
+    "difficulte": 3,
+    "texte": ["Le 9 janvier, c'est l'anniversaire de maman.", "C'est aussi l'anniversaire de Titi — le même jour !", "Maman a dit : Titi et moi, on est nées ensemble.", "Alia a ri. Elle a fait un gâteau.", "Le gâteau avait deux bougies. Une pour maman. Une pour Titi.", "Baba-fille a appelé. Elle a dit : joyeux anniversaire !"],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"C'est l'anniversaire de qui, le 9 janvier ?","choix":["Alia et Marci","maman et Titi","baba-fille et Ile"],"bonne_reponse":1},
+      {"id":"q2","type":"qcm","question":"En quel mois est l'anniversaire de maman ?","choix":["juillet","décembre","janvier"],"bonne_reponse":2},
+      {"id":"q3","type":"qcm","question":"Combien de bougies a le gâteau ?","choix":["une bougie","deux bougies","neuf bougies"],"bonne_reponse":1},
+      {"id":"q4","type":"qcm","question":"Qui a appelé à la fin ?","choix":["Damien","baba-fille","Marci"],"bonne_reponse":1},
+      {"id":"q5","type":"qcm","question":"Pourquoi il y a deux bougies ?","choix":["Parce qu'Alia a deux ans","Parce qu'il y a deux anniversaires","Parce que le gâteau est petit"],"bonne_reponse":1},
+      {"id":"q6","type":"micro","question":"C'est quand l'anniversaire de maman ?","mots_cles_acceptes":["9 janvier","janvier","neuf"],"reponse_modele":"L'anniversaire de maman est le 9 janvier.","bonus":false},
+      {"id":"q7","type":"micro","question":"Pourquoi il y a deux bougies sur le gâteau ?","mots_cles_acceptes":["deux","maman","Titi","même jour"],"reponse_modele":"Parce qu'il y a deux anniversaires — maman et Titi.","bonus":false},
+      {"id":"q8","type":"micro","question":"Qu'est-ce que baba-fille a dit ?","mots_cles_acceptes":["joyeux anniversaire"],"reponse_modele":"Elle a dit : joyeux anniversaire !","bonus":false},
+      {"id":"q9","type":"micro","question":"Tu aimes faire des gâteaux, Alia ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
+  },
+  {
+    "id": "fam_t7",
+    "titre": "L'Été avec Baba-fille",
+    "difficulte": 3,
+    "texte": ["En juillet, c'est l'été.", "Les grandes vacances commencent.", "Alia va chez baba-fille en Bulgarie.", "Baba-fille se lève à 7 heures.", "À 8 heures, elle a fait du café.", "À 9 heures, elles sont à la mer.", "Il fait chaud. Le soleil est là.", "Alia a dit : je veux rester ici pour toujours.", "Baba-fille a souri."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"En quelle saison se passe l'histoire ?","choix":["l'hiver","le printemps","l'été"],"bonne_reponse":2},
+      {"id":"q2","type":"qcm","question":"À quelle heure baba-fille se lève ?","choix":["à 6 heures","à 7 heures","à 9 heures"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"À quelle heure elles vont à la mer ?","choix":["à 7 heures","à 8 heures","à 9 heures"],"bonne_reponse":2},
+      {"id":"q4","type":"qcm","question":"Qu'est-ce qu'Alia a dit ?","choix":["Je veux rentrer à la maison","Je veux rester ici pour toujours","J'ai faim"],"bonne_reponse":1},
+      {"id":"q5","type":"qcm","question":"Comment est baba-fille à la fin ?","choix":["triste","fâchée","elle sourit"],"bonne_reponse":2},
+      {"id":"q6","type":"micro","question":"En quel mois est l'été ?","mots_cles_acceptes":["juin","juillet","août","été"],"reponse_modele":"L'été, c'est juin, juillet et août.","bonus":false},
+      {"id":"q7","type":"micro","question":"À quelle heure est-ce qu'elles vont à la mer ?","mots_cles_acceptes":["9","neuf","9 heures"],"reponse_modele":"Elles vont à la mer à 9 heures.","bonus":false},
+      {"id":"q8","type":"micro","question":"Qu'est-ce qu'Alia a dit à la fin ?","mots_cles_acceptes":["rester","toujours","ici"],"reponse_modele":"Alia a dit : je veux rester ici pour toujours.","bonus":false},
+      {"id":"q9","type":"micro","question":"Pourquoi tu penses que baba-fille a souri ?","mots_cles_acceptes":["content","contente","heureuse","aime","sourire","sourit"],"reponse_modele":"Parce qu'elle est contente, elle aime Alia.","bonus":false},
+      {"id":"q10","type":"micro","question":"Alia, tu préfères l'été ou l'hiver ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
+  },
+  {
+    "id": "fam_t8",
+    "titre": "Noël chez Damien",
+    "difficulte": 4,
+    "texte": ["En décembre, c'est l'hiver.", "Il fait froid en Allemagne.", "Damien a quinze ans. Il adore Noël.", "Le 24 décembre, à 6 heures du soir, Damien a mis le sapin dans le salon.", "Il a mis 24 bougies sur la table — une pour chaque jour de décembre.", "Marci a compté : un, deux, trois… vingt-quatre !", "Alia a appelé à 8 heures. Elle voulait voir le sapin.", "Damien a mis le téléphone devant le sapin. Alia a souri."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"En quelle saison se passe l'histoire ?","choix":["l'automne","l'hiver","le printemps"],"bonne_reponse":1},
+      {"id":"q2","type":"qcm","question":"Quel âge a Damien ?","choix":["quatorze ans","six ans","quinze ans"],"bonne_reponse":2},
+      {"id":"q3","type":"qcm","question":"Combien de bougies Damien a mis sur la table ?","choix":["quinze bougies","vingt-quatre bougies","deux bougies"],"bonne_reponse":1},
+      {"id":"q4","type":"qcm","question":"À quelle heure Alia a appelé ?","choix":["à 6 heures","à 8 heures","à minuit"],"bonne_reponse":1},
+      {"id":"q5","type":"qcm","question":"Pourquoi Damien a mis le téléphone devant le sapin ?","choix":["Pour téléphoner à baba-fille","Pour qu'Alia puisse voir le sapin","Pour filmer Marci"],"bonne_reponse":1},
+      {"id":"q6","type":"micro","question":"En quel mois est Noël ?","mots_cles_acceptes":["décembre"],"reponse_modele":"Noël est en décembre.","bonus":false},
+      {"id":"q7","type":"micro","question":"Combien de bougies est-ce que Damien a mis ?","mots_cles_acceptes":["vingt-quatre","24"],"reponse_modele":"Il a mis vingt-quatre bougies.","bonus":false},
+      {"id":"q8","type":"micro","question":"Pourquoi Damien a mis le téléphone devant le sapin ?","mots_cles_acceptes":["Alia","voir","sapin"],"reponse_modele":"Pour qu'Alia puisse voir le sapin.","bonus":false},
+      {"id":"q9","type":"micro","question":"Qui a compté les bougies ?","mots_cles_acceptes":["Marci"],"reponse_modele":"Marci a compté les bougies.","bonus":false},
+      {"id":"q10","type":"micro","question":"Alia, tu aimes Noël ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
+  },
+  {
+    "id": "fam_t9",
+    "titre": "L'Anniversaire d'Alia",
+    "difficulte": 4,
+    "texte": ["Le 21 juillet, c'est l'anniversaire d'Alia.", "C'est l'été. Il fait très chaud.", "Alia a treize ans. Elle est née un mercredi.", "À midi, maman a appelé.", "À 14 heures, baba-fille a appelé.", "À 16 heures, Damien a envoyé un message : joyeux anniversaire, grande sœur !", "Le soir, à 21 heures, il y a eu des feux d'artifice.", "Alia a dit : les feux d'artifice sont pour moi !", "Baba-fille a ri. Maman a ri. C'était le plus beau jour."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"C'est l'anniversaire de qui ?","choix":["Damien","baba-fille","Alia"],"bonne_reponse":2},
+      {"id":"q2","type":"qcm","question":"En quel mois est l'anniversaire d'Alia ?","choix":["décembre","juillet","janvier"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"Quel âge a Alia ?","choix":["quatorze ans","six ans","treize ans"],"bonne_reponse":2},
+      {"id":"q4","type":"qcm","question":"À quelle heure il y a eu des feux d'artifice ?","choix":["à midi","à 14 heures","à 21 heures"],"bonne_reponse":2},
+      {"id":"q5","type":"qcm","question":"Qu'est-ce qu'Alia a dit sur les feux d'artifice ?","choix":["J'ai peur des feux d'artifice","Les feux d'artifice sont pour moi !","Je veux aller dormir"],"bonne_reponse":1},
+      {"id":"q6","type":"qcm","question":"Qui a envoyé un message à 16 heures ?","choix":["maman","baba-fille","Damien"],"bonne_reponse":2},
+      {"id":"q7","type":"micro","question":"C'est quand l'anniversaire d'Alia ?","mots_cles_acceptes":["21 juillet","juillet","vingt et un"],"reponse_modele":"L'anniversaire d'Alia est le 21 juillet.","bonus":false},
+      {"id":"q8","type":"micro","question":"Quel âge a Alia ?","mots_cles_acceptes":["treize","13"],"reponse_modele":"Alia a treize ans.","bonus":false},
+      {"id":"q9","type":"micro","question":"Qui a appelé en premier ?","mots_cles_acceptes":["maman","midi","premier","d'abord"],"reponse_modele":"Maman a appelé en premier, à midi.","bonus":false},
+      {"id":"q10","type":"micro","question":"Pourquoi tu penses qu'Alia a dit que les feux d'artifice sont pour elle ?","mots_cles_acceptes":["amusant","drôle","aime","grande","feux","anniversaire"],"reponse_modele":"Parce que c'est son anniversaire, alors elle trouve ça amusant.","bonus":false},
+      {"id":"q11","type":"micro","question":"Alia, qu'est-ce que tu as fait pour ton dernier anniversaire ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
+  },
+  {
+    "id": "fam_t10",
+    "titre": "L'Année d'Alia",
+    "difficulte": 5,
+    "texte": ["En janvier, il fait froid. C'est l'hiver.", "Maman fête son anniversaire.", "En avril, le printemps arrive. Les fleurs poussent.", "En juin, les grandes vacances commencent. C'est l'été !", "Le 3 juin, Bonibon fête ses années.", "Il entend tout.", "Le 21 juillet, c'est l'anniversaire d'Alia. Elle a treize ans.", "En octobre, c'est l'automne. Et c'est Halloween !", "Alia adore Halloween. Elle a mis un costume de vampire à 18 heures.", "À 20 heures, elle avait déjà mangé vingt bonbons.", "En décembre, Noël arrive. Baba-fille appelle à 10 heures du matin.", "Alia aime toute l'année. Chaque mois a quelque chose de beau."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"En quelle saison est janvier ?","choix":["l'été","le printemps","l'hiver"],"bonne_reponse":2},
+      {"id":"q2","type":"qcm","question":"C'est quand l'anniversaire de Bonibon ?","choix":["le 21 juillet","le 3 juin","le 9 janvier"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"Quel âge a Alia ?","choix":["six ans","treize ans","quinze ans"],"bonne_reponse":1},
+      {"id":"q4","type":"qcm","question":"À quelle heure Alia a mis son costume de vampire ?","choix":["à 10 heures","à 20 heures","à 18 heures"],"bonne_reponse":2},
+      {"id":"q5","type":"qcm","question":"Combien de bonbons Alia a mangé ?","choix":["treize bonbons","vingt bonbons","trois bonbons"],"bonne_reponse":1},
+      {"id":"q6","type":"qcm","question":"En quelle saison est octobre ?","choix":["l'hiver","l'été","l'automne"],"bonne_reponse":2},
+      {"id":"q7","type":"qcm","question":"Qu'est-ce qu'Alia aime ?","choix":["seulement l'été","seulement Halloween","toute l'année"],"bonne_reponse":2},
+      {"id":"q8","type":"micro","question":"Cite deux mois d'été.","mots_cles_acceptes":["juin","juillet","août"],"reponse_modele":"L'été, c'est juin, juillet et août.","bonus":false},
+      {"id":"q9","type":"micro","question":"C'est quand l'anniversaire d'Alia et quel âge a-t-elle ?","mots_cles_acceptes":["21 juillet","treize","13"],"reponse_modele":"L'anniversaire d'Alia est le 21 juillet. Elle a treize ans.","bonus":false},
+      {"id":"q10","type":"micro","question":"Qu'est-ce qui se passe en octobre ?","mots_cles_acceptes":["automne","Halloween"],"reponse_modele":"En octobre, c'est l'automne et c'est Halloween.","bonus":false},
+      {"id":"q11","type":"micro","question":"Qu'est-ce que Bonibon entend ?","mots_cles_acceptes":["tout","entend","écoute"],"reponse_modele":"Bonibon entend tout.","bonus":false},
+      {"id":"q12","type":"micro","question":"Alia, quel est ton mois préféré — et pourquoi ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
   }
 ]
