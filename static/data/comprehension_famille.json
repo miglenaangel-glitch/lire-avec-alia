@@ -254,5 +254,108 @@
       {"id":"q9","type":"micro","question":"Qu'est-ce qu'Alia a dit sur ce Noël ?","mots_cles_acceptes":["plus beau","Noël","année"],"reponse_modele":"Alia a dit que c'était le plus beau Noël de toute l'année.","bonus":false},
       {"id":"q10","type":"micro","question":"Alia, qu'est-ce que tu préfères dans les fêtes de famille ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
     ]
+  },
+  {
+    "id": "fam_t16",
+    "titre": "Les Valises pour la Bulgarie",
+    "difficulte": 3,
+    "texte": ["En juillet, c'est les grandes vacances.", "Alia fait sa valise pour aller chez baba-fille, en Bulgarie.", "Elle a mis son maillot de bain et ses sandales.", "Maman a dit : n'oublie pas ta crème solaire !", "Alia a souri. Elle a hâte de voir la mer."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"En quel mois Alia fait sa valise ?","choix":["décembre","juillet","janvier"],"bonne_reponse":1},
+      {"id":"q2","type":"qcm","question":"Où va Alia ?","choix":["en Allemagne","en Bulgarie","au musée"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"Qu'est-ce qu'Alia a mis dans sa valise ?","choix":["son maillot de bain et ses sandales","un livre et un vélo","un lama"],"bonne_reponse":0},
+      {"id":"q4","type":"qcm","question":"Qu'est-ce que maman a rappelé à Alia ?","choix":["de prendre un parapluie","de prendre sa crème solaire","de prendre un manteau"],"bonne_reponse":1},
+      {"id":"q5","type":"micro","question":"Où va Alia pour les grandes vacances ?","mots_cles_acceptes":["Bulgarie","baba-fille","mer"],"reponse_modele":"Alia va en Bulgarie, chez baba-fille.","bonus":false},
+      {"id":"q6","type":"micro","question":"Qu'est-ce qu'Alia a mis dans sa valise ?","mots_cles_acceptes":["maillot","sandales"],"reponse_modele":"Elle a mis son maillot de bain et ses sandales.","bonus":false},
+      {"id":"q7","type":"micro","question":"Alia, qu'est-ce que tu mets dans ta valise pour la mer ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
+  },
+  {
+    "id": "fam_t17",
+    "titre": "Les Palatchinki de Baba-fille",
+    "difficulte": 4,
+    "texte": ["Le matin, baba-fille fait des palatchinki.", "À 8 heures, l'odeur remplit toute la maison.", "Baba-fille met de la confiture et du chocolat dedans.", "Alia en a mangé quatre. Elle a dit : encore une, baba-fille !", "Baba-fille a ri. Elle en a fait dix de plus."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"Qu'est-ce que baba-fille fait le matin ?","choix":["des palatchinki","un gâteau","du café"],"bonne_reponse":0},
+      {"id":"q2","type":"qcm","question":"À quelle heure l'odeur remplit la maison ?","choix":["à 7 heures","à 8 heures","à midi"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"Qu'est-ce que baba-fille met dans les palatchinki ?","choix":["de la confiture et du chocolat","du fromage","du poisson"],"bonne_reponse":0},
+      {"id":"q4","type":"qcm","question":"Combien Alia en a mangé ?","choix":["une","quatre","dix"],"bonne_reponse":1},
+      {"id":"q5","type":"qcm","question":"Qu'est-ce qu'Alia a demandé ?","choix":["d'aller dormir","encore une palatchinka","de partir"],"bonne_reponse":1},
+      {"id":"q6","type":"micro","question":"Qu'est-ce que baba-fille fait le matin ?","mots_cles_acceptes":["palatchinki","crêpes"],"reponse_modele":"Baba-fille fait des palatchinki.","bonus":false},
+      {"id":"q7","type":"micro","question":"Qu'est-ce qu'il y a dedans ?","mots_cles_acceptes":["confiture","chocolat"],"reponse_modele":"Il y a de la confiture et du chocolat dedans.","bonus":false},
+      {"id":"q8","type":"micro","question":"Combien de palatchinki Alia a mangé ?","mots_cles_acceptes":["quatre","4"],"reponse_modele":"Alia en a mangé quatre.","bonus":false},
+      {"id":"q9","type":"micro","question":"Alia, tu préfères les palatchinki avec confiture ou chocolat ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
+  },
+  {
+    "id": "fam_t18",
+    "titre": "Les Bonbons au Chocolat de Baba-fille",
+    "difficulte": 4,
+    "texte": ["L'après-midi, baba-fille fait des bonbons au chocolat.", "Elle fait fondre le chocolat à 16 heures.", "Alia mélange les noisettes dans le chocolat.", "Elles mettent les bonbons au frais pendant deux heures.", "Le soir, à 18 heures, les bonbons sont prêts.", "Alia en a mis dans une boîte pour Marci."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"Qu'est-ce que baba-fille fait l'après-midi ?","choix":["des bonbons au chocolat","une tarte","du pain"],"bonne_reponse":0},
+      {"id":"q2","type":"qcm","question":"À quelle heure le chocolat fond ?","choix":["à 14 heures","à 16 heures","à 18 heures"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"Qu'est-ce qu'Alia mélange dans le chocolat ?","choix":["des fraises","des noisettes","du sel"],"bonne_reponse":1},
+      {"id":"q4","type":"qcm","question":"Combien de temps les bonbons restent au frais ?","choix":["une heure","deux heures","dix heures"],"bonne_reponse":1},
+      {"id":"q5","type":"qcm","question":"Pour qui Alia met des bonbons dans une boîte ?","choix":["pour Damien","pour Marci","pour Victor"],"bonne_reponse":1},
+      {"id":"q6","type":"micro","question":"Qu'est-ce qu'Alia mélange dans le chocolat ?","mots_cles_acceptes":["noisettes"],"reponse_modele":"Alia mélange les noisettes dans le chocolat.","bonus":false},
+      {"id":"q7","type":"micro","question":"Combien de temps les bonbons restent au frais ?","mots_cles_acceptes":["deux heures","deux"],"reponse_modele":"Les bonbons restent au frais pendant deux heures.","bonus":false},
+      {"id":"q8","type":"micro","question":"Pour qui Alia a préparé une boîte de bonbons ?","mots_cles_acceptes":["Marci"],"reponse_modele":"Elle a préparé une boîte pour Marci.","bonus":false},
+      {"id":"q9","type":"micro","question":"Alia, tu aimes faire des bonbons avec baba-fille ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
+  },
+  {
+    "id": "fam_t19",
+    "titre": "Une Journée à la Mer en Bulgarie",
+    "difficulte": 5,
+    "texte": ["En Bulgarie, l'été est chaud.", "À 9 heures du matin, Alia et baba-fille vont à la mer.", "Alia nage. Baba-fille regarde, assise sur le sable.", "À midi, elles mangent une pastèque froide.", "À 16 heures, elles cherchent des coquillages.", "Alia a trouvé sept coquillages roses.", "Le soir, à 20 heures, le soleil devient orange sur la mer.", "Alia a dit : c'est la plus belle journée de l'été."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"À quelle heure Alia et baba-fille vont à la mer ?","choix":["à 7 heures","à 9 heures","à midi"],"bonne_reponse":1},
+      {"id":"q2","type":"qcm","question":"Qu'est-ce qu'Alia fait dans la mer ?","choix":["elle dort","elle nage","elle lit"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"Qu'est-ce qu'elles mangent à midi ?","choix":["une pastèque","un gâteau","du poisson"],"bonne_reponse":0},
+      {"id":"q4","type":"qcm","question":"Combien de coquillages Alia a trouvés ?","choix":["deux","sept","vingt"],"bonne_reponse":1},
+      {"id":"q5","type":"qcm","question":"De quelle couleur devient le soleil le soir ?","choix":["bleu","orange","vert"],"bonne_reponse":1},
+      {"id":"q6","type":"qcm","question":"Qu'est-ce qu'Alia a dit à la fin ?","choix":["C'est la plus belle journée de l'été","Je veux rentrer","J'ai froid"],"bonne_reponse":0},
+      {"id":"q7","type":"micro","question":"Qu'est-ce qu'elles mangent à midi à la mer ?","mots_cles_acceptes":["pastèque"],"reponse_modele":"Elles mangent une pastèque froide.","bonus":false},
+      {"id":"q8","type":"micro","question":"Combien de coquillages Alia a trouvés et de quelle couleur ?","mots_cles_acceptes":["sept","roses"],"reponse_modele":"Alia a trouvé sept coquillages roses.","bonus":false},
+      {"id":"q9","type":"micro","question":"Qu'est-ce qu'Alia a dit à la fin de la journée ?","mots_cles_acceptes":["plus belle","journée","été"],"reponse_modele":"Alia a dit que c'était la plus belle journée de l'été.","bonus":false},
+      {"id":"q10","type":"micro","question":"Alia, qu'est-ce que tu préfères faire à la mer ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
+  },
+  {
+    "id": "fam_t20",
+    "titre": "L'Anniversaire d'Alia — le Gâteau",
+    "difficulte": 5,
+    "texte": ["Le 21 juillet, c'est encore l'anniversaire d'Alia.", "Baba-fille a fait un gâteau au chocolat, le préféré d'Alia.", "À 17 heures, le gâteau est sorti du four.", "Baba-fille a écrit le nom d'Alia dessus, avec du chocolat blanc.", "Elle a mis treize bougies — une pour chaque année.", "Alia a fermé les yeux et a fait un vœu.", "Tout le monde a chanté joyeux anniversaire."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"Quel genre de gâteau baba-fille a fait ?","choix":["un gâteau aux fraises","un gâteau au chocolat","un gâteau au citron"],"bonne_reponse":1},
+      {"id":"q2","type":"qcm","question":"À quelle heure le gâteau est sorti du four ?","choix":["à 14 heures","à 17 heures","à 20 heures"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"Qu'est-ce que baba-fille a écrit sur le gâteau ?","choix":["le nom d'Alia","la date","un dessin de lama"],"bonne_reponse":0},
+      {"id":"q4","type":"qcm","question":"Combien de bougies y avait-il ?","choix":["treize","sept","vingt"],"bonne_reponse":0},
+      {"id":"q5","type":"qcm","question":"Qu'est-ce qu'Alia a fait en fermant les yeux ?","choix":["elle a dormi","elle a fait un vœu","elle a pleuré"],"bonne_reponse":1},
+      {"id":"q6","type":"micro","question":"Quel gâteau baba-fille a préparé pour Alia ?","mots_cles_acceptes":["chocolat"],"reponse_modele":"Baba-fille a fait un gâteau au chocolat.","bonus":false},
+      {"id":"q7","type":"micro","question":"Combien de bougies y avait-il sur le gâteau ?","mots_cles_acceptes":["treize","13"],"reponse_modele":"Il y avait treize bougies.","bonus":false},
+      {"id":"q8","type":"micro","question":"Qu'est-ce qu'Alia a fait avant de souffler les bougies ?","mots_cles_acceptes":["vœu","souhait"],"reponse_modele":"Elle a fermé les yeux et a fait un vœu.","bonus":false},
+      {"id":"q9","type":"micro","question":"Alia, quel gâteau tu aimerais pour ton prochain anniversaire ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
+  },
+  {
+    "id": "fam_t21",
+    "titre": "L'Anniversaire d'Alia — les Ballons",
+    "difficulte": 6,
+    "texte": ["Pour l'anniversaire d'Alia, baba-fille a décoré toute la maison.", "Il y avait vingt ballons — rouges, jaunes et roses.", "À 18 heures, Marci, Stéphanie et Dora sont arrivées avec des cadeaux.", "Damien a appelé depuis l'Allemagne pour chanter aussi.", "Maxi a attaché un ballon au poignet d'Alia.", "Un ballon s'est envolé. Tout le monde a ri.", "Alia a dit : c'est le plus beau jour de l'année.", "Baba-fille a souri. Treize ans, déjà !"],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"Combien de ballons y avait-il ?","choix":["dix","vingt","quarante"],"bonne_reponse":1},
+      {"id":"q2","type":"qcm","question":"De quelles couleurs étaient les ballons ?","choix":["bleus et verts","rouges, jaunes et roses","noirs et blancs"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"À quelle heure Marci, Stéphanie et Dora sont arrivées ?","choix":["à 16 heures","à 18 heures","à 21 heures"],"bonne_reponse":1},
+      {"id":"q4","type":"qcm","question":"Comment Damien a-t-il participé ?","choix":["il est venu en avion","il a appelé pour chanter","il a envoyé un cadeau seulement"],"bonne_reponse":1},
+      {"id":"q5","type":"qcm","question":"Qu'est-ce que Maxi a attaché au poignet d'Alia ?","choix":["un bracelet","un ballon","une montre"],"bonne_reponse":1},
+      {"id":"q6","type":"qcm","question":"Qu'est-ce qui s'est passé avec un ballon ?","choix":["il a éclaté","il s'est envolé","il a disparu"],"bonne_reponse":1},
+      {"id":"q7","type":"qcm","question":"Quel âge a Alia maintenant ?","choix":["douze ans","treize ans","quatorze ans"],"bonne_reponse":1},
+      {"id":"q8","type":"micro","question":"Combien de ballons y avait-il et de quelles couleurs ?","mots_cles_acceptes":["vingt","rouges","jaunes","roses"],"reponse_modele":"Il y avait vingt ballons — rouges, jaunes et roses.","bonus":false},
+      {"id":"q9","type":"micro","question":"Comment Damien a-t-il fêté l'anniversaire d'Alia ?","mots_cles_acceptes":["appelé","chanter","Allemagne"],"reponse_modele":"Damien a appelé depuis l'Allemagne pour chanter.","bonus":false},
+      {"id":"q10","type":"micro","question":"Qu'est-ce qui s'est passé avec le ballon attaché au poignet d'Alia ?","mots_cles_acceptes":["envolé","parti"],"reponse_modele":"Un ballon s'est envolé.","bonus":false},
+      {"id":"q11","type":"micro","question":"Alia, qu'est-ce que tu as préféré dans cet anniversaire ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
   }
 ]
