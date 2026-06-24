@@ -205,6 +205,59 @@ def toggle_level(level_key):
     return jsonify({'success': True, 'is_locked': bool(row['is_locked'])})
 
 
+@parent_bp.route('/comprehension')
+@parent_required
+def comprehension_unlocks():
+    import json, os
+    from routes.comprehension import PLAYLISTS, get_overrides
+    mysql = get_mysql()
+    overrides = get_overrides()
+    playlists_data = []
+    for key, info in PLAYLISTS.items():
+        path = os.path.join(current_app.static_folder, 'data', info['file'])
+        with open(path, 'r', encoding='utf-8') as f:
+            texts = json.load(f)
+        playlists_data.append({
+            'key': key,
+            'name': info['name'],
+            'texts': [
+                {
+                    'id': t['id'],
+                    'titre': t['titre'],
+                    'level_key': f"comp_{key}_{t['id']}",
+                    'is_locked': overrides.get(f"comp_{key}_{t['id']}"),
+                }
+                for t in texts
+            ]
+        })
+    return render_template('parent/comprehension_unlocks.html', playlists=playlists_data)
+
+
+@parent_bp.route('/comprehension/unlock/<level_key>', methods=['POST'])
+@parent_required
+def comprehension_force_unlock(level_key):
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        INSERT INTO level_locks (level_key, is_locked) VALUES (%s, FALSE)
+        ON DUPLICATE KEY UPDATE is_locked = FALSE
+    """, (level_key,))
+    mysql.connection.commit()
+    cur.close()
+    return jsonify({'success': True})
+
+
+@parent_bp.route('/comprehension/reset/<level_key>', methods=['POST'])
+@parent_required
+def comprehension_reset_unlock(level_key):
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM level_locks WHERE level_key = %s", (level_key,))
+    mysql.connection.commit()
+    cur.close()
+    return jsonify({'success': True})
+
+
 # ── DAILY ASSIGNMENT ──
 
 # All available exercises mama can assign

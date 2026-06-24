@@ -168,5 +168,91 @@
       {"id":"q11","type":"micro","question":"Qu'est-ce que Bonibon entend ?","mots_cles_acceptes":["tout","entend","écoute"],"reponse_modele":"Bonibon entend tout.","bonus":false},
       {"id":"q12","type":"micro","question":"Alia, quel est ton mois préféré — et pourquoi ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
     ]
+  },
+  {
+    "id": "fam_t11",
+    "titre": "Stéphanie et le Jardin",
+    "difficulte": 3,
+    "texte": ["Stéphanie a un grand jardin.", "Au printemps, les fleurs poussent.", "Alia a aidé Stéphanie à planter des tomates.", "Stéphanie a souri. Elle a dit : merci, Alia !"],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"Qui a un grand jardin ?","choix":["Marci","Stéphanie","Damien"],"bonne_reponse":1},
+      {"id":"q2","type":"qcm","question":"En quelle saison les fleurs poussent ?","choix":["l'hiver","le printemps","l'automne"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"Qu'est-ce qu'Alia a planté ?","choix":["des fleurs","des tomates","des lamas"],"bonne_reponse":1},
+      {"id":"q4","type":"qcm","question":"Qu'est-ce que Stéphanie a dit ?","choix":["Merci, Alia !","Va dormir","Je suis fatiguée"],"bonne_reponse":0},
+      {"id":"q5","type":"micro","question":"Qu'est-ce qu'Alia a aidé Stéphanie à faire ?","mots_cles_acceptes":["planter","tomates","jardin"],"reponse_modele":"Alia a aidé Stéphanie à planter des tomates.","bonus":false},
+      {"id":"q6","type":"micro","question":"Qu'est-ce que Stéphanie a dit à Alia ?","mots_cles_acceptes":["merci"],"reponse_modele":"Elle a dit : merci, Alia !","bonus":false},
+      {"id":"q7","type":"micro","question":"Alia, tu aimes jardiner ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
+  },
+  {
+    "id": "fam_t12",
+    "titre": "Maxi et le Chien de Victor",
+    "difficulte": 4,
+    "texte": ["Victor a un chien. Il s'appelle Bobo.", "Maxi adore Bobo. Il joue avec lui chaque samedi.", "À 16 heures, Maxi et Bobo courent dans le parc.", "Alia a regardé. Elle a ri.", "Victor a dit : Bobo aime Maxi autant que la famille !"],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"Comment s'appelle le chien de Victor ?","choix":["Titi","Bobo","Maxi"],"bonne_reponse":1},
+      {"id":"q2","type":"qcm","question":"Quel jour Maxi joue avec Bobo ?","choix":["le lundi","le samedi","le dimanche"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"À quelle heure ils courent dans le parc ?","choix":["à 14 heures","à 16 heures","à 20 heures"],"bonne_reponse":1},
+      {"id":"q4","type":"qcm","question":"Qu'est-ce qu'Alia a fait en regardant ?","choix":["Elle a dormi","Elle a ri","Elle est partie"],"bonne_reponse":1},
+      {"id":"q5","type":"qcm","question":"Qu'est-ce que Victor a dit sur Bobo ?","choix":["Il n'aime personne","Il aime Maxi autant que la famille","Il a peur de Maxi"],"bonne_reponse":1},
+      {"id":"q6","type":"micro","question":"Comment s'appelle le chien ?","mots_cles_acceptes":["Bobo"],"reponse_modele":"Le chien s'appelle Bobo.","bonus":false},
+      {"id":"q7","type":"micro","question":"Quel jour est-ce que Maxi joue avec Bobo ?","mots_cles_acceptes":["samedi"],"reponse_modele":"Maxi joue avec Bobo le samedi.","bonus":false},
+      {"id":"q8","type":"micro","question":"Qu'est-ce que Victor a dit à la fin ?","mots_cles_acceptes":["aime","Maxi","famille"],"reponse_modele":"Bobo aime Maxi autant que la famille.","bonus":false},
+      {"id":"q9","type":"micro","question":"Alia, tu aimerais avoir un chien ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
+  },
+  {
+    "id": "fam_t13",
+    "titre": "Nayden et le Train",
+    "difficulte": 5,
+    "texte": ["En octobre, c'est l'automne.", "Nayden a pris le train à 9 heures du matin.", "Il a voyagé deux heures pour venir voir Alia.", "À 11 heures, le train est arrivé.", "Alia a couru vers Nayden. Elle l'a serré très fort.", "Nayden a dit : tu m'as tellement manqué !", "Ils ont passé la journée ensemble, jusqu'à 18 heures."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"En quelle saison se passe l'histoire ?","choix":["l'été","l'automne","l'hiver"],"bonne_reponse":1},
+      {"id":"q2","type":"qcm","question":"À quelle heure Nayden a pris le train ?","choix":["à 9 heures","à 11 heures","à 18 heures"],"bonne_reponse":0},
+      {"id":"q3","type":"qcm","question":"Combien de temps a duré le voyage ?","choix":["une heure","deux heures","dix heures"],"bonne_reponse":1},
+      {"id":"q4","type":"qcm","question":"Qu'est-ce qu'Alia a fait à l'arrivée de Nayden ?","choix":["Elle a couru vers lui et l'a serré","Elle est restée assise","Elle a appelé baba-fille"],"bonne_reponse":0},
+      {"id":"q5","type":"qcm","question":"Qu'est-ce que Nayden a dit ?","choix":["Je suis fatigué","Tu m'as tellement manqué !","Je dois repartir"],"bonne_reponse":1},
+      {"id":"q6","type":"qcm","question":"Jusqu'à quelle heure ils sont restés ensemble ?","choix":["midi","16 heures","18 heures"],"bonne_reponse":2},
+      {"id":"q7","type":"micro","question":"Combien de temps a duré le voyage en train ?","mots_cles_acceptes":["deux heures","deux"],"reponse_modele":"Le voyage a duré deux heures.","bonus":false},
+      {"id":"q8","type":"micro","question":"Qu'est-ce qu'Alia a fait quand Nayden est arrivé ?","mots_cles_acceptes":["couru","serré","embrassé"],"reponse_modele":"Alia a couru vers Nayden et l'a serré très fort.","bonus":false},
+      {"id":"q9","type":"micro","question":"Qu'est-ce que Nayden a dit à Alia ?","mots_cles_acceptes":["manqué","tellement"],"reponse_modele":"Il a dit : tu m'as tellement manqué !","bonus":false},
+      {"id":"q10","type":"micro","question":"Alia, qui t'a manqué récemment ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
+  },
+  {
+    "id": "fam_t14",
+    "titre": "Dora et le Gâteau Raté",
+    "difficulte": 5,
+    "texte": ["Dora a voulu faire un gâteau pour Alia.", "Elle a mis trop de farine. Le gâteau est devenu très dur.", "Marci a goûté. Elle a dit : c'est dur comme une pierre !", "Tout le monde a ri, même Dora.", "Dora a dit : on recommence demain, à 10 heures !", "Le lendemain, le nouveau gâteau était parfait."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"Pour qui Dora voulait faire un gâteau ?","choix":["Marci","Damien","Alia"],"bonne_reponse":2},
+      {"id":"q2","type":"qcm","question":"Qu'est-ce qui a raté dans le gâteau ?","choix":["Il y avait trop de farine","Il manquait du sucre","Il était brûlé"],"bonne_reponse":0},
+      {"id":"q3","type":"qcm","question":"Qu'est-ce que Marci a dit ?","choix":["C'est délicieux","C'est dur comme une pierre","Je n'aime pas"],"bonne_reponse":1},
+      {"id":"q4","type":"qcm","question":"Comment a réagi tout le monde ?","choix":["Ils étaient fâchés","Ils ont tous ri","Ils sont partis"],"bonne_reponse":1},
+      {"id":"q5","type":"qcm","question":"À quelle heure Dora a voulu recommencer le lendemain ?","choix":["à 9 heures","à 10 heures","à midi"],"bonne_reponse":1},
+      {"id":"q6","type":"qcm","question":"Comment était le nouveau gâteau ?","choix":["encore raté","parfait","trop sucré"],"bonne_reponse":1},
+      {"id":"q7","type":"micro","question":"Pourquoi le premier gâteau était dur ?","mots_cles_acceptes":["farine","trop","dur"],"reponse_modele":"Dora a mis trop de farine.","bonus":false},
+      {"id":"q8","type":"micro","question":"Comment a réagi tout le monde au gâteau raté ?","mots_cles_acceptes":["ri","rire","rigolé"],"reponse_modele":"Tout le monde a ri, même Dora.","bonus":false},
+      {"id":"q9","type":"micro","question":"Comment était le gâteau le lendemain ?","mots_cles_acceptes":["parfait","réussi","bon"],"reponse_modele":"Le nouveau gâteau était parfait.","bonus":false},
+      {"id":"q10","type":"micro","question":"Alia, tu as déjà raté une recette ? Raconte.","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
+  },
+  {
+    "id": "fam_t15",
+    "titre": "Toute la Famille Réunie",
+    "difficulte": 6,
+    "texte": ["Le 24 décembre, à 18 heures, toute la famille est arrivée chez baba-fille.", "Damien est venu d'Allemagne. Nayden est venu en train.", "Marci, Maxi, Stéphanie, Dora, Ile et Victor étaient déjà là.", "Bonibon écoutait tout, assis près du sapin.", "À 20 heures, ils ont mangé ensemble autour d'une grande table.", "Baba-fille a compté : un, deux, trois… dix personnes !", "Alia a dit : c'est le plus beau Noël de toute l'année.", "Tout le monde a souri. La famille était enfin réunie."],
+    "questions": [
+      {"id":"q1","type":"qcm","question":"À quelle heure la famille est arrivée chez baba-fille ?","choix":["à 16 heures","à 18 heures","à 20 heures"],"bonne_reponse":1},
+      {"id":"q2","type":"qcm","question":"D'où est venu Damien ?","choix":["de Bulgarie","d'Allemagne","de la mer"],"bonne_reponse":1},
+      {"id":"q3","type":"qcm","question":"Comment Nayden est-il venu ?","choix":["en voiture","en train","à pied"],"bonne_reponse":1},
+      {"id":"q4","type":"qcm","question":"Où était Bonibon ?","choix":["dans la voiture","près du sapin","au marché"],"bonne_reponse":1},
+      {"id":"q5","type":"qcm","question":"Combien de personnes baba-fille a comptées ?","choix":["six personnes","dix personnes","vingt personnes"],"bonne_reponse":1},
+      {"id":"q6","type":"qcm","question":"Qu'est-ce qu'Alia a dit ?","choix":["C'est le plus beau Noël de l'année","Je suis fatiguée","Je veux rentrer"],"bonne_reponse":0},
+      {"id":"q7","type":"micro","question":"D'où vient Damien et comment Nayden est-il venu ?","mots_cles_acceptes":["Allemagne","train"],"reponse_modele":"Damien vient d'Allemagne et Nayden est venu en train.","bonus":false},
+      {"id":"q8","type":"micro","question":"Combien de personnes étaient réunies ?","mots_cles_acceptes":["dix","10"],"reponse_modele":"Il y avait dix personnes.","bonus":false},
+      {"id":"q9","type":"micro","question":"Qu'est-ce qu'Alia a dit sur ce Noël ?","mots_cles_acceptes":["plus beau","Noël","année"],"reponse_modele":"Alia a dit que c'était le plus beau Noël de toute l'année.","bonus":false},
+      {"id":"q10","type":"micro","question":"Alia, qu'est-ce que tu préfères dans les fêtes de famille ?","mots_cles_acceptes":[],"reponse_modele":"","bonus":true}
+    ]
   }
 ]

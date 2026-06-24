@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Compréhension — Отключване{% endblock %}
+{% block css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/parent.css') }}">{% endblock %}
+
+{% block content %}
+<nav>
+  <a href="{{ url_for('parent.dashboard') }}" class="brand">Lire avec Alia</a>
+  <a href="{{ url_for('parent.dashboard') }}">Табло</a>
+  <a href="{{ url_for('parent.mailbox') }}">💌 Поща</a>
+  <a href="{{ url_for('parent.daily') }}">📋 Днес</a>
+  <a href="{{ url_for('parent.levels') }}">Нива</a>
+  <a href="{{ url_for('parent.comprehension_unlocks') }}" class="active">📖 Текстове</a>
+  <a href="{{ url_for('parent.reports') }}">Напредък</a>
+  <a href="{{ url_for('parent.settings') }}">Настройки</a>
+  <a href="{{ url_for('parent.logout') }}" style="margin-left:auto;color:#dc2626;">Изход</a>
+</nav>
+
+<div class="page">
+  <h1>📖 Текстове за разбиране</h1>
+  <p style="color:var(--text-muted);margin-bottom:2rem;">
+    По подразбиране текст се отключва автоматично, щом Алия покрие ≥60% на предишния. Тук можеш да отключиш ръчно конкретен текст напред, без да чакаш резултата.
+  </p>
+
+  {% for pl in playlists %}
+  <div class="card" style="margin-bottom:1.2rem;">
+    <h2>{{ pl.name }}</h2>
+    {% for t in pl.texts %}
+    <div style="display:flex;align-items:center;gap:1rem;padding:0.7rem 0;border-bottom:1px solid var(--border);">
+      <span style="flex:1;font-weight:600;">{{ t.titre }}</span>
+      {% if t.is_locked == False %}
+        <span style="background:#dcfce7;color:#16a34a;padding:0.2rem 0.7rem;border-radius:99px;font-size:0.78rem;font-weight:700;">✓ Ръчно отключен</span>
+        <button onclick="resetUnlock('{{ t.level_key }}', this)" class="btn-secondary" style="padding:0.4rem 1rem;font-size:0.85rem;">Върни към автоматично</button>
+      {% else %}
+        <button onclick="forceUnlock('{{ t.level_key }}', this)" class="btn-primary" style="padding:0.4rem 1rem;font-size:0.85rem;">🔓 Отключи сега</button>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+async function forceUnlock(key, btn) {
+  btn.disabled = true; btn.textContent = '...';
+  await fetch(`/parent/comprehension/unlock/${key}`, {method: 'POST'});
+  location.reload();
+}
+async function resetUnlock(key, btn) {
+  btn.disabled = true; btn.textContent = '...';
+  await fetch(`/parent/comprehension/reset/${key}`, {method: 'POST'});
+  location.reload();
+}
+</script>
+{% endblock %}

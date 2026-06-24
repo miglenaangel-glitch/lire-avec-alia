@@ -42,8 +42,28 @@ def get_progress(playlist_key):
     return {r['text_id']: r for r in rows}
 
 
-def text_unlocked(text_idx, playlist_key, progress):
-    """Text 0 always unlocked. Others need previous text ≥ 60%."""
+def get_overrides():
+    """Manual mama unlocks/locks for individual comprehension texts (level_locks table, key = comp_<playlist>_<text_id>)."""
+    mysql = get_mysql()
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT level_key, is_locked FROM level_locks WHERE level_key LIKE 'comp\\_%'")
+    rows = cur.fetchall()
+    cur.close()
+    return {r['level_key']: bool(r['is_locked']) for r in rows}
+
+
+def text_unlocked(text_idx, playlist_key, progress, overrides=None, text_id=None):
+    """Text 0 always unlocked. Others need previous text ≥ 60% — unless mama set a manual override."""
+    if overrides is None:
+        overrides = get_overrides()
+    if text_id is None:
+        texts = load_playlist(playlist_key)
+        if text_idx < len(texts):
+            text_id = texts[text_idx]['id']
+    if text_id:
+        key = f"comp_{playlist_key}_{text_id}"
+        if key in overrides:
+            return not overrides[key]
     if text_idx == 0:
         return True
     texts = load_playlist(playlist_key)
@@ -63,13 +83,14 @@ def playlist_view(playlist_key):
         return redirect(url_for('comprehension.home'))
     texts = load_playlist(playlist_key)
     progress = get_progress(playlist_key)
+    overrides = get_overrides()
     info = PLAYLISTS[playlist_key]
     texts_data = [
         {
             'id': t['id'],
             'titre': t['titre'],
             'difficulte': t['difficulte'],
-            'unlocked': text_unlocked(i, playlist_key, progress),
+            'unlocked': text_unlocked(i, playlist_key, progress, overrides, t['id']),
             'progress': progress.get(t['id']),
         }
         for i, t in enumerate(texts)
@@ -83,6 +104,7 @@ def playlist_view(playlist_key):
 
 @comprehension_bp.route('/')
 def home():
+    overrides = get_overrides()
     playlists_data = []
     for key, info in PLAYLISTS.items():
         texts = load_playlist(key)
@@ -99,7 +121,7 @@ def home():
                     'id': t['id'],
                     'titre': t['titre'],
                     'difficulte': t['difficulte'],
-                    'unlocked': text_unlocked(i, key, progress),
+                    'unlocked': text_unlocked(i, key, progress, overrides, t['id']),
                     'progress': progress.get(t['id']),
                 }
                 for i, t in enumerate(texts)
@@ -117,7 +139,7 @@ def text_view(playlist_key, text_id):
     # Check unlocked
     idx = next((i for i, t in enumerate(texts) if t['id'] == text_id), 0)
     progress = get_progress(playlist_key)
-    if not text_unlocked(idx, playlist_key, progress):
+    if not text_unlocked(idx, playlist_key, progress, text_id=text_id):
         return redirect(url_for('comprehension.home'))
     return render_template('comprehension/text.html',
         text=text_data,
