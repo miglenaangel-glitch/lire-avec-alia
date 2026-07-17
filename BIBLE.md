@@ -752,7 +752,7 @@ mysqldump -u alia -p'Alia2026!xK9m' lire_avec_alia > backup_$(date +%Y%m%d).sql
 
 #### Административен панел
 - ✅ URL: `https://admin.alia-adri.com/admin/laykuchka/`
-- ✅ Парола: `laykuchka2026` (в `.env` като `ADMIN_PASSWORD`)
+- ✅ Паролата се задава само в `.env` като `ADMIN_PASSWORD` (не се пази в кода/документацията)
 - ✅ Отделен SSL сертификат (Let's Encrypt)
 - ✅ Отделен Nginx конфиг (`/etc/nginx/sites-available/alia-admin`)
 - ✅ **Картички** — качване, преглед, изтриване
